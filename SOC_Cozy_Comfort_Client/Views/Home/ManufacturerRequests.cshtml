@@ -34,14 +34,21 @@
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="requestId" value="@req.Id" />
                             <input type="hidden" name="notes" value="Production started at factory." />
-                            <button class="btn btn-sm btn-outline-warning" type="submit">Start Production</button>
+                            <button class="btn btn-sm btn-outline-warning" type="submit" onclick="return confirm('Start production for this request?');">Start Production</button>
                         }
                         @using (Html.BeginForm("ManufacturerDispatch", "Home", FormMethod.Post, new { @class = "d-inline" }))
                         {
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="requestId" value="@req.Id" />
                             <input type="hidden" name="notes" value="Produced/available and dispatched to distributor." />
-                            <button class="btn btn-sm btn-outline-success" type="submit">Dispatch to Distributor</button>
+                            <button class="btn btn-sm btn-outline-success" type="submit" onclick="return confirm('Dispatch blankets to distributor?');">Dispatch to Distributor</button>
+                        }
+                        @using (Html.BeginForm("ManufacturerCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@req.Id" />
+                            <input type="hidden" name="notes" value="Cancelled by manufacturer." />
+                            <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
                         }
                     </td>
                 </tr>

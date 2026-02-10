@@ -26,7 +26,10 @@
                     <div class="mb-2"><label class="form-label">Blanket Name</label><input name="BlanketName" class="form-control" required /></div>
                     <div class="mb-2"><label class="form-label">Quantity Needed</label><input type="number" name="Quantity" min="1" class="form-control" required /></div>
                     <div class="mb-3"><label class="form-label">Notes</label><textarea name="Notes" class="form-control" rows="3"></textarea></div>
-                    <button type="submit" class="btn btn-primary w-100">Send Request to Distributor</button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100" onclick="return confirm('Send this request to distributor?');">Send Request</button>
+                        <a href="@Url.Action("Seller", "Home")" class="btn btn-outline-secondary w-100">Cancel</a>
+                    </div>
                 }
             </div>
         </div>
@@ -34,7 +37,7 @@
             <div class="role-card">
                 <h4 class="mb-3">My Requests to Distributor</h4>
                 <table class="table table-hover align-middle request-table">
-                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead>
                     <tbody>
                     @foreach (var req in Model.OutgoingRequests)
                     {
@@ -45,6 +48,15 @@
                             <td>@req.Quantity</td>
                             <td><span class="status-pill">@req.Status</span></td>
                             <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                @using (Html.BeginForm("SellerCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@req.Id" />
+                                    <input type="hidden" name="notes" value="Cancelled by seller." />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                                }
+                            </td>
                         </tr>
                     }
                     </tbody>

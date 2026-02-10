@@ -61,6 +61,22 @@ namespace SOC_Cozy_Comfort_Client.Services
             return Post("api/orderrequests/manufacturer/dispatch/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Manufacturer dispatched blankets to distributor.");
         }
 
+
+        public ApiOperationResult SellerCancel(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/seller/cancel/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Seller cancelled request.");
+        }
+
+        public ApiOperationResult DistributorCancel(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/distributor/cancel/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Distributor cancelled request.");
+        }
+
+        public ApiOperationResult ManufacturerCancel(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/manufacturer/cancel/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Manufacturer cancelled request.");
+        }
+
         private List<OrderRequestItem> GetList(string path)
         {
             using (var client = BuildClient())

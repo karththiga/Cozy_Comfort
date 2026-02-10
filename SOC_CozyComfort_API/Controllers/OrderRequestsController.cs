@@ -99,6 +99,43 @@ namespace SOC_CozyComfort_API.Controllers
             return OrderRequestRepository.MarkManufacturerDispatched(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
         }
 
+
+        [HttpPost]
+        [Route("seller/cancel/{requestId:int}")]
+        public IHttpActionResult SellerCancel(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.CancelBySeller(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
+        [HttpPost]
+        [Route("distributor/cancel/{requestId:int}")]
+        public IHttpActionResult DistributorCancel(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.CancelByDistributor(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
+        [HttpPost]
+        [Route("manufacturer/cancel/{requestId:int}")]
+        public IHttpActionResult ManufacturerCancel(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.CancelByManufacturer(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
         private bool ValidatePayload<T>(T model)
         {
             if (model == null)
