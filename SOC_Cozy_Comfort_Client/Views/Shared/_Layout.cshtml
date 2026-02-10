@@ -63,8 +63,35 @@
         </footer>
     </div>
 
+    <div id="apiLoader" class="api-loader-overlay" aria-hidden="true">
+        <div class="api-loader-card">
+            <div class="api-spinner" role="status" aria-label="Loading"></div>
+            <p class="mb-0 mt-2">Processing request... Please wait while data is saved.</p>
+        </div>
+    </div>
+
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    <script>
+        (function () {
+            var loader = document.getElementById('apiLoader');
+            if (!loader) return;
+
+            function showLoader() {
+                loader.classList.add('show');
+                loader.setAttribute('aria-hidden', 'false');
+            }
+
+            var forms = document.querySelectorAll('form');
+            forms.forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    showLoader();
+                    var buttons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+                    buttons.forEach(function (btn) { btn.disabled = true; });
+                });
+            });
+        })();
+    </script>
     @RenderSection("scripts", required: false)
 </body>
 </html>
