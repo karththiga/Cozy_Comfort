@@ -49,12 +49,15 @@
                             <td><span class="status-pill">@req.Status</span></td>
                             <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>
-                                @using (Html.BeginForm("SellerCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                @if (string.IsNullOrWhiteSpace(req.Status) || !req.Status.Contains("Cancelled"))
                                 {
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="requestId" value="@req.Id" />
-                                    <input type="hidden" name="notes" value="Cancelled by seller." />
-                                    <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                                    using (Html.BeginForm("SellerCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="requestId" value="@req.Id" />
+                                        <input type="hidden" name="notes" value="Cancelled by seller." />
+                                        <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                                    }
                                 }
                             </td>
                         </tr>
