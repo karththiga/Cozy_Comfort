@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using SOC_CozyComfort_API.Services;
 
 namespace SOC_CozyComfort_API
 {
@@ -18,6 +19,7 @@ namespace SOC_CozyComfort_API
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            DbInitializer.EnsureCreated();
         }
     }
 }
