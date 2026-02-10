@@ -1,56 +1,67 @@
 ﻿@{
     ViewBag.Title = "Welcome";
+    var loggedInRole = Session["LoggedInRole"] as string;
+    var loggedInUser = Session["LoggedInUser"] as string;
 }
 
 <main>
-    <section class="hero-card hero-pro" aria-labelledby="welcomeTitle">
-        <div class="row align-items-center">
-            <div class="col-lg-7">
-                <p class="eyebrow">Service-Oriented Commerce Suite</p>
-                <h1 id="welcomeTitle">Cozy Comfort Operations Command Center</h1>
-                <p class="lead">A professional SOC starter portal with common authentication and role-specific dashboards for Manufacturer, Distributor, and Seller teams.</p>
-                <div class="hero-actions">
-                    <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg px-4">Open Common Login</a>
-                    <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-light btn-lg px-4">Order Flow</a>
+    @if (string.IsNullOrWhiteSpace(loggedInRole))
+    {
+        <section class="hero-card hero-pro" aria-labelledby="welcomeTitle">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <p class="eyebrow">Service-Oriented Commerce Suite</p>
+                    <h1 id="welcomeTitle">Cozy Comfort Operations Command Center</h1>
+                    <p class="lead">Please login to open your role-specific dashboard. The system shows only your own module after authentication.</p>
+                    <div class="hero-actions">
+                        <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg px-4">Open Common Login</a>
+                        <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-light btn-lg px-4">Order Flow</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <div class="glass-card">
+                        <h5 class="mb-3">Platform Highlights</h5>
+                        <ul class="mb-0">
+                            <li>Single login for all stakeholders</li>
+                            <li>Role-aware operational dashboards</li>
+                            <li>Inventory CRUD through API services</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-5 mt-4 mt-lg-0">
-                <div class="glass-card">
-                    <h5 class="mb-3">Platform Highlights</h5>
-                    <ul class="mb-0">
-                        <li>Single login for all stakeholders</li>
-                        <li>Role-aware operational dashboards</li>
-                        <li>Live-ready KPI and workflow widgets</li>
-                    </ul>
-                </div>
+        </section>
+    }
+    else if (loggedInRole == "Manufacturer")
+    {
+        <section class="dashboard-head manufacturer-head">
+            <p class="eyebrow">Manufacturer Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Manufacturer</strong>. Manage production inventory, stock levels, and fulfillment readiness.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Manufacturer", "Home")">Open Manufacturer Dashboard</a>
             </div>
-        </div>
-    </section>
-
-    <section class="row g-4 mt-1">
-        <div class="col-md-4">
-            <article class="role-card hover-lift">
-                <span class="role-dot role-dot-manufacturer"></span>
-                <h3>Manufacturer Dashboard</h3>
-                <p>Capacity monitoring, production queue, and stock visibility in one screen.</p>
-                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Manufacturer", "Home")">Preview Dashboard</a>
-            </article>
-        </div>
-        <div class="col-md-4">
-            <article class="role-card hover-lift">
-                <span class="role-dot role-dot-distributor"></span>
-                <h3>Distributor Dashboard</h3>
-                <p>Inventory health, dispatch readiness, and refill coordination analytics.</p>
-                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Distributor", "Home")">Preview Dashboard</a>
-            </article>
-        </div>
-        <div class="col-md-4">
-            <article class="role-card hover-lift">
-                <span class="role-dot role-dot-seller"></span>
-                <h3>Seller Dashboard</h3>
-                <p>Customer order trends, low-stock alerts, and distributor dependency view.</p>
-                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Seller", "Home")">Preview Dashboard</a>
-            </article>
-        </div>
-    </section>
+        </section>
+    }
+    else if (loggedInRole == "Distributor")
+    {
+        <section class="dashboard-head distributor-head">
+            <p class="eyebrow">Distributor Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Distributor</strong>. Manage warehouse inventory, dispatch planning, and refill coordination.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Distributor", "Home")">Open Distributor Dashboard</a>
+            </div>
+        </section>
+    }
+    else if (loggedInRole == "Seller")
+    {
+        <section class="dashboard-head seller-head">
+            <p class="eyebrow">Seller Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Seller</strong>. Manage storefront inventory, customer orders, and distributor follow-ups.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Seller", "Home")">Open Seller Dashboard</a>
+            </div>
+        </section>
+    }
 </main>

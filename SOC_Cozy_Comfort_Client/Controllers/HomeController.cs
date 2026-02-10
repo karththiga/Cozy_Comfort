@@ -35,7 +35,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             Session["LoggedInUser"] = responsePayload.UserName;
             Session["LoggedInRole"] = responsePayload.Role;
 
-            return RedirectToRoleDashboard(responsePayload.Role);
+            return RedirectToAction("Index");
         }
 
         public ActionResult Logout()
