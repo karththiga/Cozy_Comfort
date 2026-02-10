@@ -127,9 +127,11 @@
     <Compile Include="Models\LoginApiResponse.cs" />
     <Compile Include="Models\OrderRequestItem.cs" />
     <Compile Include="Models\RequestBoardViewModel.cs" />
+    <Compile Include="Models\NotificationItem.cs" />
     <Compile Include="Services\InventoryApiClient.cs" />
     <Compile Include="Services\AuthApiClient.cs" />
     <Compile Include="Services\OrderRequestApiClient.cs" />
+    <Compile Include="Services\NotificationApiClient.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -195,6 +197,7 @@
     <Content Include="Views\Home\SellerRequests.cshtml" />
     <Content Include="Views\Home\DistributorRequests.cshtml" />
     <Content Include="Views\Home\ManufacturerRequests.cshtml" />
+    <Content Include="Views\Home\Notifications.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -62,6 +62,21 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.Notifications', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Notifications(
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        RecipientRole NVARCHAR(50) NOT NULL,
+        Title NVARCHAR(200) NOT NULL,
+        Message NVARCHAR(1000) NOT NULL,
+        NotificationType NVARCHAR(80) NOT NULL,
+        IsRead BIT NOT NULL,
+        RelatedRequestId INT NULL,
+        CreatedAt DATETIME NOT NULL
+    );
+END;
+GO
+
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Manufacturer') INSERT INTO dbo.Roles(RoleName) VALUES('Manufacturer');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Distributor') INSERT INTO dbo.Roles(RoleName) VALUES('Distributor');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Seller') INSERT INTO dbo.Roles(RoleName) VALUES('Seller');
@@ -93,5 +108,15 @@ BEGIN
     (RequestType, RequestedByRole, RequestedToRole, RequestedByUser, Sku, BlanketName, Quantity, [Status], Notes, CreatedAt, UpdatedAt, SourceRequestId)
     VALUES
     ('SellerToDistributor', 'Seller', 'Distributor', 's_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 40, 'PendingDistributorReview', 'Need stock for weekend promo.', GETDATE(), GETDATE(), NULL);
+END;
+GO
+
+
+IF NOT EXISTS(SELECT 1 FROM dbo.Notifications)
+BEGIN
+    INSERT INTO dbo.Notifications(RecipientRole, Title, Message, NotificationType, IsRead, RelatedRequestId, CreatedAt)
+    VALUES
+    ('Distributor', 'New seller request', 'Seller s_admin requested replenishment for CC-COTTON-KING.', 'OrderRequest', 0, 1, GETDATE()),
+    ('Manufacturer', 'Escalation alert', 'Distributor escalated a blanket request to manufacturer.', 'Escalation', 0, 1, GETDATE());
 END;
 GO

@@ -45,6 +45,10 @@
                     }
 
                     <li>@Html.ActionLink("Order Flow", "Orders", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    @if (!string.IsNullOrWhiteSpace(loggedInRole))
+                    {
+                        <li>@Html.ActionLink("Notifications", "Notifications", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
                 </ul>
 
                 @if (!string.IsNullOrWhiteSpace(loggedInRole))

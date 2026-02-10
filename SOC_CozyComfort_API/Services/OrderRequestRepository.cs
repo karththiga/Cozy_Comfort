@@ -44,7 +44,9 @@ ORDER BY CreatedAt DESC", role);
                 Notes = request.Notes
             };
 
-            return Insert(dto);
+            var created = Insert(dto);
+            NotificationRepository.Add("Distributor", "New seller request", $"Seller {request.RequestedByUser} requested {request.Quantity} x {request.BlanketName} ({request.Sku}).", "OrderRequest", created.Id);
+            return created;
         }
 
         public static OrderRequestDto EscalateToManufacturer(int sellerRequestId, RequestActionDto action)
@@ -70,37 +72,69 @@ ORDER BY CreatedAt DESC", role);
             });
 
             UpdateStatus(source.Id, "EscalatedToManufacturer", action.Notes);
+            NotificationRepository.Add("Manufacturer", "Request escalated by distributor", $"Distributor {action.PerformedByUser} escalated request #{source.Id} for {source.Sku}.", "Escalation", created.Id);
+            NotificationRepository.Add("Seller", "Request escalated", $"Your request #{source.Id} was escalated to manufacturer.", "Escalation", source.Id);
             return created;
         }
 
         public static bool MarkDistributorFulfilled(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, expectedToRole: "Distributor");
+            var ok = UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, expectedToRole: "Distributor");
+            if (ok)
+            {
+                NotificationRepository.Add("Seller", "Distributor fulfilled request", $"Request #{requestId} was fulfilled by distributor.", "Fulfillment", requestId);
+            }
+            return ok;
         }
 
         public static bool MarkManufacturerProductionStarted(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "ProductionInProgress", action.Notes, expectedToRole: "Manufacturer");
+            var ok = UpdateStatus(requestId, "ProductionInProgress", action.Notes, expectedToRole: "Manufacturer");
+            if (ok)
+            {
+                NotificationRepository.Add("Distributor", "Production started", $"Manufacturer started production for request #{requestId}.", "Production", requestId);
+            }
+            return ok;
         }
 
         public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, expectedToRole: "Manufacturer");
+            var ok = UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, expectedToRole: "Manufacturer");
+            if (ok)
+            {
+                NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched to distributor.", "Dispatch", requestId);
+            }
+            return ok;
         }
 
         public static bool CancelBySeller(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "CancelledBySeller", action.Notes, expectedByRole: "Seller");
+            var ok = UpdateStatus(requestId, "CancelledBySeller", action.Notes, expectedByRole: "Seller");
+            if (ok)
+            {
+                NotificationRepository.Add("Distributor", "Seller cancelled request", $"Seller cancelled request #{requestId}.", "Cancellation", requestId);
+            }
+            return ok;
         }
 
         public static bool CancelByDistributor(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "CancelledByDistributor", action.Notes, expectedToRole: "Distributor");
+            var ok = UpdateStatus(requestId, "CancelledByDistributor", action.Notes, expectedToRole: "Distributor");
+            if (ok)
+            {
+                NotificationRepository.Add("Seller", "Distributor cancelled request", $"Distributor cancelled request #{requestId}.", "Cancellation", requestId);
+            }
+            return ok;
         }
 
         public static bool CancelByManufacturer(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "CancelledByManufacturer", action.Notes, expectedToRole: "Manufacturer");
+            var ok = UpdateStatus(requestId, "CancelledByManufacturer", action.Notes, expectedToRole: "Manufacturer");
+            if (ok)
+            {
+                NotificationRepository.Add("Distributor", "Manufacturer cancelled request", $"Manufacturer cancelled request #{requestId}.", "Cancellation", requestId);
+            }
+            return ok;
         }
 
         public static OrderRequestDto GetById(int id)
