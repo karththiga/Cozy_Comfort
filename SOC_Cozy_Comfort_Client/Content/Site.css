@@ -411,3 +411,11 @@ textarea {
     font-size: 0.82rem;
     font-weight: 600;
 }
+
+.notification-unread {
+    background: #f5f9ff;
+}
+
+.notification-unread td {
+    font-weight: 600;
+}

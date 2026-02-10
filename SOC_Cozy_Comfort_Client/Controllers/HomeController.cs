@@ -9,6 +9,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         private readonly InventoryApiClient _inventoryApiClient = new InventoryApiClient();
         private readonly AuthApiClient _authApiClient = new AuthApiClient();
         private readonly OrderRequestApiClient _orderRequestApiClient = new OrderRequestApiClient();
+        private readonly NotificationApiClient _notificationApiClient = new NotificationApiClient();
 
         public ActionResult Index()
         {
@@ -300,6 +301,34 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             var result = _orderRequestApiClient.ManufacturerCancel(requestId, Session["LoggedInUser"] as string, notes);
             TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
             return RedirectToAction("ManufacturerRequests");
+        }
+
+
+        [HttpGet]
+        public ActionResult Notifications()
+        {
+            var role = Session["LoggedInRole"] as string;
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View(_notificationApiClient.GetByRole(role));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult MarkNotificationRead(int id)
+        {
+            var role = Session["LoggedInRole"] as string;
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _notificationApiClient.MarkRead(role, id);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("Notifications");
         }
 
         public ActionResult Orders()
