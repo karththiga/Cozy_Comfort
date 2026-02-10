@@ -7,7 +7,7 @@ This solution demonstrates a **Service-Oriented Commerce (SOC)** application for
 - **Seller** (storefront stock and customer fulfillment)
 
 The solution is split into two applications:
-1. **SOC_CozyComfort_API** - Web API services (inventory CRUD by role)
+1. **SOC_CozyComfort_API** - Web API services (inventory CRUD by role) backed by Local SQL Server
 2. **SOC_Cozy_Comfort_Client** - MVC client application consuming the API
 
 ---
@@ -73,3 +73,10 @@ Use these in client login:
 - Models are explicit and typed
 - Role checks and dashboard rendering are encapsulated in controller helpers
 - Documentation and design diagrams are included for easier onboarding and extension
+
+
+## 7) Database
+- API now uses **Local SQL Server (LocalDB)** instead of hardcoded in-memory values.
+- Connection string: `CozyComfortDb` in `SOC_CozyComfort_API/Web.config`.
+- Tables created/seeded automatically on API startup via `DbInitializer`.
+- Optional SQL script for manual setup: `database/01_create_tables_and_seed.sql`.

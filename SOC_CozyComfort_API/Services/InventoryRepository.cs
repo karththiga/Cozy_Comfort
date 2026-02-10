@@ -1,117 +1,146 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
+using System.Data.SqlClient;
 using SOC_CozyComfort_API.Models;
 
 namespace SOC_CozyComfort_API.Services
 {
     public static class InventoryRepository
     {
-        private static readonly object SyncLock = new object();
-        private static int _nextId = 1;
-
-        private static readonly Dictionary<string, List<InventoryItemDto>> Data = new Dictionary<string, List<InventoryItemDto>>
-        {
-            { "Manufacturer", new List<InventoryItemDto>
-                {
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-WOOL-QUEEN", Name = "Wool Queen Blanket", Quantity = 5420, Location = "Factory A", LastUpdated = DateTime.Now },
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-COTTON-KING", Name = "Cotton King Blanket", Quantity = 2210, Location = "Factory B", LastUpdated = DateTime.Now }
-                }
-            },
-            { "Distributor", new List<InventoryItemDto>
-                {
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-WOOL-QUEEN", Name = "Wool Queen Blanket", Quantity = 640, Location = "Central Warehouse", LastUpdated = DateTime.Now },
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-FLEECE-SINGLE", Name = "Fleece Single Blanket", Quantity = 190, Location = "North Hub", LastUpdated = DateTime.Now }
-                }
-            },
-            { "Seller", new List<InventoryItemDto>
-                {
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-COTTON-KING", Name = "Cotton King Blanket", Quantity = 24, Location = "Store A-12", LastUpdated = DateTime.Now },
-                    new InventoryItemDto { Id = NextId(), Sku = "CC-FLEECE-SINGLE", Name = "Fleece Single Blanket", Quantity = 16, Location = "Store A-12", LastUpdated = DateTime.Now }
-                }
-            }
-        };
+        private static string ConnectionString => ConfigurationManager.ConnectionStrings["CozyComfortDb"].ConnectionString;
 
         public static bool IsValidRole(string role)
         {
-            return Data.ContainsKey(role);
+            return AuthService.IsValidRole(role);
         }
 
         public static List<InventoryItemDto> GetByRole(string role)
         {
-            lock (SyncLock)
+            var result = new List<InventoryItemDto>();
+            const string sql = @"
+SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
+FROM dbo.InventoryItems
+WHERE RoleName = @RoleName
+ORDER BY Sku";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
             {
-                if (!Data.ContainsKey(role)) return new List<InventoryItemDto>();
-                return Data[role].OrderBy(x => x.Sku).Select(Clone).ToList();
+                command.Parameters.AddWithValue("@RoleName", role);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result.Add(Map(reader));
+                    }
+                }
             }
+
+            return result;
         }
 
         public static InventoryItemDto GetById(string role, int id)
         {
-            lock (SyncLock)
+            const string sql = @"
+SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
+FROM dbo.InventoryItems
+WHERE RoleName = @RoleName AND Id = @Id";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
             {
-                if (!Data.ContainsKey(role)) return null;
-                var item = Data[role].FirstOrDefault(x => x.Id == id);
-                return item == null ? null : Clone(item);
+                command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    return reader.Read() ? Map(reader) : null;
+                }
             }
         }
 
         public static InventoryItemDto Add(string role, InventoryItemDto item)
         {
-            lock (SyncLock)
+            const string sql = @"
+INSERT INTO dbo.InventoryItems(RoleName, Sku, [Name], Quantity, [Location], LastUpdated)
+VALUES(@RoleName, @Sku, @Name, @Quantity, @Location, @LastUpdated);
+SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            var now = DateTime.Now;
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
             {
-                item.Id = NextId();
-                item.LastUpdated = DateTime.Now;
-                var created = Clone(item);
-                Data[role].Add(created);
-                return Clone(created);
+                command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@Sku", item.Sku);
+                command.Parameters.AddWithValue("@Name", item.Name);
+                command.Parameters.AddWithValue("@Quantity", item.Quantity);
+                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@LastUpdated", now);
+
+                connection.Open();
+                var id = (int)command.ExecuteScalar();
+                item.Id = id;
+                item.LastUpdated = now;
+                return item;
             }
         }
 
         public static bool Update(string role, int id, InventoryItemDto item)
         {
-            lock (SyncLock)
-            {
-                if (!Data.ContainsKey(role)) return false;
-                var existing = Data[role].FirstOrDefault(x => x.Id == id);
-                if (existing == null) return false;
+            const string sql = @"
+UPDATE dbo.InventoryItems
+SET Sku = @Sku,
+    [Name] = @Name,
+    Quantity = @Quantity,
+    [Location] = @Location,
+    LastUpdated = @LastUpdated
+WHERE RoleName = @RoleName
+  AND Id = @Id";
 
-                existing.Sku = item.Sku;
-                existing.Name = item.Name;
-                existing.Quantity = item.Quantity;
-                existing.Location = item.Location;
-                existing.LastUpdated = DateTime.Now;
-                return true;
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@Sku", item.Sku);
+                command.Parameters.AddWithValue("@Name", item.Name);
+                command.Parameters.AddWithValue("@Quantity", item.Quantity);
+                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@LastUpdated", DateTime.Now);
+                command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@Id", id);
+
+                connection.Open();
+                return command.ExecuteNonQuery() > 0;
             }
         }
 
         public static bool Delete(string role, int id)
         {
-            lock (SyncLock)
+            const string sql = "DELETE FROM dbo.InventoryItems WHERE RoleName = @RoleName AND Id = @Id";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
             {
-                if (!Data.ContainsKey(role)) return false;
-                var existing = Data[role].FirstOrDefault(x => x.Id == id);
-                if (existing == null) return false;
-                Data[role].Remove(existing);
-                return true;
+                command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+                return command.ExecuteNonQuery() > 0;
             }
         }
 
-        private static int NextId()
-        {
-            return _nextId++;
-        }
-
-        private static InventoryItemDto Clone(InventoryItemDto item)
+        private static InventoryItemDto Map(SqlDataReader reader)
         {
             return new InventoryItemDto
             {
-                Id = item.Id,
-                Sku = item.Sku,
-                Name = item.Name,
-                Quantity = item.Quantity,
-                Location = item.Location,
-                LastUpdated = item.LastUpdated
+                Id = Convert.ToInt32(reader["Id"]),
+                Sku = Convert.ToString(reader["Sku"]),
+                Name = Convert.ToString(reader["Name"]),
+                Quantity = Convert.ToInt32(reader["Quantity"]),
+                Location = reader["Location"] == DBNull.Value ? null : Convert.ToString(reader["Location"]),
+                LastUpdated = Convert.ToDateTime(reader["LastUpdated"])
             };
         }
     }
