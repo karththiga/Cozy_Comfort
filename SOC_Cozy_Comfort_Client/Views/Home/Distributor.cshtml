@@ -1,31 +1,24 @@
 ﻿@{
-    ViewBag.Title = "Distributor";
+    ViewBag.Title = "Distributor Admin";
 }
 
-<h1>Distributor Operations Screen</h1>
-<p class="text-muted">This screen is designed for inventory checks, route planning, and seller request fulfillment.</p>
+<h1>Distributor Admin Dashboard</h1>
+<p class="text-muted">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Monitor inventory and inter-service fulfillment.</p>
 
-<div class="row g-3">
-    <div class="col-md-7">
-        <div class="role-card">
-            <h3>Distributor Inventory Snapshot</h3>
-            <table class="table table-sm table-bordered">
-                <thead><tr><th>SKU</th><th>On Hand</th><th>Reserved</th><th>Status</th></tr></thead>
-                <tbody>
-                    <tr><td>CC-WOOL-QUEEN</td><td>145</td><td>56</td><td><span class="badge text-bg-success">Healthy</span></td></tr>
-                    <tr><td>CC-COTTON-KING</td><td>38</td><td>31</td><td><span class="badge text-bg-warning">Low</span></td></tr>
-                    <tr><td>CC-FLEECE-SINGLE</td><td>12</td><td>8</td><td><span class="badge text-bg-danger">Critical</span></td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="role-card">
-            <h3>Request Manufacturer Refill</h3>
-            <div class="mb-2"><label class="form-label">SKU</label><input class="form-control" value="CC-FLEECE-SINGLE" /></div>
-            <div class="mb-2"><label class="form-label">Quantity Needed</label><input class="form-control" value="120" /></div>
-            <div class="mb-2"><label class="form-label">Required By</label><input type="date" class="form-control" /></div>
-            <button class="btn btn-primary" disabled>Create Refill Request</button>
-        </div>
-    </div>
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="metric-card"><h6>Warehouse SKUs</h6><h3>61</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Pending Seller Orders</h6><h3>19</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Refill Requests</h6><h3>4</h3></div></div>
+</div>
+
+<div class="role-card">
+    <h3>Dispatch Planning</h3>
+    <table class="table table-bordered table-sm">
+        <thead><tr><th>Order Id</th><th>Seller</th><th>Required Date</th><th>Status</th></tr></thead>
+        <tbody>
+            <tr><td>SO-2124</td><td>Urban Home Store</td><td>2026-02-13</td><td><span class="badge text-bg-primary">Packed</span></td></tr>
+            <tr><td>SO-2125</td><td>DreamNest Online</td><td>2026-02-14</td><td><span class="badge text-bg-info">Ready for Route</span></td></tr>
+            <tr><td>SO-2126</td><td>WarmLiving Mart</td><td>2026-02-15</td><td><span class="badge text-bg-warning">Awaiting Stock</span></td></tr>
+        </tbody>
+    </table>
 </div>

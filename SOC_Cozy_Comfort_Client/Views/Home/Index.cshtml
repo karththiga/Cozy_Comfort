@@ -1,37 +1,34 @@
 ﻿@{
-    ViewBag.Title = "SOC Dashboard";
+    ViewBag.Title = "Welcome";
 }
 
 <main>
-    <section class="hero-card" aria-labelledby="dashboardTitle">
-        <h1 id="dashboardTitle">Cozy Comfort Service-Oriented Commerce Portal</h1>
-        <p class="lead">This starter UI organizes Manufacturer, Distributor, and Seller workflows into service-ready modules that can be connected to your .NET APIs.</p>
+    <section class="hero-card" aria-labelledby="welcomeTitle">
+        <h1 id="welcomeTitle">Cozy Comfort SOC Assignment Portal</h1>
+        <p class="lead">Common login first, then role-based admin dashboards for Manufacturer, Distributor, and Seller operations.</p>
         <div class="hero-actions">
-            <a href="@Url.Action("Orders", "Home")" class="btn btn-primary">Open Order Flow</a>
-            <a href="@Url.Action("About", "Home")" class="btn btn-outline-dark">View SOC Scope</a>
+            <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Go to Common Login</a>
+            <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-dark">View SOC Order Flow</a>
         </div>
     </section>
 
-    <section class="row g-3 mt-1">
+    <section class="row g-3 mt-2">
         <div class="col-md-4">
             <article class="role-card">
-                <h2>Manufacturer Service</h2>
-                <p>Manage blanket catalog, production capacity, and stock availability APIs.</p>
-                <a href="@Url.Action("Manufacturer", "Home")" class="btn btn-sm btn-outline-primary">Open screen</a>
+                <h3>Manufacturer Admin Dashboard</h3>
+                <p>Track production capacity, model catalog status, and stock readiness.</p>
             </article>
         </div>
         <div class="col-md-4">
             <article class="role-card">
-                <h2>Distributor Service</h2>
-                <p>Track intermediary inventory, logistics, and seller order orchestration.</p>
-                <a href="@Url.Action("Distributor", "Home")" class="btn btn-sm btn-outline-primary">Open screen</a>
+                <h3>Distributor Admin Dashboard</h3>
+                <p>Monitor warehouse inventory, logistics schedules, and refill requests.</p>
             </article>
         </div>
         <div class="col-md-4">
             <article class="role-card">
-                <h2>Seller Service</h2>
-                <p>Capture customer requests, reserve local stock, and trigger distributor fulfillment.</p>
-                <a href="@Url.Action("Seller", "Home")" class="btn btn-sm btn-outline-primary">Open screen</a>
+                <h3>Seller Admin Dashboard</h3>
+                <p>Manage customer orders, local stock, and distributor escalations.</p>
             </article>
         </div>
     </section>
