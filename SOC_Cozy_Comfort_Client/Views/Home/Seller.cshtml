@@ -1,28 +1,24 @@
 ﻿@{
-    ViewBag.Title = "Seller";
+    ViewBag.Title = "Seller Admin";
 }
 
-<h1>Seller Operations Screen</h1>
-<p class="text-muted">Capture customer demand and trigger fulfillment requests through distributor APIs.</p>
+<h1>Seller Admin Dashboard</h1>
+<p class="text-muted">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Track customer demand and fulfillment responses.</p>
 
-<div class="row g-3">
-    <div class="col-md-6">
-        <div class="role-card">
-            <h3>Customer Order Intake</h3>
-            <div class="mb-2"><label class="form-label">Customer Name</label><input class="form-control" placeholder="e.g., Sarah Khan" /></div>
-            <div class="mb-2"><label class="form-label">Blanket SKU</label><input class="form-control" placeholder="CC-WOOL-QUEEN" /></div>
-            <div class="mb-2"><label class="form-label">Quantity</label><input class="form-control" value="2" /></div>
-            <button class="btn btn-primary" disabled>Submit Order</button>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="role-card">
-            <h3>Local Store Stock</h3>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between"><span>CC-WOOL-QUEEN</span><strong>4</strong></li>
-                <li class="list-group-item d-flex justify-content-between"><span>CC-COTTON-KING</span><strong>0</strong></li>
-                <li class="list-group-item d-flex justify-content-between"><span>CC-FLEECE-SINGLE</span><strong>3</strong></li>
-            </ul>
-        </div>
-    </div>
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="metric-card"><h6>Orders Today</h6><h3>33</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Low Stock Alerts</h6><h3>5</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Awaiting Distributor</h6><h3>7</h3></div></div>
+</div>
+
+<div class="role-card">
+    <h3>Recent Customer Orders</h3>
+    <table class="table table-sm">
+        <thead><tr><th>Customer</th><th>SKU</th><th>Qty</th><th>Status</th></tr></thead>
+        <tbody>
+            <tr><td>Sarah Khan</td><td>CC-WOOL-QUEEN</td><td>2</td><td><span class="badge text-bg-success">Confirmed</span></td></tr>
+            <tr><td>Ravi Patel</td><td>CC-COTTON-KING</td><td>1</td><td><span class="badge text-bg-warning">Checking Distributor</span></td></tr>
+            <tr><td>Nina Roy</td><td>CC-FLEECE-SINGLE</td><td>3</td><td><span class="badge text-bg-info">Packed</span></td></tr>
+        </tbody>
+    </table>
 </div>
