@@ -76,7 +76,20 @@ Use these in client login:
 
 
 ## 7) Database
-- API now uses **Local SQL Server (LocalDB)** instead of hardcoded in-memory values.
+- API now uses **Local SQL Server** instead of hardcoded in-memory values.
 - Connection string: `CozyComfortDb` in `SOC_CozyComfort_API/Web.config`.
 - Tables created/seeded automatically on API startup via `DbInitializer`.
 - Optional SQL script for manual setup: `database/01_create_tables_and_seed.sql`.
+
+
+## 8) Troubleshooting CRUD persistence
+If you can create/update in UI but do not see changes in SSMS, verify you are connected to the same SQL Server instance as `CozyComfortDb` connection string in `SOC_CozyComfort_API/Web.config`.
+
+Run:
+```sql
+SELECT DB_NAME() AS CurrentDb;
+SELECT COUNT(*) AS TotalItems FROM dbo.InventoryItems;
+SELECT TOP 20 * FROM dbo.InventoryItems ORDER BY Id DESC;
+```
+
+Also ensure API is running and client points to correct API base URL (`InventoryApiBaseUrl`).
