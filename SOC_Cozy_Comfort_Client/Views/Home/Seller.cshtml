@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Seller Admin";
+}
+
+<section class="dashboard-shell">
+    <div class="dashboard-head seller-head">
+        <div>
+            <p class="eyebrow">Seller Command</p>
+            <h1>Seller Admin Dashboard</h1>
+            <p class="text-muted mb-0">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Supervise customer orders, local stock, and distributor dependencies.</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1 mb-3">
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Orders Today</h6><h3>33</h3><small>+11% vs yesterday</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Low Stock Alerts</h6><h3>5</h3><small>needs restock</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Awaiting Distributor</h6><h3>7</h3><small>fulfillment pending</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Customer SLA</h6><h3>96%</h3><small>on-time updates</small></div></div>
+    </div>
+
+    <div class="role-card">
+        <h3 class="mb-3">Recent Customer Orders</h3>
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Customer</th><th>SKU</th><th>Qty</th><th>Expected Delivery</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr><td>Sarah Khan</td><td>CC-WOOL-QUEEN</td><td>2</td><td>2026-02-12</td><td><span class="badge text-bg-success">Confirmed</span></td></tr>
+                <tr><td>Ravi Patel</td><td>CC-COTTON-KING</td><td>1</td><td>2026-02-14</td><td><span class="badge text-bg-warning">Checking Distributor</span></td></tr>
+                <tr><td>Nina Roy</td><td>CC-FLEECE-SINGLE</td><td>3</td><td>2026-02-13</td><td><span class="badge text-bg-info">Packed</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>

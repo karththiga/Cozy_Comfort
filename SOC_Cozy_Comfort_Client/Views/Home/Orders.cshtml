@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Order Flow";
+}
+
+<h1>End-to-End SOC Order Flow Screen</h1>
+<p class="text-muted">Visual map of how data and fulfillment steps move across services.</p>
+
+<div class="timeline-grid">
+    <div class="flow-step"><h4>1. Seller Receives Order</h4><p>Customer order captured in Seller service.</p></div>
+    <div class="flow-step"><h4>2. Seller Stock Check</h4><p>If unavailable, API call sent to Distributor service.</p></div>
+    <div class="flow-step"><h4>3. Distributor Stock Check</h4><p>If unavailable, request manufacturer lead time API.</p></div>
+    <div class="flow-step"><h4>4. Manufacturer Response</h4><p>Capacity + ETA returned to Distributor and Seller.</p></div>
+    <div class="flow-step"><h4>5. Confirmation to Customer</h4><p>Seller confirms availability and delivery date.</p></div>
+    <div class="flow-step"><h4>6. Reverse Fulfillment</h4><p>Manufacturer → Distributor → Seller shipment execution.</p></div>
+</div>
