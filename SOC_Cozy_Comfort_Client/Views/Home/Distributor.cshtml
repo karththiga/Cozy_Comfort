@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "Distributor";
+}
+
+<h1>Distributor Operations Screen</h1>
+<p class="text-muted">This screen is designed for inventory checks, route planning, and seller request fulfillment.</p>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="role-card">
+            <h3>Distributor Inventory Snapshot</h3>
+            <table class="table table-sm table-bordered">
+                <thead><tr><th>SKU</th><th>On Hand</th><th>Reserved</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr><td>CC-WOOL-QUEEN</td><td>145</td><td>56</td><td><span class="badge text-bg-success">Healthy</span></td></tr>
+                    <tr><td>CC-COTTON-KING</td><td>38</td><td>31</td><td><span class="badge text-bg-warning">Low</span></td></tr>
+                    <tr><td>CC-FLEECE-SINGLE</td><td>12</td><td>8</td><td><span class="badge text-bg-danger">Critical</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="role-card">
+            <h3>Request Manufacturer Refill</h3>
+            <div class="mb-2"><label class="form-label">SKU</label><input class="form-control" value="CC-FLEECE-SINGLE" /></div>
+            <div class="mb-2"><label class="form-label">Quantity Needed</label><input class="form-control" value="120" /></div>
+            <div class="mb-2"><label class="form-label">Required By</label><input type="date" class="form-control" /></div>
+            <button class="btn btn-primary" disabled>Create Refill Request</button>
+        </div>
+    </div>
+</div>

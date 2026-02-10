@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 
 namespace SOC_Cozy_Comfort_Client.Controllers
 {
@@ -13,17 +9,35 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return View();
         }
 
+        public ActionResult Manufacturer()
+        {
+            return View();
+        }
+
+        public ActionResult Distributor()
+        {
+            return View();
+        }
+
+        public ActionResult Seller()
+        {
+            return View();
+        }
+
+        public ActionResult Orders()
+        {
+            return View();
+        }
+
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
+            ViewBag.Message = "SOC architecture overview for Cozy Comfort.";
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
-
+            ViewBag.Message = "Project communication channels.";
             return View();
         }
     }
