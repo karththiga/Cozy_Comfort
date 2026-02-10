@@ -419,3 +419,20 @@ textarea {
 .notification-unread td {
     font-weight: 600;
 }
+
+
+.notification-icon-link {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+}
+
+.notification-icon-link:hover {
+    background: rgba(255,255,255,0.22);
+}

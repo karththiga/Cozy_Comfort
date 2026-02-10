@@ -45,15 +45,14 @@
                     }
 
                     <li>@Html.ActionLink("Order Flow", "Orders", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    @if (!string.IsNullOrWhiteSpace(loggedInRole))
-                    {
-                        <li>@Html.ActionLink("Notifications", "Notifications", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    }
                 </ul>
 
                 @if (!string.IsNullOrWhiteSpace(loggedInRole))
                 {
-                    <ul class="navbar-nav align-items-sm-center">
+                    <ul class="navbar-nav align-items-sm-center gap-sm-2">
+                        <li class="nav-item">
+                            <a class="nav-link notification-icon-link" href="@Url.Action("Notifications", "Home")" title="Notifications" aria-label="Notifications">🔔</a>
+                        </li>
                         <li class="nav-item"><span class="nav-link disabled">@loggedInUser (@loggedInRole)</span></li>
                         <li class="nav-item">@Html.ActionLink("Logout", "Logout", "Home", new { area = "" }, new { @class = "btn btn-outline-light btn-sm ms-sm-2" })</li>
                     </ul>

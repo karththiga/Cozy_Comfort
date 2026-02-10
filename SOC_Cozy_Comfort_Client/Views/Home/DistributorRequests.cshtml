@@ -43,12 +43,15 @@
                             <input type="hidden" name="notes" value="Escalated to manufacturer due to low stock." />
                             <button class="btn btn-sm btn-outline-primary" type="submit" onclick="return confirm('Escalate this request to manufacturer?');">Request Manufacturer</button>
                         }
-                        @using (Html.BeginForm("DistributorCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        @if (string.IsNullOrWhiteSpace(req.Status) || !req.Status.Contains("Cancelled"))
                         {
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="requestId" value="@req.Id" />
-                            <input type="hidden" name="notes" value="Cancelled by distributor." />
-                            <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                            using (Html.BeginForm("DistributorCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@req.Id" />
+                                <input type="hidden" name="notes" value="Cancelled by distributor." />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                            }
                         }
                     </td>
                 </tr>
