@@ -1,0 +1,48 @@
+@using System.Linq
+@model List<SOC_Cozy_Comfort_Client.Models.NotificationItem>
+@{
+    ViewBag.Title = "Notifications";
+    var unreadCount = Model.Count(x => !x.IsRead);
+}
+
+<section class="request-page">
+    <div class="dashboard-head">
+        <p class="eyebrow">Alerts Center</p>
+        <h1>Notifications</h1>
+        <p class="text-muted mb-0">Stay updated on new order requests, escalations, fulfillment, production and cancellations.</p>
+    </div>
+
+    <div class="alert alert-info mt-3 mb-0">
+        Unread notifications: <strong>@unreadCount</strong>
+    </div>
+
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Recent Notifications</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>When</th><th>Type</th><th>Title</th><th>Message</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@(item.IsRead ? "" : "notification-unread")">
+                    <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td><span class="status-pill">@item.NotificationType</span></td>
+                    <td>@item.Title</td>
+                    <td>@item.Message</td>
+                    <td>@(item.IsRead ? "Read" : "Unread")</td>
+                    <td>
+                        @if (!item.IsRead)
+                        {
+                            using (Html.BeginForm("MarkNotificationRead", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Mark Read</button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,70 @@
+@model SOC_Cozy_Comfort_Client.Models.RequestBoardViewModel
+@{
+    ViewBag.Title = "Seller Requests";
+}
+
+<section class="request-page">
+    <div class="dashboard-head seller-head">
+        <p class="eyebrow">Seller Workflow</p>
+        <h1>Request Blankets from Distributor</h1>
+        <p class="text-muted mb-0">Create request when seller inventory is not enough. Distributor will receive it immediately.</p>
+    </div>
+
+    @if (TempData["RequestMessage"] != null)
+    {<div class="alert alert-success">@TempData["RequestMessage"]</div>}
+    @if (TempData["RequestError"] != null)
+    {<div class="alert alert-danger">@TempData["RequestError"]</div>}
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-4">
+            <div class="role-card">
+                <h4 class="mb-3">New Seller Request</h4>
+                @using (Html.BeginForm("CreateSellerRequest", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-2"><label class="form-label">SKU</label><input name="Sku" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Blanket Name</label><input name="BlanketName" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Quantity Needed</label><input type="number" name="Quantity" min="1" class="form-control" required /></div>
+                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="Notes" class="form-control" rows="3"></textarea></div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100" onclick="return confirm('Send this request to distributor?');">Send Request</button>
+                        <a href="@Url.Action("Seller", "Home")" class="btn btn-outline-secondary w-100">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="role-card">
+                <h4 class="mb-3">My Requests to Distributor</h4>
+                <table class="table table-hover align-middle request-table">
+                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead>
+                    <tbody>
+                    @foreach (var req in Model.OutgoingRequests)
+                    {
+                        <tr>
+                            <td>@req.Id</td>
+                            <td>@req.Sku</td>
+                            <td>@req.BlanketName</td>
+                            <td>@req.Quantity</td>
+                            <td><span class="status-pill">@req.Status</span></td>
+                            <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(req.Status) || !req.Status.Contains("Cancelled"))
+                                {
+                                    using (Html.BeginForm("SellerCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="requestId" value="@req.Id" />
+                                        <input type="hidden" name="notes" value="Cancelled by seller." />
+                                        <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
