@@ -1,8 +1,7 @@
--- Cozy Comfort Local SQL Server setup
--- Target DB: CozyComfortDb
-
 IF DB_ID(N'CozyComfortDb') IS NULL
+BEGIN
     CREATE DATABASE CozyComfortDb;
+END;
 GO
 
 USE CozyComfortDb;
@@ -43,22 +42,37 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.OrderRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.OrderRequests(
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        RequestType NVARCHAR(60) NOT NULL,
+        RequestedByRole NVARCHAR(50) NOT NULL,
+        RequestedToRole NVARCHAR(50) NOT NULL,
+        RequestedByUser NVARCHAR(100) NOT NULL,
+        Sku NVARCHAR(100) NOT NULL,
+        BlanketName NVARCHAR(200) NOT NULL,
+        Quantity INT NOT NULL,
+        [Status] NVARCHAR(80) NOT NULL,
+        Notes NVARCHAR(500) NULL,
+        CreatedAt DATETIME NOT NULL,
+        UpdatedAt DATETIME NOT NULL,
+        SourceRequestId INT NULL
+    );
+END;
+GO
+
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Manufacturer') INSERT INTO dbo.Roles(RoleName) VALUES('Manufacturer');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Distributor') INSERT INTO dbo.Roles(RoleName) VALUES('Distributor');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Seller') INSERT INTO dbo.Roles(RoleName) VALUES('Seller');
 GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='m_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 'm_admin', 'M@123', Id FROM dbo.Roles WHERE RoleName='Manufacturer';
-
+    INSERT INTO dbo.Users(UserName, [Password], RoleId) SELECT 'm_admin', 'M@123', Id FROM dbo.Roles WHERE RoleName='Manufacturer';
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='d_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 'd_admin', 'D@123', Id FROM dbo.Roles WHERE RoleName='Distributor';
-
+    INSERT INTO dbo.Users(UserName, [Password], RoleId) SELECT 'd_admin', 'D@123', Id FROM dbo.Roles WHERE RoleName='Distributor';
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='s_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 's_admin', 'S@123', Id FROM dbo.Roles WHERE RoleName='Seller';
+    INSERT INTO dbo.Users(UserName, [Password], RoleId) SELECT 's_admin', 'S@123', Id FROM dbo.Roles WHERE RoleName='Seller';
 GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems)
@@ -70,5 +84,14 @@ BEGIN
     ('Distributor', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 190, 'North Hub', GETDATE()),
     ('Seller', 'CC-COTTON-KING', 'Cotton King Blanket', 24, 'Store A-12', GETDATE()),
     ('Seller', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 16, 'Store A-12', GETDATE());
+END;
+GO
+
+IF NOT EXISTS(SELECT 1 FROM dbo.OrderRequests)
+BEGIN
+    INSERT INTO dbo.OrderRequests
+    (RequestType, RequestedByRole, RequestedToRole, RequestedByUser, Sku, BlanketName, Quantity, [Status], Notes, CreatedAt, UpdatedAt, SourceRequestId)
+    VALUES
+    ('SellerToDistributor', 'Seller', 'Distributor', 's_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 40, 'PendingDistributorReview', 'Need stock for weekend promo.', GETDATE(), GETDATE(), NULL);
 END;
 GO

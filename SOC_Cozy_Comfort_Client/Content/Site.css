@@ -391,3 +391,23 @@ textarea {
     margin-bottom: 0;
     padding-left: 18px;
 }
+
+.request-page .role-card {
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.request-table td,
+.request-table th {
+    vertical-align: middle;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}

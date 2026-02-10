@@ -1,0 +1,52 @@
+@model SOC_Cozy_Comfort_Client.Models.RequestBoardViewModel
+@{
+    ViewBag.Title = "Manufacturer Requests";
+}
+
+<section class="request-page">
+    <div class="dashboard-head manufacturer-head">
+        <p class="eyebrow">Manufacturer Workflow</p>
+        <h1>Distributor Requests Received</h1>
+        <p class="text-muted mb-0">Start blanket production when stock is unavailable and dispatch to distributor once ready.</p>
+    </div>
+
+    @if (TempData["RequestMessage"] != null)
+    {<div class="alert alert-success">@TempData["RequestMessage"]</div>}
+    @if (TempData["RequestError"] != null)
+    {<div class="alert alert-danger">@TempData["RequestError"]</div>}
+
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Incoming from Distributor</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>Distributor</th><th>SKU</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var req in Model.IncomingRequests)
+            {
+                <tr>
+                    <td>@req.Id</td>
+                    <td>@req.RequestedByUser</td>
+                    <td>@req.Sku</td>
+                    <td>@req.Quantity</td>
+                    <td><span class="status-pill">@req.Status</span></td>
+                    <td>
+                        @using (Html.BeginForm("ManufacturerStartProduction", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@req.Id" />
+                            <input type="hidden" name="notes" value="Production started at factory." />
+                            <button class="btn btn-sm btn-outline-warning" type="submit">Start Production</button>
+                        }
+                        @using (Html.BeginForm("ManufacturerDispatch", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@req.Id" />
+                            <input type="hidden" name="notes" value="Produced/available and dispatched to distributor." />
+                            <button class="btn btn-sm btn-outline-success" type="submit">Dispatch to Distributor</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
