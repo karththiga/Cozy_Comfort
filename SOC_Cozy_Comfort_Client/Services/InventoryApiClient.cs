@@ -17,7 +17,7 @@ namespace SOC_Cozy_Comfort_Client.Services
 
         public InventoryApiClient()
         {
-            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "http://localhost:59573";
+            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
         public List<InventoryItem> GetByRole(string role)

@@ -14,7 +14,7 @@ namespace SOC_Cozy_Comfort_Client.Services
 
         public AuthApiClient()
         {
-            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "http://localhost:59573";
+            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
         public ApiOperationResult Login(string userName, string password, string role, out LoginApiResponse payload)
