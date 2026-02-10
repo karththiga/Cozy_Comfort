@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Welcome";
+    ViewBag.Title = "Home";
     var loggedInRole = Session["LoggedInRole"] as string;
     var loggedInUser = Session["LoggedInUser"] as string;
 }
@@ -7,61 +7,124 @@
 <main>
     @if (string.IsNullOrWhiteSpace(loggedInRole))
     {
-        <section class="hero-card hero-pro" aria-labelledby="welcomeTitle">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <p class="eyebrow">Service-Oriented Commerce Suite</p>
-                    <h1 id="welcomeTitle">Cozy Comfort Operations Command Center</h1>
-                    <p class="lead">Please login to open your role-specific dashboard. The system shows only your own module after authentication.</p>
-                    <div class="hero-actions">
-                        <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg px-4">Open Common Login</a>
-                        <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-light btn-lg px-4">Order Flow</a>
-                    </div>
-                </div>
-                <div class="col-lg-5 mt-4 mt-lg-0">
-                    <div class="glass-card">
-                        <h5 class="mb-3">Platform Highlights</h5>
-                        <ul class="mb-0">
-                            <li>Single login for all stakeholders</li>
-                            <li>Role-aware operational dashboards</li>
-                            <li>Inventory CRUD through API services</li>
-                        </ul>
-                    </div>
-                </div>
+        <section class="dashboard-head">
+            <p class="eyebrow">Home Overview</p>
+            <h1>Welcome to Cozy Comfort Home</h1>
+            <p class="text-muted mb-0">Please sign in to view your role-specific insights, announcements, and gallery.</p>
+            <div class="hero-actions mt-3">
+                <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Go to Login</a>
             </div>
         </section>
     }
     else if (loggedInRole == "Manufacturer")
     {
         <section class="dashboard-head manufacturer-head">
-            <p class="eyebrow">Manufacturer Command</p>
+            <p class="eyebrow">Manufacturer Home</p>
             <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">You are logged in as <strong>Manufacturer</strong>. Manage production inventory, stock levels, and fulfillment readiness.</p>
-            <div class="hero-actions mt-3">
-                <a class="btn btn-primary" href="@Url.Action("Manufacturer", "Home")">Open Manufacturer Dashboard</a>
-            </div>
+            <p class="text-muted mb-0">Factory-level overview with production updates and inventory priorities.</p>
         </section>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Today Production Plan</h6><h3>1,950</h3><small>units</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Quality Pass Rate</h6><h3>98.7%</h3><small>last 24h</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Urgent Refill Requests</h6><h3>4</h3><small>from distributors</small></div></div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Announcements</h4>
+                    <ul class="news-list mb-0">
+                        <li>Line B maintenance scheduled tonight 11:00 PM.</li>
+                        <li>Winter wool batch dispatch starts tomorrow morning.</li>
+                        <li>Raw material stock audit due by Friday.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Gallery</h4>
+                    <div class="gallery-grid">
+                        <div class="gallery-tile">Factory Floor</div>
+                        <div class="gallery-tile">Packing Unit</div>
+                        <div class="gallery-tile">Quality Desk</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
     else if (loggedInRole == "Distributor")
     {
         <section class="dashboard-head distributor-head">
-            <p class="eyebrow">Distributor Command</p>
+            <p class="eyebrow">Distributor Home</p>
             <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">You are logged in as <strong>Distributor</strong>. Manage warehouse inventory, dispatch planning, and refill coordination.</p>
-            <div class="hero-actions mt-3">
-                <a class="btn btn-primary" href="@Url.Action("Distributor", "Home")">Open Distributor Dashboard</a>
-            </div>
+            <p class="text-muted mb-0">Warehouse and dispatch overview with route and refill alerts.</p>
         </section>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Pending Dispatch</h6><h3>19</h3><small>seller orders</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>On-Time Shipments</h6><h3>92%</h3><small>this week</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Low Stock SKUs</h6><h3>6</h3><small>needs refill</small></div></div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Announcements</h4>
+                    <ul class="news-list mb-0">
+                        <li>Route C delayed by weather; ETA +6 hours.</li>
+                        <li>New priority channel enabled for online sellers.</li>
+                        <li>Monthly warehouse safety drill on Monday.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Gallery</h4>
+                    <div class="gallery-grid">
+                        <div class="gallery-tile">Warehouse Bay</div>
+                        <div class="gallery-tile">Dispatch Dock</div>
+                        <div class="gallery-tile">Route Console</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
     else if (loggedInRole == "Seller")
     {
         <section class="dashboard-head seller-head">
-            <p class="eyebrow">Seller Command</p>
+            <p class="eyebrow">Seller Home</p>
             <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">You are logged in as <strong>Seller</strong>. Manage storefront inventory, customer orders, and distributor follow-ups.</p>
-            <div class="hero-actions mt-3">
-                <a class="btn btn-primary" href="@Url.Action("Seller", "Home")">Open Seller Dashboard</a>
-            </div>
+            <p class="text-muted mb-0">Storefront performance overview with customer and fulfillment highlights.</p>
         </section>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Orders Today</h6><h3>33</h3><small>customer requests</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Customer Rating</h6><h3>4.8/5</h3><small>this month</small></div></div>
+            <div class="col-md-4"><div class="metric-card pro-metric"><h6>Backorder Items</h6><h3>7</h3><small>awaiting distributor</small></div></div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Announcements</h4>
+                    <ul class="news-list mb-0">
+                        <li>Weekend promo starts Friday 6:00 PM.</li>
+                        <li>Top-selling SKU: CC-WOOL-QUEEN.</li>
+                        <li>Customer care webinar available in portal.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="role-card">
+                    <h4>Gallery</h4>
+                    <div class="gallery-grid">
+                        <div class="gallery-tile">Store Display</div>
+                        <div class="gallery-tile">Online Catalog</div>
+                        <div class="gallery-tile">Fulfillment Desk</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </main>

@@ -218,3 +218,25 @@ textarea {
     font-size: 1.05rem;
     line-height: 1.25;
 }
+
+
+.news-list li {
+    margin-bottom: 8px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(80px, 1fr));
+    gap: 10px;
+}
+
+.gallery-tile {
+    background: linear-gradient(135deg, #edf4ff 0%, #e2f4ff 100%);
+    border: 1px solid #cfe2ff;
+    border-radius: 8px;
+    padding: 16px 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2a4060;
+}
