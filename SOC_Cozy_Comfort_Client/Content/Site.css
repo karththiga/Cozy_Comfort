@@ -212,3 +212,9 @@ textarea {
     padding: 1px 6px;
     border-radius: 6px;
 }
+
+
+.summary-time {
+    font-size: 1.05rem;
+    line-height: 1.25;
+}
