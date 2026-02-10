@@ -1,4 +1,4 @@
-﻿using System.Configuration;
+using System.Configuration;
 using System.Data.SqlClient;
 
 namespace SOC_CozyComfort_API.Services
@@ -18,24 +18,22 @@ namespace SOC_CozyComfort_API.Services
             }
         }
 
-        public static bool IsValidLogin(string userName, string password, string role)
+        public static string GetRoleForLogin(string userName, string password)
         {
             const string sql = @"
-SELECT COUNT(1)
+SELECT TOP 1 r.RoleName
 FROM dbo.Users u
 JOIN dbo.Roles r ON r.Id = u.RoleId
 WHERE u.UserName = @UserName
-  AND u.[Password] = @Password
-  AND r.RoleName = @RoleName";
+  AND u.[Password] = @Password";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@UserName", userName);
                 command.Parameters.AddWithValue("@Password", password);
-                command.Parameters.AddWithValue("@RoleName", role);
                 connection.Open();
-                return (int)command.ExecuteScalar() > 0;
+                return command.ExecuteScalar() as string;
             }
         }
     }

@@ -22,10 +22,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string userName, string password, string role)
+        public ActionResult Login(string userName, string password)
         {
             LoginApiResponse responsePayload;
-            var result = _authApiClient.Login(userName, password, role, out responsePayload);
+            var result = _authApiClient.Login(userName, password, out responsePayload);
             if (!result.Success)
             {
                 ViewBag.ErrorMessage = result.Message;

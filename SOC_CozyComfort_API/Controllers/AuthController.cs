@@ -1,4 +1,4 @@
-﻿using System.Web.Http;
+using System.Web.Http;
 using SOC_CozyComfort_API.Models;
 using SOC_CozyComfort_API.Services;
 
@@ -11,17 +11,13 @@ namespace SOC_CozyComfort_API.Controllers
         [Route("login")]
         public IHttpActionResult Login([FromBody] LoginRequestDto request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.Role))
+            if (request == null || string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
             {
-                return BadRequest("Username, password and role are required.");
+                return BadRequest("Username and password are required.");
             }
 
-            if (!AuthService.IsValidRole(request.Role))
-            {
-                return BadRequest("Invalid role.");
-            }
-
-            if (!AuthService.IsValidLogin(request.UserName, request.Password, request.Role))
+            var role = AuthService.GetRoleForLogin(request.UserName, request.Password);
+            if (string.IsNullOrWhiteSpace(role))
             {
                 return Unauthorized();
             }
@@ -29,7 +25,7 @@ namespace SOC_CozyComfort_API.Controllers
             return Ok(new LoginResponseDto
             {
                 UserName = request.UserName,
-                Role = request.Role,
+                Role = role,
                 Message = "Login successful."
             });
         }
