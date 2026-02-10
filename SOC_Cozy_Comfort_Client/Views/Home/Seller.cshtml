@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Seller Admin";
+}
+
+<h1>Seller Admin Dashboard</h1>
+<p class="text-muted">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Track customer demand and fulfillment responses.</p>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="metric-card"><h6>Orders Today</h6><h3>33</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Low Stock Alerts</h6><h3>5</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Awaiting Distributor</h6><h3>7</h3></div></div>
+</div>
+
+<div class="role-card">
+    <h3>Recent Customer Orders</h3>
+    <table class="table table-sm">
+        <thead><tr><th>Customer</th><th>SKU</th><th>Qty</th><th>Status</th></tr></thead>
+        <tbody>
+            <tr><td>Sarah Khan</td><td>CC-WOOL-QUEEN</td><td>2</td><td><span class="badge text-bg-success">Confirmed</span></td></tr>
+            <tr><td>Ravi Patel</td><td>CC-COTTON-KING</td><td>1</td><td><span class="badge text-bg-warning">Checking Distributor</span></td></tr>
+            <tr><td>Nina Roy</td><td>CC-FLEECE-SINGLE</td><td>3</td><td><span class="badge text-bg-info">Packed</span></td></tr>
+        </tbody>
+    </table>
+</div>

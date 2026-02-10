@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Manufacturer Admin";
+}
+
+<h1>Manufacturer Admin Dashboard</h1>
+<p class="text-muted">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Manage production and stock services.</p>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="metric-card"><h6>Total Models</h6><h3>24</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Available Stock</h6><h3>5,420</h3></div></div>
+    <div class="col-md-4"><div class="metric-card"><h6>Capacity Utilization</h6><h3>74%</h3></div></div>
+</div>
+
+<div class="role-card">
+    <h3>Production Queue</h3>
+    <table class="table table-striped table-sm">
+        <thead><tr><th>Model</th><th>Material</th><th>Today Plan</th><th>Status</th></tr></thead>
+        <tbody>
+            <tr><td>CC-WOOL-QUEEN</td><td>Wool Blend</td><td>420</td><td><span class="badge text-bg-success">On Track</span></td></tr>
+            <tr><td>CC-COTTON-KING</td><td>Organic Cotton</td><td>280</td><td><span class="badge text-bg-warning">At Risk</span></td></tr>
+            <tr><td>CC-FLEECE-SINGLE</td><td>Micro Fleece</td><td>360</td><td><span class="badge text-bg-success">On Track</span></td></tr>
+        </tbody>
+    </table>
+</div>
