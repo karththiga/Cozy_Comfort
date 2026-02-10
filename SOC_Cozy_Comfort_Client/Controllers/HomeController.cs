@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
+using SOC_Cozy_Comfort_Client.Models;
+using SOC_Cozy_Comfort_Client.Services;
 
 namespace SOC_Cozy_Comfort_Client.Controllers
 {
@@ -61,35 +63,91 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         public ActionResult Manufacturer()
         {
-            if (!IsAuthorizedFor("Manufacturer"))
-            {
-                return RedirectToAction("Login");
-            }
-
-            ViewBag.LoggedInUser = Session["LoggedInUser"];
-            return View();
+            return RenderDashboard("Manufacturer");
         }
 
         public ActionResult Distributor()
         {
-            if (!IsAuthorizedFor("Distributor"))
-            {
-                return RedirectToAction("Login");
-            }
-
-            ViewBag.LoggedInUser = Session["LoggedInUser"];
-            return View();
+            return RenderDashboard("Distributor");
         }
 
         public ActionResult Seller()
         {
-            if (!IsAuthorizedFor("Seller"))
+            return RenderDashboard("Seller");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddInventory(string role, InventoryItem newItem)
+        {
+            if (!IsAuthorizedFor(role))
             {
                 return RedirectToAction("Login");
             }
 
-            ViewBag.LoggedInUser = Session["LoggedInUser"];
-            return View();
+            if (newItem == null || string.IsNullOrWhiteSpace(newItem.Sku) || string.IsNullOrWhiteSpace(newItem.Name))
+            {
+                TempData["InventoryError"] = "SKU and Item Name are required.";
+                return RedirectToRoleDashboard(role);
+            }
+
+            InventoryStore.Add(role, newItem);
+            TempData["InventoryMessage"] = "Inventory item added successfully.";
+            return RedirectToRoleDashboard(role);
+        }
+
+        [HttpGet]
+        public ActionResult EditInventory(string role, int id)
+        {
+            if (!IsAuthorizedFor(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var item = InventoryStore.Find(role, id);
+            if (item == null)
+            {
+                TempData["InventoryError"] = "Inventory item not found.";
+                return RedirectToRoleDashboard(role);
+            }
+
+            ViewBag.Role = role;
+            return View(item);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditInventory(string role, InventoryItem item)
+        {
+            if (!IsAuthorizedFor(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (item == null || string.IsNullOrWhiteSpace(item.Sku) || string.IsNullOrWhiteSpace(item.Name))
+            {
+                ViewBag.Role = role;
+                ViewBag.ErrorMessage = "SKU and Item Name are required.";
+                return View(item);
+            }
+
+            InventoryStore.Update(role, item);
+            TempData["InventoryMessage"] = "Inventory item updated successfully.";
+            return RedirectToRoleDashboard(role);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteInventory(string role, int id)
+        {
+            if (!IsAuthorizedFor(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            InventoryStore.Delete(role, id);
+            TempData["InventoryMessage"] = "Inventory item deleted successfully.";
+            return RedirectToRoleDashboard(role);
         }
 
         public ActionResult Orders()
@@ -107,6 +165,24 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         {
             ViewBag.Message = "Project communication channels.";
             return View();
+        }
+
+        private ActionResult RenderDashboard(string role)
+        {
+            if (!IsAuthorizedFor(role))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new RoleDashboardViewModel
+            {
+                Role = role,
+                LoggedInUser = Session["LoggedInUser"] as string,
+                Items = InventoryStore.GetByRole(role),
+                NewItem = new InventoryItem()
+            };
+
+            return View(role, model);
         }
 
         private bool IsAuthorizedFor(string requiredRole)
