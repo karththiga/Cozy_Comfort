@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/SOC_CozyComfort_API/FileContentIndex/476d85ea-5c6f-439d-b27e-68ba807e17fe.vsidx
+/SOC_CozyComfort_API.slnLaunch.user
+/.vs/SOC_CozyComfort_API
