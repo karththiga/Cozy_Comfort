@@ -7,6 +7,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly InventoryApiClient _inventoryApiClient = new InventoryApiClient();
+
         private static readonly Dictionary<string, string> RoleUserMap = new Dictionary<string, string>
         {
             { "Manufacturer", "m_admin" },
@@ -91,8 +93,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToRoleDashboard(role);
             }
 
-            InventoryStore.Add(role, newItem);
-            TempData["InventoryMessage"] = "Inventory item added successfully.";
+            var created = _inventoryApiClient.Create(role, newItem);
+            TempData[created ? "InventoryMessage" : "InventoryError"] = created
+                ? "Inventory item added successfully."
+                : "Failed to add inventory item through API.";
             return RedirectToRoleDashboard(role);
         }
 
@@ -104,7 +108,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var item = InventoryStore.Find(role, id);
+            var item = _inventoryApiClient.GetById(role, id);
             if (item == null)
             {
                 TempData["InventoryError"] = "Inventory item not found.";
@@ -131,8 +135,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return View(item);
             }
 
-            InventoryStore.Update(role, item);
-            TempData["InventoryMessage"] = "Inventory item updated successfully.";
+            var updated = _inventoryApiClient.Update(role, item.Id, item);
+            TempData[updated ? "InventoryMessage" : "InventoryError"] = updated
+                ? "Inventory item updated successfully."
+                : "Failed to update inventory item through API.";
             return RedirectToRoleDashboard(role);
         }
 
@@ -145,8 +151,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            InventoryStore.Delete(role, id);
-            TempData["InventoryMessage"] = "Inventory item deleted successfully.";
+            var deleted = _inventoryApiClient.Delete(role, id);
+            TempData[deleted ? "InventoryMessage" : "InventoryError"] = deleted
+                ? "Inventory item deleted successfully."
+                : "Failed to delete inventory item through API.";
             return RedirectToRoleDashboard(role);
         }
 
@@ -178,7 +186,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             {
                 Role = role,
                 LoggedInUser = Session["LoggedInUser"] as string,
-                Items = InventoryStore.GetByRole(role),
+                Items = _inventoryApiClient.GetByRole(role),
                 NewItem = new InventoryItem()
             };
 
