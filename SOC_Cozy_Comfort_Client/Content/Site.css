@@ -197,3 +197,18 @@ textarea {
     padding: 14px;
     background: #fafcff;
 }
+
+
+.sample-credentials {
+    background: #f8fbff;
+    border: 1px dashed #b9d2ff;
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.sample-credentials code {
+    color: #0f3bbd;
+    background: #eaf2ff;
+    padding: 1px 6px;
+    border-radius: 6px;
+}

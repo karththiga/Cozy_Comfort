@@ -8,6 +8,11 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body class="cc-body-bg">
+    @{
+        var loggedInRole = Session["LoggedInRole"] as string;
+        var loggedInUser = Session["LoggedInUser"] as string;
+    }
+
     <nav class="navbar navbar-expand-sm navbar-dark cc-topbar sticky-top">
         <div class="container">
             @Html.ActionLink("Cozy Comfort", "Index", "Home", new { area = "" }, new { @class = "navbar-brand fw-bold" })
@@ -18,12 +23,34 @@
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1 cc-nav-list">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Login", "Login", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Manufacturer", "Manufacturer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Distributor", "Distributor", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Seller", "Seller", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+
+                    @if (string.IsNullOrWhiteSpace(loggedInRole))
+                    {
+                        <li>@Html.ActionLink("Login", "Login", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                    else if (loggedInRole == "Manufacturer")
+                    {
+                        <li>@Html.ActionLink("Manufacturer", "Manufacturer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                    else if (loggedInRole == "Distributor")
+                    {
+                        <li>@Html.ActionLink("Distributor", "Distributor", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                    else if (loggedInRole == "Seller")
+                    {
+                        <li>@Html.ActionLink("Seller", "Seller", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+
                     <li>@Html.ActionLink("Order Flow", "Orders", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                 </ul>
+
+                @if (!string.IsNullOrWhiteSpace(loggedInRole))
+                {
+                    <ul class="navbar-nav align-items-sm-center">
+                        <li class="nav-item"><span class="nav-link disabled">@loggedInUser (@loggedInRole)</span></li>
+                        <li class="nav-item">@Html.ActionLink("Logout", "Logout", "Home", new { area = "" }, new { @class = "btn btn-outline-light btn-sm ms-sm-2" })</li>
+                    </ul>
+                }
             </div>
         </div>
     </nav>
