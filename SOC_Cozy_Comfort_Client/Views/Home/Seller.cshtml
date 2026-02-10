@@ -1,4 +1,5 @@
-﻿@{
+﻿@model SOC_Cozy_Comfort_Client.Models.RoleDashboardViewModel
+@{
     ViewBag.Title = "Seller Admin";
 }
 
@@ -7,26 +8,56 @@
         <div>
             <p class="eyebrow">Seller Command</p>
             <h1>Seller Admin Dashboard</h1>
-            <p class="text-muted mb-0">Welcome @(ViewBag.LoggedInUser ?? "Admin"). Supervise customer orders, local stock, and distributor dependencies.</p>
+            <p class="text-muted mb-0">Welcome @Model.LoggedInUser. Manage seller inventory with full CRUD.</p>
         </div>
     </div>
 
-    <div class="row g-3 mt-1 mb-3">
-        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Orders Today</h6><h3>33</h3><small>+11% vs yesterday</small></div></div>
-        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Low Stock Alerts</h6><h3>5</h3><small>needs restock</small></div></div>
-        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Awaiting Distributor</h6><h3>7</h3><small>fulfillment pending</small></div></div>
-        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Customer SLA</h6><h3>96%</h3><small>on-time updates</small></div></div>
-    </div>
+    @if (TempData["InventoryMessage"] != null)
+    {<div class="alert alert-success">@TempData["InventoryMessage"]</div>}
+    @if (TempData["InventoryError"] != null)
+    {<div class="alert alert-danger">@TempData["InventoryError"]</div>}
 
-    <div class="role-card">
-        <h3 class="mb-3">Recent Customer Orders</h3>
-        <table class="table table-hover align-middle">
-            <thead><tr><th>Customer</th><th>SKU</th><th>Qty</th><th>Expected Delivery</th><th>Status</th></tr></thead>
-            <tbody>
-                <tr><td>Sarah Khan</td><td>CC-WOOL-QUEEN</td><td>2</td><td>2026-02-12</td><td><span class="badge text-bg-success">Confirmed</span></td></tr>
-                <tr><td>Ravi Patel</td><td>CC-COTTON-KING</td><td>1</td><td>2026-02-14</td><td><span class="badge text-bg-warning">Checking Distributor</span></td></tr>
-                <tr><td>Nina Roy</td><td>CC-FLEECE-SINGLE</td><td>3</td><td>2026-02-13</td><td><span class="badge text-bg-info">Packed</span></td></tr>
-            </tbody>
-        </table>
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <div class="role-card">
+                <h3 class="mb-3">Inventory List</h3>
+                <table class="table table-hover align-middle">
+                    <thead><tr><th>SKU</th><th>Name</th><th>Qty</th><th>Location</th><th>Updated</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.Sku</td><td>@item.Name</td><td>@item.Quantity</td><td>@item.Location</td><td>@item.LastUpdated.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="@Url.Action("EditInventory", "Home", new { role = Model.Role, id = item.Id })">Edit</a>
+                                @using (Html.BeginForm("DeleteInventory", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="role" value="@Model.Role" />
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this item?');">Delete</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="role-card">
+                <h3 class="mb-3">Add Inventory Item</h3>
+                @using (Html.BeginForm("AddInventory", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="role" value="@Model.Role" />
+                    <div class="mb-2"><label class="form-label">SKU</label><input name="newItem.Sku" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Item Name</label><input name="newItem.Name" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Quantity</label><input type="number" min="0" name="newItem.Quantity" class="form-control" /></div>
+                    <div class="mb-3"><label class="form-label">Location</label><input name="newItem.Location" class="form-control" /></div>
+                    <button type="submit" class="btn btn-primary w-100">Create</button>
+                }
+            </div>
+        </div>
     </div>
 </section>
