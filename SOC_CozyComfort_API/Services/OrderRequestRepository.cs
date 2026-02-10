@@ -75,17 +75,32 @@ ORDER BY CreatedAt DESC", role);
 
         public static bool MarkDistributorFulfilled(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, "Distributor");
+            return UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, expectedToRole: "Distributor");
         }
 
         public static bool MarkManufacturerProductionStarted(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "ProductionInProgress", action.Notes, "Manufacturer");
+            return UpdateStatus(requestId, "ProductionInProgress", action.Notes, expectedToRole: "Manufacturer");
         }
 
         public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action)
         {
-            return UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, "Manufacturer");
+            return UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, expectedToRole: "Manufacturer");
+        }
+
+        public static bool CancelBySeller(int requestId, RequestActionDto action)
+        {
+            return UpdateStatus(requestId, "CancelledBySeller", action.Notes, expectedByRole: "Seller");
+        }
+
+        public static bool CancelByDistributor(int requestId, RequestActionDto action)
+        {
+            return UpdateStatus(requestId, "CancelledByDistributor", action.Notes, expectedToRole: "Distributor");
+        }
+
+        public static bool CancelByManufacturer(int requestId, RequestActionDto action)
+        {
+            return UpdateStatus(requestId, "CancelledByManufacturer", action.Notes, expectedToRole: "Manufacturer");
         }
 
         public static OrderRequestDto GetById(int id)
@@ -156,7 +171,7 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
             }
         }
 
-        private static bool UpdateStatus(int requestId, string status, string notes, string expectedRecipientRole = null)
+        private static bool UpdateStatus(int requestId, string status, string notes, string expectedByRole = null, string expectedToRole = null)
         {
             var sql = @"
 UPDATE dbo.OrderRequests
@@ -165,7 +180,12 @@ SET [Status] = @Status,
     UpdatedAt = @UpdatedAt
 WHERE Id = @Id";
 
-            if (!string.IsNullOrWhiteSpace(expectedRecipientRole))
+            if (!string.IsNullOrWhiteSpace(expectedByRole))
+            {
+                sql += " AND RequestedByRole = @RequestedByRole";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedToRole))
             {
                 sql += " AND RequestedToRole = @RequestedToRole";
             }
@@ -177,9 +197,15 @@ WHERE Id = @Id";
                 command.Parameters.AddWithValue("@Notes", (object)notes ?? DBNull.Value);
                 command.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
                 command.Parameters.AddWithValue("@Id", requestId);
-                if (!string.IsNullOrWhiteSpace(expectedRecipientRole))
+
+                if (!string.IsNullOrWhiteSpace(expectedByRole))
                 {
-                    command.Parameters.AddWithValue("@RequestedToRole", expectedRecipientRole);
+                    command.Parameters.AddWithValue("@RequestedByRole", expectedByRole);
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedToRole))
+                {
+                    command.Parameters.AddWithValue("@RequestedToRole", expectedToRole);
                 }
 
                 connection.Open();

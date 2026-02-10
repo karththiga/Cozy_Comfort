@@ -163,6 +163,21 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return RedirectToAction("SellerRequests");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SellerCancelRequest(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.SellerCancel(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("SellerRequests");
+        }
+
         [HttpGet]
         public ActionResult DistributorRequests()
         {
@@ -210,6 +225,21 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return RedirectToAction("DistributorRequests");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DistributorCancelRequest(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Distributor"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.DistributorCancel(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("DistributorRequests");
+        }
+
         [HttpGet]
         public ActionResult ManufacturerRequests()
         {
@@ -253,6 +283,21 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             }
 
             var result = _orderRequestApiClient.ManufacturerDispatch(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("ManufacturerRequests");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManufacturerCancelRequest(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Manufacturer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.ManufacturerCancel(requestId, Session["LoggedInUser"] as string, notes);
             TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
             return RedirectToAction("ManufacturerRequests");
         }
