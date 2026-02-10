@@ -14,7 +14,10 @@
             <p class="eyebrow">Manufacturer Command</p>
             <h1>Manufacturer Admin Dashboard</h1>
             <p class="text-muted mb-0">Welcome @Model.LoggedInUser. Manage manufacturing inventory with full CRUD.</p>
-        </div>
+
+        <div class="mt-3">
+            <a class="btn btn-outline-primary" href="@Url.Action("ManufacturerRequests", "Home")">Review distributor requests / manage production</a>
+        </div></div>
     </div>
 
     <div class="row g-3 mb-3">

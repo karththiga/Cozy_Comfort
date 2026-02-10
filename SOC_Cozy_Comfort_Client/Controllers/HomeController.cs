@@ -8,6 +8,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
     {
         private readonly InventoryApiClient _inventoryApiClient = new InventoryApiClient();
         private readonly AuthApiClient _authApiClient = new AuthApiClient();
+        private readonly OrderRequestApiClient _orderRequestApiClient = new OrderRequestApiClient();
 
         public ActionResult Index()
         {
@@ -125,6 +126,135 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             var result = _inventoryApiClient.Delete(role, id);
             TempData[result.Success ? "InventoryMessage" : "InventoryError"] = result.Message;
             return RedirectToRoleDashboard(role);
+        }
+
+        [HttpGet]
+        public ActionResult SellerRequests()
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new RequestBoardViewModel
+            {
+                Role = "Seller",
+                LoggedInUser = Session["LoggedInUser"] as string,
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Seller"),
+                IncomingRequests = _orderRequestApiClient.GetIncoming("Seller"),
+                NewRequest = new OrderRequestItem()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateSellerRequest(OrderRequestItem newRequest)
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userName = Session["LoggedInUser"] as string;
+            var result = _orderRequestApiClient.CreateSellerRequest(userName, newRequest);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("SellerRequests");
+        }
+
+        [HttpGet]
+        public ActionResult DistributorRequests()
+        {
+            if (!IsAuthorizedFor("Distributor"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new RequestBoardViewModel
+            {
+                Role = "Distributor",
+                LoggedInUser = Session["LoggedInUser"] as string,
+                IncomingRequests = _orderRequestApiClient.GetIncoming("Distributor"),
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Distributor")
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DistributorEscalate(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Distributor"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.DistributorEscalate(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("DistributorRequests");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DistributorFulfill(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Distributor"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.DistributorFulfill(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("DistributorRequests");
+        }
+
+        [HttpGet]
+        public ActionResult ManufacturerRequests()
+        {
+            if (!IsAuthorizedFor("Manufacturer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new RequestBoardViewModel
+            {
+                Role = "Manufacturer",
+                LoggedInUser = Session["LoggedInUser"] as string,
+                IncomingRequests = _orderRequestApiClient.GetIncoming("Manufacturer"),
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Manufacturer")
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManufacturerStartProduction(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Manufacturer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.ManufacturerStartProduction(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("ManufacturerRequests");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManufacturerDispatch(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Manufacturer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.ManufacturerDispatch(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("ManufacturerRequests");
         }
 
         public ActionResult Orders()

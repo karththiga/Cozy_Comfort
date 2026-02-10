@@ -125,8 +125,11 @@
     <Compile Include="Models\RoleDashboardViewModel.cs" />
     <Compile Include="Models\ApiOperationResult.cs" />
     <Compile Include="Models\LoginApiResponse.cs" />
+    <Compile Include="Models\OrderRequestItem.cs" />
+    <Compile Include="Models\RequestBoardViewModel.cs" />
     <Compile Include="Services\InventoryApiClient.cs" />
     <Compile Include="Services\AuthApiClient.cs" />
+    <Compile Include="Services\OrderRequestApiClient.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -189,6 +192,9 @@
     <Content Include="Views\Home\Seller.cshtml" />
     <Content Include="Views\Home\Orders.cshtml" />
     <Content Include="Views\Home\EditInventory.cshtml" />
+    <Content Include="Views\Home\SellerRequests.cshtml" />
+    <Content Include="Views\Home\DistributorRequests.cshtml" />
+    <Content Include="Views\Home\ManufacturerRequests.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

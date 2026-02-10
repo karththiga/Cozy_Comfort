@@ -67,6 +67,26 @@ BEGIN
         LastUpdated DATETIME NOT NULL
     );
 END;
+
+
+IF OBJECT_ID(N'dbo.OrderRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.OrderRequests(
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        RequestType NVARCHAR(60) NOT NULL,
+        RequestedByRole NVARCHAR(50) NOT NULL,
+        RequestedToRole NVARCHAR(50) NOT NULL,
+        RequestedByUser NVARCHAR(100) NOT NULL,
+        Sku NVARCHAR(100) NOT NULL,
+        BlanketName NVARCHAR(200) NOT NULL,
+        Quantity INT NOT NULL,
+        [Status] NVARCHAR(80) NOT NULL,
+        Notes NVARCHAR(500) NULL,
+        CreatedAt DATETIME NOT NULL,
+        UpdatedAt DATETIME NOT NULL,
+        SourceRequestId INT NULL
+    );
+END;
 ";
 
                 using (var cmd = new SqlCommand(createScript, dbConnection))
@@ -106,6 +126,15 @@ BEGIN
     ('Distributor', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 190, 'North Hub', GETDATE()),
     ('Seller', 'CC-COTTON-KING', 'Cotton King Blanket', 24, 'Store A-12', GETDATE()),
     ('Seller', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 16, 'Store A-12', GETDATE());
+END;
+
+
+IF NOT EXISTS(SELECT 1 FROM dbo.OrderRequests)
+BEGIN
+    INSERT INTO dbo.OrderRequests
+    (RequestType, RequestedByRole, RequestedToRole, RequestedByUser, Sku, BlanketName, Quantity, [Status], Notes, CreatedAt, UpdatedAt, SourceRequestId)
+    VALUES
+    ('SellerToDistributor', 'Seller', 'Distributor', 's_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 40, 'PendingDistributorReview', 'Need stock for weekend promo.', GETDATE(), GETDATE(), NULL);
 END;
 ";
 
