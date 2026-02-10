@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.Title = "Manufacturer";
+}
+
+<h1>Manufacturer Operations Screen</h1>
+<p class="text-muted">Use this screen to connect API endpoints for product master data, stock, and production planning.</p>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="role-card">
+            <h3>Blanket Model Catalog</h3>
+            <ul>
+                <li>Model Code</li>
+                <li>Material / GSM</li>
+                <li>Size & Color Variants</li>
+                <li>Base Price</li>
+            </ul>
+            <button class="btn btn-outline-secondary btn-sm" disabled>Load from API</button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="role-card">
+            <h3>Production Capacity</h3>
+            <table class="table table-sm table-striped">
+                <thead><tr><th>Line</th><th>Daily Units</th><th>Utilization</th></tr></thead>
+                <tbody>
+                    <tr><td>Line A</td><td>800</td><td>72%</td></tr>
+                    <tr><td>Line B</td><td>650</td><td>81%</td></tr>
+                    <tr><td>Line C</td><td>500</td><td>66%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

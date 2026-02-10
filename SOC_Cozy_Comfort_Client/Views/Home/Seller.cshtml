@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "Seller";
+}
+
+<h1>Seller Operations Screen</h1>
+<p class="text-muted">Capture customer demand and trigger fulfillment requests through distributor APIs.</p>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="role-card">
+            <h3>Customer Order Intake</h3>
+            <div class="mb-2"><label class="form-label">Customer Name</label><input class="form-control" placeholder="e.g., Sarah Khan" /></div>
+            <div class="mb-2"><label class="form-label">Blanket SKU</label><input class="form-control" placeholder="CC-WOOL-QUEEN" /></div>
+            <div class="mb-2"><label class="form-label">Quantity</label><input class="form-control" value="2" /></div>
+            <button class="btn btn-primary" disabled>Submit Order</button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="role-card">
+            <h3>Local Store Stock</h3>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between"><span>CC-WOOL-QUEEN</span><strong>4</strong></li>
+                <li class="list-group-item d-flex justify-content-between"><span>CC-COTTON-KING</span><strong>0</strong></li>
+                <li class="list-group-item d-flex justify-content-between"><span>CC-FLEECE-SINGLE</span><strong>3</strong></li>
+            </ul>
+        </div>
+    </div>
+</div>
