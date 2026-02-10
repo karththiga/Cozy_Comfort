@@ -1,33 +1,67 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Welcome";
+    var loggedInRole = Session["LoggedInRole"] as string;
+    var loggedInUser = Session["LoggedInUser"] as string;
 }
 
 <main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
-
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+    @if (string.IsNullOrWhiteSpace(loggedInRole))
+    {
+        <section class="hero-card hero-pro" aria-labelledby="welcomeTitle">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <p class="eyebrow">Service-Oriented Commerce Suite</p>
+                    <h1 id="welcomeTitle">Cozy Comfort Operations Command Center</h1>
+                    <p class="lead">Please login to open your role-specific dashboard. The system shows only your own module after authentication.</p>
+                    <div class="hero-actions">
+                        <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg px-4">Open Common Login</a>
+                        <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-light btn-lg px-4">Order Flow</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <div class="glass-card">
+                        <h5 class="mb-3">Platform Highlights</h5>
+                        <ul class="mb-0">
+                            <li>Single login for all stakeholders</li>
+                            <li>Role-aware operational dashboards</li>
+                            <li>Inventory CRUD through API services</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+    }
+    else if (loggedInRole == "Manufacturer")
+    {
+        <section class="dashboard-head manufacturer-head">
+            <p class="eyebrow">Manufacturer Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Manufacturer</strong>. Manage production inventory, stock levels, and fulfillment readiness.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Manufacturer", "Home")">Open Manufacturer Dashboard</a>
+            </div>
         </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    }
+    else if (loggedInRole == "Distributor")
+    {
+        <section class="dashboard-head distributor-head">
+            <p class="eyebrow">Distributor Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Distributor</strong>. Manage warehouse inventory, dispatch planning, and refill coordination.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Distributor", "Home")">Open Distributor Dashboard</a>
+            </div>
         </section>
-    </div>
+    }
+    else if (loggedInRole == "Seller")
+    {
+        <section class="dashboard-head seller-head">
+            <p class="eyebrow">Seller Command</p>
+            <h1>Welcome, @loggedInUser</h1>
+            <p class="text-muted mb-0">You are logged in as <strong>Seller</strong>. Manage storefront inventory, customer orders, and distributor follow-ups.</p>
+            <div class="hero-actions mt-3">
+                <a class="btn btn-primary" href="@Url.Action("Seller", "Home")">Open Seller Dashboard</a>
+            </div>
+        </section>
+    }
 </main>
