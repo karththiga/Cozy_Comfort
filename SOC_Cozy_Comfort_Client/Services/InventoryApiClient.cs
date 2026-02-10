@@ -8,6 +8,9 @@ using SOC_Cozy_Comfort_Client.Models;
 
 namespace SOC_Cozy_Comfort_Client.Services
 {
+    /// <summary>
+    /// Encapsulates all HTTP calls from MVC client to the inventory API.
+    /// </summary>
     public class InventoryApiClient
     {
         private readonly string _baseUrl;

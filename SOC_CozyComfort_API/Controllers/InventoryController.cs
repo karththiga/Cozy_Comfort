@@ -5,6 +5,9 @@ using SOC_CozyComfort_API.Services;
 
 namespace SOC_CozyComfort_API.Controllers
 {
+    /// <summary>
+    /// Exposes role-scoped inventory CRUD endpoints for client applications.
+    /// </summary>
     [RoutePrefix("api/inventory")]
     public class InventoryController : ApiController
     {
