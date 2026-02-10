@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Web.Http;
 using SOC_CozyComfort_API.Models;
 using SOC_CozyComfort_API.Services;
@@ -20,8 +20,7 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest("Invalid role.");
             }
 
-            var items = InventoryRepository.GetByRole(role);
-            return Ok(items);
+            return Ok(InventoryRepository.GetByRole(role));
         }
 
         [HttpGet]
@@ -51,9 +50,9 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest("Invalid role.");
             }
 
-            if (item == null || string.IsNullOrWhiteSpace(item.Sku) || string.IsNullOrWhiteSpace(item.Name))
+            if (!ValidatePayload(item))
             {
-                return BadRequest("SKU and Name are required.");
+                return BadRequest(GetModelStateErrors());
             }
 
             var created = InventoryRepository.Add(role, item);
@@ -69,9 +68,9 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest("Invalid role.");
             }
 
-            if (item == null || string.IsNullOrWhiteSpace(item.Sku) || string.IsNullOrWhiteSpace(item.Name))
+            if (!ValidatePayload(item))
             {
-                return BadRequest("SKU and Name are required.");
+                return BadRequest(GetModelStateErrors());
             }
 
             var updated = InventoryRepository.Update(role, id, item);
@@ -99,6 +98,23 @@ namespace SOC_CozyComfort_API.Controllers
             }
 
             return Ok();
+        }
+
+        private bool ValidatePayload(InventoryItemDto item)
+        {
+            if (item == null)
+            {
+                ModelState.AddModelError("item", "Request body is required.");
+                return false;
+            }
+
+            Validate(item);
+            return ModelState.IsValid;
+        }
+
+        private string GetModelStateErrors()
+        {
+            return string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
         }
     }
 }

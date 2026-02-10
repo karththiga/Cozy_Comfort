@@ -123,7 +123,10 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Models\InventoryItem.cs" />
     <Compile Include="Models\RoleDashboardViewModel.cs" />
+    <Compile Include="Models\ApiOperationResult.cs" />
+    <Compile Include="Models\LoginApiResponse.cs" />
     <Compile Include="Services\InventoryApiClient.cs" />
+    <Compile Include="Services\AuthApiClient.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

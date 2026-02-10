@@ -17,7 +17,7 @@ namespace SOC_Cozy_Comfort_Client.Services
 
         public InventoryApiClient()
         {
-            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "http://localhost:51026";
+            _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "http://localhost:59573";
         }
 
         public List<InventoryItem> GetByRole(string role)
@@ -50,32 +50,32 @@ namespace SOC_Cozy_Comfort_Client.Services
             }
         }
 
-        public bool Create(string role, InventoryItem item)
+        public ApiOperationResult Create(string role, InventoryItem item)
         {
             using (var client = BuildClient())
             {
                 var body = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
                 var response = client.PostAsync("api/inventory/" + role, body).Result;
-                return response.IsSuccessStatusCode;
+                return BuildResult(response, "Inventory item added successfully.");
             }
         }
 
-        public bool Update(string role, int id, InventoryItem item)
+        public ApiOperationResult Update(string role, int id, InventoryItem item)
         {
             using (var client = BuildClient())
             {
                 var body = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
                 var response = client.PutAsync("api/inventory/" + role + "/" + id, body).Result;
-                return response.IsSuccessStatusCode;
+                return BuildResult(response, "Inventory item updated successfully.");
             }
         }
 
-        public bool Delete(string role, int id)
+        public ApiOperationResult Delete(string role, int id)
         {
             using (var client = BuildClient())
             {
                 var response = client.DeleteAsync("api/inventory/" + role + "/" + id).Result;
-                return response.IsSuccessStatusCode;
+                return BuildResult(response, "Inventory item deleted successfully.");
             }
         }
 
@@ -83,6 +83,33 @@ namespace SOC_Cozy_Comfort_Client.Services
         {
             var client = new HttpClient { BaseAddress = new Uri(_baseUrl.TrimEnd('/') + "/") };
             return client;
+        }
+
+        private static ApiOperationResult BuildResult(HttpResponseMessage response, string successMessage)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                return new ApiOperationResult { Success = true, Message = successMessage };
+            }
+
+            return new ApiOperationResult
+            {
+                Success = false,
+                Message = ReadErrorMessage(response, "API validation failed.")
+            };
+        }
+
+        private static string ReadErrorMessage(HttpResponseMessage response, string fallback)
+        {
+            try
+            {
+                var msg = response.Content.ReadAsStringAsync().Result;
+                return string.IsNullOrWhiteSpace(msg) ? fallback : msg.Trim('"');
+            }
+            catch
+            {
+                return fallback;
+            }
         }
     }
 }

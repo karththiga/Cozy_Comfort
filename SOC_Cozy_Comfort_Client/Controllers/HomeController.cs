@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using SOC_Cozy_Comfort_Client.Models;
 using SOC_Cozy_Comfort_Client.Services;
 
@@ -8,20 +7,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
     public class HomeController : Controller
     {
         private readonly InventoryApiClient _inventoryApiClient = new InventoryApiClient();
-
-        private static readonly Dictionary<string, string> RoleUserMap = new Dictionary<string, string>
-        {
-            { "Manufacturer", "m_admin" },
-            { "Distributor", "d_admin" },
-            { "Seller", "s_admin" }
-        };
-
-        private static readonly Dictionary<string, string> RolePasswordMap = new Dictionary<string, string>
-        {
-            { "Manufacturer", "M@123" },
-            { "Distributor", "D@123" },
-            { "Seller", "S@123" }
-        };
+        private readonly AuthApiClient _authApiClient = new AuthApiClient();
 
         public ActionResult Index()
         {
@@ -38,23 +24,18 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(string userName, string password, string role)
         {
-            if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
+            LoginApiResponse responsePayload;
+            var result = _authApiClient.Login(userName, password, role, out responsePayload);
+            if (!result.Success)
             {
-                ViewBag.ErrorMessage = "Please enter username, password, and select a role.";
+                ViewBag.ErrorMessage = result.Message;
                 return View();
             }
 
-            if (!RoleUserMap.ContainsKey(role) || !RolePasswordMap.ContainsKey(role) ||
-                RoleUserMap[role] != userName || RolePasswordMap[role] != password)
-            {
-                ViewBag.ErrorMessage = "Invalid login details for the selected role.";
-                return View();
-            }
+            Session["LoggedInUser"] = responsePayload.UserName;
+            Session["LoggedInRole"] = responsePayload.Role;
 
-            Session["LoggedInUser"] = userName;
-            Session["LoggedInRole"] = role;
-
-            return RedirectToRoleDashboard(role);
+            return RedirectToRoleDashboard(responsePayload.Role);
         }
 
         public ActionResult Logout()
@@ -87,16 +68,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            if (newItem == null || string.IsNullOrWhiteSpace(newItem.Sku) || string.IsNullOrWhiteSpace(newItem.Name))
-            {
-                TempData["InventoryError"] = "SKU and Item Name are required.";
-                return RedirectToRoleDashboard(role);
-            }
-
-            var created = _inventoryApiClient.Create(role, newItem);
-            TempData[created ? "InventoryMessage" : "InventoryError"] = created
-                ? "Inventory item added successfully."
-                : "Failed to add inventory item through API.";
+            var result = _inventoryApiClient.Create(role, newItem);
+            TempData[result.Success ? "InventoryMessage" : "InventoryError"] = result.Message;
             return RedirectToRoleDashboard(role);
         }
 
@@ -128,17 +101,15 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            if (item == null || string.IsNullOrWhiteSpace(item.Sku) || string.IsNullOrWhiteSpace(item.Name))
+            var result = _inventoryApiClient.Update(role, item.Id, item);
+            if (!result.Success)
             {
                 ViewBag.Role = role;
-                ViewBag.ErrorMessage = "SKU and Item Name are required.";
+                ViewBag.ErrorMessage = result.Message;
                 return View(item);
             }
 
-            var updated = _inventoryApiClient.Update(role, item.Id, item);
-            TempData[updated ? "InventoryMessage" : "InventoryError"] = updated
-                ? "Inventory item updated successfully."
-                : "Failed to update inventory item through API.";
+            TempData["InventoryMessage"] = result.Message;
             return RedirectToRoleDashboard(role);
         }
 
@@ -151,10 +122,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var deleted = _inventoryApiClient.Delete(role, id);
-            TempData[deleted ? "InventoryMessage" : "InventoryError"] = deleted
-                ? "Inventory item deleted successfully."
-                : "Failed to delete inventory item through API.";
+            var result = _inventoryApiClient.Delete(role, id);
+            TempData[result.Success ? "InventoryMessage" : "InventoryError"] = result.Message;
             return RedirectToRoleDashboard(role);
         }
 
