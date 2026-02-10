@@ -1,9 +1,18 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
 
-    <p>Use this area to provide additional information.</p>
+<main aria-labelledby="title">
+    <h2 id="title">SOC Assignment Scope</h2>
+    <p>@ViewBag.Message</p>
+
+    <div class="role-card">
+        <h3>Planned Service Boundaries</h3>
+        <ul>
+            <li><strong>Manufacturer API:</strong> products, material metadata, stock, production slots.</li>
+            <li><strong>Distributor API:</strong> inventory, allocation, logistics milestones, refill requests.</li>
+            <li><strong>Seller API:</strong> customer orders, order status, stock reservation and notifications.</li>
+            <li><strong>Order Orchestration:</strong> request tracking and lead-time decisions across all parties.</li>
+        </ul>
+    </div>
 </main>
