@@ -1,0 +1,117 @@
+@{
+    ViewBag.Title = "Order Processing";
+    var loggedInRole = Session["LoggedInRole"] as string;
+}
+
+<section class="order-flow-page">
+    <div class="order-flow-hero">
+        <p class="eyebrow mb-2">SOC Fulfillment Workflow</p>
+        <h1 class="mb-2">Blanket Order Processing Journey</h1>
+        <p class="text-muted mb-0">
+            This screen models the end-to-end process you described: Customer order → Seller check → Distributor escalation → Manufacturer fulfillment/production.
+        </p>
+    </div>
+
+    <div class="flow-swimlanes mt-4">
+        <article class="flow-lane customer-lane">
+            <div class="lane-header">
+                <h4>Step 1 · Customer</h4>
+                <span class="badge text-bg-primary">Trigger</span>
+            </div>
+            <div class="flow-card">
+                <h5>Place Blanket Order</h5>
+                <p>Customer places an order for a specific SKU through a seller (online store / physical outlet).</p>
+                <ul>
+                    <li>Order ID created</li>
+                    <li>Requested quantity captured</li>
+                    <li>Delivery expectation shared</li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="flow-lane seller-lane">
+            <div class="lane-header">
+                <h4>Step 2 · Seller</h4>
+                <span class="badge text-bg-success">Decision</span>
+            </div>
+            <div class="flow-card">
+                <h5>Check Seller Inventory</h5>
+                <p>Seller validates stock in seller inventory table.</p>
+                <div class="decision-box yes-path">
+                    <strong>If Available:</strong> Seller confirms and dispatches to customer.
+                </div>
+                <div class="decision-box no-path">
+                    <strong>If Not Available:</strong> Seller raises replenishment request to distributor.
+                </div>
+            </div>
+        </article>
+
+        <article class="flow-lane distributor-lane">
+            <div class="lane-header">
+                <h4>Step 3 · Distributor</h4>
+                <span class="badge text-bg-info">Escalation</span>
+            </div>
+            <div class="flow-card">
+                <h5>Check Distributor Inventory</h5>
+                <p>Distributor verifies warehouse stock for requested SKU/quantity.</p>
+                <div class="decision-box yes-path">
+                    <strong>If Available:</strong> Distributor ships to seller for final delivery.
+                </div>
+                <div class="decision-box no-path">
+                    <strong>If Not Available:</strong> Distributor submits procurement request to manufacturer.
+                </div>
+            </div>
+        </article>
+
+        <article class="flow-lane manufacturer-lane">
+            <div class="lane-header">
+                <h4>Step 4 · Manufacturer</h4>
+                <span class="badge text-bg-dark">Production</span>
+            </div>
+            <div class="flow-card">
+                <h5>Check Manufacturer Stock / Capacity</h5>
+                <p>Manufacturer checks finished goods inventory first, then production capability.</p>
+                <div class="decision-box yes-path">
+                    <strong>If Available:</strong> Manufacturer ships inventory to distributor.
+                </div>
+                <div class="decision-box no-path">
+                    <strong>If Not Available:</strong> Manufacturer produces blankets, then dispatches to distributor.
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="reverse-fulfillment mt-4">
+        <h4 class="mb-3">Step 5 · Reverse Fulfillment Chain</h4>
+        <div class="reverse-chain">
+            <span>Manufacturer</span>
+            <i>→</i>
+            <span>Distributor</span>
+            <i>→</i>
+            <span>Seller</span>
+            <i>→</i>
+            <span>Customer</span>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+            At each handoff, inventory is reduced at source and updated at destination to keep all dashboards synchronized.
+        </p>
+    </div>
+
+    <div class="process-note mt-4">
+        <h5>Suggested System Actions per Step</h5>
+        <ol>
+            <li>Create order + seller inventory reservation.</li>
+            <li>Auto-trigger distributor request when seller stock is insufficient.</li>
+            <li>Auto-trigger manufacturer request when distributor stock is insufficient.</li>
+            <li>Create production order when manufacturer stock is not available.</li>
+            <li>Track status transitions: <code>Placed → Checked → Escalated → Fulfilled → Delivered</code>.</li>
+        </ol>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(loggedInRole))
+    {
+        <div class="mt-4">
+            <a href="@Url.Action(loggedInRole, "Home")" class="btn btn-primary">Back to @loggedInRole Dashboard</a>
+        </div>
+    }
+</section>

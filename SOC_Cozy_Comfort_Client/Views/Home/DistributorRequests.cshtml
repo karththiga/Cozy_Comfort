@@ -1,0 +1,71 @@
+@model SOC_Cozy_Comfort_Client.Models.RequestBoardViewModel
+@{
+    ViewBag.Title = "Distributor Requests";
+}
+
+<section class="request-page">
+    <div class="dashboard-head distributor-head">
+        <p class="eyebrow">Distributor Workflow</p>
+        <h1>Seller Requests Received</h1>
+        <p class="text-muted mb-0">Fulfill seller requests from distributor inventory or escalate to manufacturer.</p>
+    </div>
+
+    @if (TempData["RequestMessage"] != null)
+    {<div class="alert alert-success">@TempData["RequestMessage"]</div>}
+    @if (TempData["RequestError"] != null)
+    {<div class="alert alert-danger">@TempData["RequestError"]</div>}
+
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Incoming from Sellers</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>Seller</th><th>SKU</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var req in Model.IncomingRequests)
+            {
+                <tr>
+                    <td>@req.Id</td>
+                    <td>@req.RequestedByUser</td>
+                    <td>@req.Sku</td>
+                    <td>@req.Quantity</td>
+                    <td><span class="status-pill">@req.Status</span></td>
+                    <td>
+                        @using (Html.BeginForm("DistributorFulfill", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@req.Id" />
+                            <input type="hidden" name="notes" value="Fulfilled from distributor stock." />
+                            <button class="btn btn-sm btn-outline-success" type="submit">Fulfill</button>
+                        }
+                        @using (Html.BeginForm("DistributorEscalate", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="requestId" value="@req.Id" />
+                            <input type="hidden" name="notes" value="Escalated to manufacturer due to low stock." />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Request Manufacturer</button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Requests Sent to Manufacturer</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>SKU</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+            <tbody>
+            @foreach (var req in Model.OutgoingRequests)
+            {
+                <tr>
+                    <td>@req.Id</td>
+                    <td>@req.Sku</td>
+                    <td>@req.Quantity</td>
+                    <td><span class="status-pill">@req.Status</span></td>
+                    <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
