@@ -15,6 +15,15 @@
             <div class="alert alert-danger mt-3">@ViewBag.ErrorMessage</div>
         }
 
+        <div class="sample-credentials mt-3 mb-3">
+            <p class="mb-2"><strong>Test Login Credentials</strong></p>
+            <ul class="mb-0">
+                <li><strong>Manufacturer:</strong> username <code>m_admin</code> / password <code>M@123</code></li>
+                <li><strong>Distributor:</strong> username <code>d_admin</code> / password <code>D@123</code></li>
+                <li><strong>Seller:</strong> username <code>s_admin</code> / password <code>S@123</code></li>
+            </ul>
+        </div>
+
         @using (Html.BeginForm("Login", "Home", FormMethod.Post, new { @class = "mt-4" }))
         {
             @Html.AntiForgeryToken()

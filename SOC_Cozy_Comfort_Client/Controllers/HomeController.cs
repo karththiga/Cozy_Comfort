@@ -1,9 +1,24 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Web.Mvc;
 
 namespace SOC_Cozy_Comfort_Client.Controllers
 {
     public class HomeController : Controller
     {
+        private static readonly Dictionary<string, string> RoleUserMap = new Dictionary<string, string>
+        {
+            { "Manufacturer", "m_admin" },
+            { "Distributor", "d_admin" },
+            { "Seller", "s_admin" }
+        };
+
+        private static readonly Dictionary<string, string> RolePasswordMap = new Dictionary<string, string>
+        {
+            { "Manufacturer", "M@123" },
+            { "Distributor", "D@123" },
+            { "Seller", "S@123" }
+        };
+
         public ActionResult Index()
         {
             return View();
@@ -25,37 +40,55 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return View();
             }
 
-            TempData["LoggedInUser"] = userName;
-
-            switch (role)
+            if (!RoleUserMap.ContainsKey(role) || !RolePasswordMap.ContainsKey(role) ||
+                RoleUserMap[role] != userName || RolePasswordMap[role] != password)
             {
-                case "Manufacturer":
-                    return RedirectToAction("Manufacturer");
-                case "Distributor":
-                    return RedirectToAction("Distributor");
-                case "Seller":
-                    return RedirectToAction("Seller");
-                default:
-                    ViewBag.ErrorMessage = "Invalid role selected.";
-                    return View();
+                ViewBag.ErrorMessage = "Invalid login details for the selected role.";
+                return View();
             }
+
+            Session["LoggedInUser"] = userName;
+            Session["LoggedInRole"] = role;
+
+            return RedirectToRoleDashboard(role);
+        }
+
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            return RedirectToAction("Login");
         }
 
         public ActionResult Manufacturer()
         {
-            ViewBag.LoggedInUser = TempData["LoggedInUser"];
+            if (!IsAuthorizedFor("Manufacturer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.LoggedInUser = Session["LoggedInUser"];
             return View();
         }
 
         public ActionResult Distributor()
         {
-            ViewBag.LoggedInUser = TempData["LoggedInUser"];
+            if (!IsAuthorizedFor("Distributor"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.LoggedInUser = Session["LoggedInUser"];
             return View();
         }
 
         public ActionResult Seller()
         {
-            ViewBag.LoggedInUser = TempData["LoggedInUser"];
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.LoggedInUser = Session["LoggedInUser"];
             return View();
         }
 
@@ -74,6 +107,27 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         {
             ViewBag.Message = "Project communication channels.";
             return View();
+        }
+
+        private bool IsAuthorizedFor(string requiredRole)
+        {
+            var loggedInRole = Session["LoggedInRole"] as string;
+            return !string.IsNullOrWhiteSpace(loggedInRole) && loggedInRole == requiredRole;
+        }
+
+        private ActionResult RedirectToRoleDashboard(string role)
+        {
+            switch (role)
+            {
+                case "Manufacturer":
+                    return RedirectToAction("Manufacturer");
+                case "Distributor":
+                    return RedirectToAction("Distributor");
+                case "Seller":
+                    return RedirectToAction("Seller");
+                default:
+                    return RedirectToAction("Login");
+            }
         }
     }
 }
