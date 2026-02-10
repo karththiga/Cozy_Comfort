@@ -3,32 +3,53 @@
 }
 
 <main>
-    <section class="hero-card" aria-labelledby="welcomeTitle">
-        <h1 id="welcomeTitle">Cozy Comfort SOC Assignment Portal</h1>
-        <p class="lead">Common login first, then role-based admin dashboards for Manufacturer, Distributor, and Seller operations.</p>
-        <div class="hero-actions">
-            <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Go to Common Login</a>
-            <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-dark">View SOC Order Flow</a>
+    <section class="hero-card hero-pro" aria-labelledby="welcomeTitle">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <p class="eyebrow">Service-Oriented Commerce Suite</p>
+                <h1 id="welcomeTitle">Cozy Comfort Operations Command Center</h1>
+                <p class="lead">A professional SOC starter portal with common authentication and role-specific dashboards for Manufacturer, Distributor, and Seller teams.</p>
+                <div class="hero-actions">
+                    <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg px-4">Open Common Login</a>
+                    <a href="@Url.Action("Orders", "Home")" class="btn btn-outline-light btn-lg px-4">Order Flow</a>
+                </div>
+            </div>
+            <div class="col-lg-5 mt-4 mt-lg-0">
+                <div class="glass-card">
+                    <h5 class="mb-3">Platform Highlights</h5>
+                    <ul class="mb-0">
+                        <li>Single login for all stakeholders</li>
+                        <li>Role-aware operational dashboards</li>
+                        <li>Live-ready KPI and workflow widgets</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section class="row g-3 mt-2">
+    <section class="row g-4 mt-1">
         <div class="col-md-4">
-            <article class="role-card">
-                <h3>Manufacturer Admin Dashboard</h3>
-                <p>Track production capacity, model catalog status, and stock readiness.</p>
+            <article class="role-card hover-lift">
+                <span class="role-dot role-dot-manufacturer"></span>
+                <h3>Manufacturer Dashboard</h3>
+                <p>Capacity monitoring, production queue, and stock visibility in one screen.</p>
+                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Manufacturer", "Home")">Preview Dashboard</a>
             </article>
         </div>
         <div class="col-md-4">
-            <article class="role-card">
-                <h3>Distributor Admin Dashboard</h3>
-                <p>Monitor warehouse inventory, logistics schedules, and refill requests.</p>
+            <article class="role-card hover-lift">
+                <span class="role-dot role-dot-distributor"></span>
+                <h3>Distributor Dashboard</h3>
+                <p>Inventory health, dispatch readiness, and refill coordination analytics.</p>
+                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Distributor", "Home")">Preview Dashboard</a>
             </article>
         </div>
         <div class="col-md-4">
-            <article class="role-card">
-                <h3>Seller Admin Dashboard</h3>
-                <p>Manage customer orders, local stock, and distributor escalations.</p>
+            <article class="role-card hover-lift">
+                <span class="role-dot role-dot-seller"></span>
+                <h3>Seller Dashboard</h3>
+                <p>Customer order trends, low-stock alerts, and distributor dependency view.</p>
+                <a class="btn btn-outline-primary btn-sm" href="@Url.Action("Seller", "Home")">Preview Dashboard</a>
             </article>
         </div>
     </section>
