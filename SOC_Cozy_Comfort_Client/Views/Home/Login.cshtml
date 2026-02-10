@@ -7,7 +7,7 @@
         <div class="login-header">
             <p class="eyebrow mb-1">Secure Access</p>
             <h2>Welcome to Cozy Comfort</h2>
-            <p class="text-muted mb-0">Sign in once and choose your operational role.</p>
+            <p class="text-muted mb-0">Sign in with your username and password to open your assigned dashboard.</p>
         </div>
 
         @if (ViewBag.ErrorMessage != null)
@@ -38,15 +38,6 @@
                 <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter password" />
             </div>
 
-            <div class="mb-4">
-                <label class="form-label">Login As</label>
-                <select name="role" class="form-select form-select-lg">
-                    <option value="">Select Role</option>
-                    <option value="Manufacturer">Manufacturer Admin</option>
-                    <option value="Distributor">Distributor Admin</option>
-                    <option value="Seller">Seller Admin</option>
-                </select>
-            </div>
 
             <button type="submit" class="btn btn-primary btn-lg w-100">Login to Dashboard</button>
         }

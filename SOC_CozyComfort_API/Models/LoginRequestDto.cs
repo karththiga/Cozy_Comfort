@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace SOC_CozyComfort_API.Models
 {
@@ -9,8 +9,5 @@ namespace SOC_CozyComfort_API.Models
 
         [Required]
         public string Password { get; set; }
-
-        [Required]
-        public string Role { get; set; }
     }
 }

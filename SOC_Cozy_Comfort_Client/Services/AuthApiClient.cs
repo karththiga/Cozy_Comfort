@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Net;
 using System.Net.Http;
@@ -17,12 +17,12 @@ namespace SOC_Cozy_Comfort_Client.Services
             _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
-        public ApiOperationResult Login(string userName, string password, string role, out LoginApiResponse payload)
+        public ApiOperationResult Login(string userName, string password, out LoginApiResponse payload)
         {
             payload = null;
             using (var client = BuildClient())
             {
-                var request = new { UserName = userName, Password = password, Role = role };
+                var request = new { UserName = userName, Password = password };
                 var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = client.PostAsync("api/auth/login", body).Result;
 
@@ -35,7 +35,7 @@ namespace SOC_Cozy_Comfort_Client.Services
 
                 if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
-                    return new ApiOperationResult { Success = false, Message = "Invalid username or password for selected role." };
+                    return new ApiOperationResult { Success = false, Message = "Invalid username or password." };
                 }
 
                 return new ApiOperationResult { Success = false, Message = ReadErrorMessage(response, "Login validation failed from API.") };
