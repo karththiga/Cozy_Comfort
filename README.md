@@ -83,7 +83,7 @@ Use these in client login:
 
 
 ## 8) Troubleshooting CRUD persistence
-If you can create/update in UI but do not see changes in SSMS, verify you are connected to the same SQL Server instance as `CozyComfortDb` connection string in `SOC_CozyComfort_API/Web.config`.
+If you can create/update in UI but do not see changes in SSMS, verify SSMS is connected to **(localdb)\MSSQLLocalDB** (the same instance configured by `CozyComfortDb` in `SOC_CozyComfort_API/Web.config`).
 
 Run:
 ```sql
