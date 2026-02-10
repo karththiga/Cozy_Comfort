@@ -1,6 +1,11 @@
-﻿@model SOC_Cozy_Comfort_Client.Models.RoleDashboardViewModel
+﻿@using System.Linq
+@model SOC_Cozy_Comfort_Client.Models.RoleDashboardViewModel
 @{
     ViewBag.Title = "Seller Admin";
+    var totalSkus = Model.Items.Count;
+    var totalUnits = Model.Items.Sum(x => x.Quantity);
+    var lowStockCount = Model.Items.Count(x => x.Quantity <= 20);
+    var lastUpdated = Model.Items.Any() ? Model.Items.Max(x => x.LastUpdated).ToString("yyyy-MM-dd HH:mm") : "N/A";
 }
 
 <section class="dashboard-shell">
@@ -10,6 +15,13 @@
             <h1>Seller Admin Dashboard</h1>
             <p class="text-muted mb-0">Welcome @Model.LoggedInUser. Manage seller inventory with full CRUD.</p>
         </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Total SKUs</h6><h3>@totalSkus</h3><small>active records</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Total Units</h6><h3>@totalUnits</h3><small>available quantity</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Low Stock Items</h6><h3>@lowStockCount</h3><small>quantity ≤ 20</small></div></div>
+        <div class="col-md-3"><div class="metric-card pro-metric"><h6>Last Updated</h6><h3 class="summary-time">@lastUpdated</h3><small>latest change</small></div></div>
     </div>
 
     @if (TempData["InventoryMessage"] != null)
