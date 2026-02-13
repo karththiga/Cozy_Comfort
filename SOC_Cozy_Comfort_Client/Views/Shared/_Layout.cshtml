@@ -30,17 +30,17 @@
                     }
                     else if (loggedInRole == "Manufacturer")
                     {
-                        <li>@Html.ActionLink("Manufacturer", "Manufacturer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Inventory", "Manufacturer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Manufacturer Requests", "ManufacturerRequests", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
                     else if (loggedInRole == "Distributor")
                     {
-                        <li>@Html.ActionLink("Distributor", "Distributor", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Inventory", "Distributor", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Distributor Requests", "DistributorRequests", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
                     else if (loggedInRole == "Seller")
                     {
-                        <li>@Html.ActionLink("Seller", "Seller", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Inventory", "Seller", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Seller Requests", "SellerRequests", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
 
