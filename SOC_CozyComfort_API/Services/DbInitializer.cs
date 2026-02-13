@@ -57,6 +57,21 @@ BEGIN
     );
 END;
 
+IF COL_LENGTH('dbo.Users', 'FullName') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD FullName NVARCHAR(150) NULL;
+END;
+
+IF COL_LENGTH('dbo.Users', 'Email') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;
+END;
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_Users_Email' AND object_id = OBJECT_ID('dbo.Users'))
+BEGIN
+    CREATE UNIQUE INDEX UX_Users_Email ON dbo.Users(Email) WHERE Email IS NOT NULL;
+END;
+
 IF OBJECT_ID(N'dbo.InventoryItems', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.InventoryItems(
