@@ -44,7 +44,14 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return View();
             }
 
-            TempData["AuthMessage"] = "Sign up request submitted. Please ask admin to activate your account.";
+            var signupResult = _authApiClient.Signup(fullName, email, userName, role, password);
+            if (!signupResult.Success)
+            {
+                ViewBag.ErrorMessage = signupResult.Message;
+                return View();
+            }
+
+            TempData["AuthMessage"] = signupResult.Message;
             return RedirectToAction("Login");
         }
 
