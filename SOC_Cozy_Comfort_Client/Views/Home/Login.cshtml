@@ -2,44 +2,55 @@
     ViewBag.Title = "Common Login";
 }
 
-<section class="login-wrap pro-login-section">
-    <div class="login-card pro-login-card">
-        <div class="login-header">
-            <p class="eyebrow mb-1">Secure Access</p>
-            <h2>Welcome to Cozy Comfort</h2>
-            <p class="text-muted mb-0">Sign in with your username and password to open your assigned dashboard.</p>
+<section class="auth-shell">
+    <div class="auth-card auth-login-card">
+        <div class="auth-brand-panel">
+            <p class="eyebrow mb-2">Cozy Comfort</p>
+            <h2>Warm supply chain.<br />Secure access.</h2>
+            <p class="mb-0">Log in to manage blankets, requests, and notifications from one polished dashboard.</p>
+
+            <div class="sample-credentials mt-4 mb-0">
+                <p class="mb-2"><strong>Test Login Credentials</strong></p>
+                <ul class="mb-0">
+                    <li><strong>Manufacturer:</strong> <code>m_admin</code> / <code>M@123</code></li>
+                    <li><strong>Distributor:</strong> <code>d_admin</code> / <code>D@123</code></li>
+                    <li><strong>Seller:</strong> <code>s_admin</code> / <code>S@123</code></li>
+                </ul>
+            </div>
         </div>
 
-        @if (ViewBag.ErrorMessage != null)
-        {
-            <div class="alert alert-danger mt-3">@ViewBag.ErrorMessage</div>
-        }
+        <div class="auth-form-panel">
+            <h3 class="mb-2">Sign in</h3>
+            <p class="text-muted mb-4">Use your account credentials to continue.</p>
 
-        <div class="sample-credentials mt-3 mb-3">
-            <p class="mb-2"><strong>Test Login Credentials</strong></p>
-            <ul class="mb-0">
-                <li><strong>Manufacturer:</strong> username <code>m_admin</code> / password <code>M@123</code></li>
-                <li><strong>Distributor:</strong> username <code>d_admin</code> / password <code>D@123</code></li>
-                <li><strong>Seller:</strong> username <code>s_admin</code> / password <code>S@123</code></li>
-            </ul>
+            @if (TempData["AuthMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["AuthMessage"]</div>
+            }
+
+            @if (ViewBag.ErrorMessage != null)
+            {
+                <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+            }
+
+            @using (Html.BeginForm("Login", "Home", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="userName" class="form-control form-control-lg" placeholder="Enter username" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter password" required />
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100">Login to Dashboard</button>
+            }
+
+            <p class="auth-helper-text mt-4 mb-0">New to Cozy Comfort? <a href="@Url.Action("Signup", "Home")">Create a sign up request</a>.</p>
         </div>
-
-        @using (Html.BeginForm("Login", "Home", FormMethod.Post, new { @class = "mt-4" }))
-        {
-            @Html.AntiForgeryToken()
-
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" name="userName" class="form-control form-control-lg" placeholder="Enter username" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter password" />
-            </div>
-
-
-            <button type="submit" class="btn btn-primary btn-lg w-100">Login to Dashboard</button>
-        }
     </div>
 </section>

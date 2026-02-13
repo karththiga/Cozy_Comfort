@@ -1,0 +1,20 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360'>
+  <defs>
+    <linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#0f766e'/>
+      <stop offset='100%' stop-color='#0284c7'/>
+    </linearGradient>
+  </defs>
+  <rect width='640' height='360' fill='url(#bg)'/>
+  <rect y='285' width='640' height='75' fill='#022c22' opacity='.3'/>
+  <rect x='70' y='130' width='500' height='170' fill='#ccfbf1'/>
+  <polygon points='70,130 320,40 570,130' fill='#99f6e4'/>
+  <g fill='#0f766e'>
+    <rect x='120' y='180' width='70' height='55'/>
+    <rect x='210' y='180' width='70' height='55'/>
+    <rect x='300' y='180' width='70' height='55'/>
+    <rect x='390' y='180' width='70' height='55'/>
+    <rect x='480' y='180' width='50' height='90'/>
+  </g>
+  <text x='42' y='58' fill='#ffffff' font-size='30' font-family='Segoe UI, Arial' font-weight='700'>Distribution Center</text>
+</svg>
