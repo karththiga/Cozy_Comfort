@@ -142,6 +142,91 @@ textarea {
     margin-bottom: 8px;
 }
 
+.auth-shell {
+    min-height: 72vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 960px;
+    background: #ffffff;
+    border: 1px solid #dae6fb;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 22px 48px rgba(37, 99, 235, 0.16);
+    display: grid;
+    grid-template-columns: 42% 58%;
+}
+
+.auth-brand-panel {
+    background: linear-gradient(165deg, #1e3a8a 0%, #1d4ed8 48%, #0ea5e9 100%);
+    color: #ffffff;
+    padding: 32px 28px;
+}
+
+.auth-brand-panel p {
+    color: #dbeafe;
+}
+
+.auth-brand-panel .sample-credentials {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px dashed rgba(255, 255, 255, 0.55);
+}
+
+.auth-brand-panel .sample-credentials code {
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.28);
+}
+
+.auth-form-panel {
+    padding: 32px 30px;
+}
+
+
+.auth-brand-image {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 12px 24px rgba(2, 6, 23, 0.24);
+}
+
+.auth-form-panel-wide {
+    grid-column: 1 / -1;
+}
+
+.auth-helper-text {
+    color: #4f6074;
+}
+
+.auth-helper-text a {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-helper-text a:hover {
+    text-decoration: underline;
+}
+
+.auth-signup-card {
+    max-width: 760px;
+    grid-template-columns: 1fr;
+}
+
+@media (max-width: 767px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-brand-panel,
+    .auth-form-panel {
+        padding: 24px 20px;
+    }
+}
+
 .dashboard-shell {
     margin-top: 4px;
 }
@@ -435,4 +520,46 @@ textarea {
 
 .notification-icon-link:hover {
     background: rgba(255,255,255,0.22);
+}
+
+
+.dashboard-head-pro {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 18px;
+    align-items: center;
+}
+
+.dashboard-hero-image {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #d6e3f7;
+    box-shadow: 0 10px 22px rgba(30, 58, 138, 0.14);
+}
+
+.gallery-grid-image {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+}
+
+.gallery-image {
+    width: 100%;
+    height: 108px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #d6e4f6;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 991px) {
+    .dashboard-head-pro {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-grid-image {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-image {
+        height: 140px;
+    }
 }
