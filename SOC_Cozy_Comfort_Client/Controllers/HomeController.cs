@@ -149,6 +149,59 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return View(model);
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ProcessCustomerOrder(string sku, string blanketName, int quantity, string notes)
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (string.IsNullOrWhiteSpace(sku) || quantity <= 0)
+            {
+                TempData["RequestError"] = "Customer order requires SKU and quantity.";
+                return RedirectToAction("SellerRequests");
+            }
+
+            var sellerItems = _inventoryApiClient.GetByRole("Seller");
+            var inventoryItem = sellerItems.Find(i => string.Equals(i.Sku, sku, System.StringComparison.OrdinalIgnoreCase));
+
+            if (inventoryItem != null && inventoryItem.Quantity >= quantity)
+            {
+                inventoryItem.Quantity -= quantity;
+                var updateResult = _inventoryApiClient.Update("Seller", inventoryItem.Id, inventoryItem);
+                TempData[updateResult.Success ? "RequestMessage" : "RequestError"] = updateResult.Success
+                    ? $"Customer order fulfilled from seller stock for {sku} (Qty: {quantity})."
+                    : updateResult.Message;
+                return RedirectToAction("SellerRequests");
+            }
+
+            var shortageQty = quantity;
+            if (inventoryItem != null && inventoryItem.Quantity > 0)
+            {
+                shortageQty = quantity - inventoryItem.Quantity;
+            }
+
+            var newRequest = new OrderRequestItem
+            {
+                Sku = sku,
+                BlanketName = string.IsNullOrWhiteSpace(blanketName) ? (inventoryItem?.Name ?? sku) : blanketName,
+                Quantity = shortageQty <= 0 ? quantity : shortageQty,
+                Notes = string.IsNullOrWhiteSpace(notes)
+                    ? $"Auto-created from customer order at seller. Requested qty: {quantity}."
+                    : notes
+            };
+
+            var createResult = _orderRequestApiClient.CreateSellerRequest(Session["LoggedInUser"] as string, newRequest);
+            TempData[createResult.Success ? "RequestMessage" : "RequestError"] = createResult.Success
+                ? $"Seller stock is not enough for {sku}. Request sent to distributor for qty {newRequest.Quantity}."
+                : createResult.Message;
+
+            return RedirectToAction("SellerRequests");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateSellerRequest(OrderRequestItem newRequest)
