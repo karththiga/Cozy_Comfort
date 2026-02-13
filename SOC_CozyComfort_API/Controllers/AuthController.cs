@@ -7,6 +7,26 @@ namespace SOC_CozyComfort_API.Controllers
     [RoutePrefix("api/auth")]
     public class AuthController : ApiController
     {
+
+        [HttpPost]
+        [Route("signup")]
+        public IHttpActionResult Signup([FromBody] SignupRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Role) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest("All signup fields are required.");
+            }
+
+            string message;
+            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, out message))
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(new { Message = message });
+        }
+
         [HttpPost]
         [Route("login")]
         public IHttpActionResult Login([FromBody] LoginRequestDto request)

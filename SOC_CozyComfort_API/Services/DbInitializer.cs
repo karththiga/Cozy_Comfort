@@ -109,6 +109,8 @@ END;
                     cmd.ExecuteNonQuery();
                 }
 
+                // NOTE: Users email/full-name migration intentionally skipped at startup to keep initializer safe on legacy schemas.
+
                 SeedData(dbConnection);
             }
         }
