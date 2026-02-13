@@ -3,18 +3,26 @@
 }
 
 <main aria-labelledby="title">
-    <h2 id="title">Project Contacts</h2>
-    <p>@ViewBag.Message</p>
+    <section class="dashboard-head dashboard-head-pro mb-3">
+        <div>
+            <p class="eyebrow">Support</p>
+            <h2 id="title">Project Contacts</h2>
+            <p class="text-muted mb-0">@ViewBag.Message</p>
+        </div>
+        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Support and distribution contact" />
+    </section>
 
-    <address>
-        Cozy Comfort SOC Project Team<br />
-        Architecture and Integration Planning<br />
-        <abbr title="Phone">P:</abbr>
-        +1-555-0100
-    </address>
+    <div class="role-card">
+        <address class="mb-3">
+            Cozy Comfort SOC Project Team<br />
+            Architecture and Integration Planning<br />
+            <abbr title="Phone">P:</abbr>
+            +1-555-0100
+        </address>
 
-    <address>
-        <strong>Technical Mail:</strong> <a href="mailto:tech@cozycomfort.example">tech@cozycomfort.example</a><br />
-        <strong>Business Mail:</strong> <a href="mailto:business@cozycomfort.example">business@cozycomfort.example</a>
-    </address>
+        <address class="mb-0">
+            <strong>Technical Mail:</strong> <a href="mailto:tech@cozycomfort.example">tech@cozycomfort.example</a><br />
+            <strong>Business Mail:</strong> <a href="mailto:business@cozycomfort.example">business@cozycomfort.example</a>
+        </address>
+    </div>
 </main>
