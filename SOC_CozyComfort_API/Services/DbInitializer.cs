@@ -126,33 +126,7 @@ END;
                     cmd.ExecuteNonQuery();
                 }
 
-                var userMigrationScript = @"
-IF COL_LENGTH('dbo.Users', 'FullName') IS NULL
-BEGIN
-    EXEC('ALTER TABLE dbo.Users ADD FullName NVARCHAR(150) NULL;');
-END;
-
-IF COL_LENGTH('dbo.Users', 'Email') IS NULL
-BEGIN
-    EXEC('ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;');
-END;";
-
-                using (var cmd = new SqlCommand(userMigrationScript, dbConnection))
-                {
-                    cmd.ExecuteNonQuery();
-                }
-
-                var userIndexScript = @"
-IF COL_LENGTH('dbo.Users', 'Email') IS NOT NULL
-AND NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_Users_Email' AND object_id = OBJECT_ID('dbo.Users'))
-BEGIN
-    EXEC('CREATE UNIQUE INDEX UX_Users_Email ON dbo.Users(Email) WHERE Email IS NOT NULL;');
-END;";
-
-                using (var cmd = new SqlCommand(userIndexScript, dbConnection))
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                // NOTE: Users email/full-name migration intentionally skipped at startup to keep initializer safe on legacy schemas.
 
                 SeedData(dbConnection);
             }
