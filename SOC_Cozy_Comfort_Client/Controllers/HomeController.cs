@@ -22,6 +22,32 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult Signup()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Signup(string fullName, string email, string userName, string role, string password, string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(role))
+            {
+                ViewBag.ErrorMessage = "All fields are required.";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(password) || password != confirmPassword)
+            {
+                ViewBag.ErrorMessage = "Password and confirm password must match.";
+                return View();
+            }
+
+            TempData["AuthMessage"] = "Sign up request submitted. Please ask admin to activate your account.";
+            return RedirectToAction("Login");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Login(string userName, string password)
