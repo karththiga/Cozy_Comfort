@@ -186,6 +186,14 @@ textarea {
     padding: 32px 30px;
 }
 
+
+.auth-brand-image {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 12px 24px rgba(2, 6, 23, 0.24);
+}
+
 .auth-form-panel-wide {
     grid-column: 1 / -1;
 }
