@@ -7,21 +7,27 @@
 <main>
     @if (string.IsNullOrWhiteSpace(loggedInRole))
     {
-        <section class="dashboard-head">
-            <p class="eyebrow">Home Overview</p>
-            <h1>Welcome to Cozy Comfort Home</h1>
-            <p class="text-muted mb-0">Please sign in to view your role-specific insights, announcements, and gallery.</p>
-            <div class="hero-actions mt-3">
-                <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Go to Login</a>
+        <section class="dashboard-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Home Overview</p>
+                <h1>Welcome to Cozy Comfort</h1>
+                <p class="text-muted mb-0">A professional blanket supply chain web app for Manufacturer, Distributor, and Seller operations.</p>
+                <div class="hero-actions mt-3">
+                    <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Go to Login</a>
+                </div>
             </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/factory.svg")" alt="Cozy Comfort operations" />
         </section>
     }
     else if (loggedInRole == "Manufacturer")
     {
-        <section class="dashboard-head manufacturer-head">
-            <p class="eyebrow">Manufacturer Home</p>
-            <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">Factory-level overview with production updates and inventory priorities.</p>
+        <section class="dashboard-head manufacturer-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Manufacturer Home</p>
+                <h1>Welcome, @loggedInUser</h1>
+                <p class="text-muted mb-0">Factory-level overview with production updates and inventory priorities.</p>
+            </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/factory.svg")" alt="Factory dashboard" />
         </section>
 
         <div class="row g-3 mb-3">
@@ -44,10 +50,10 @@
             <div class="col-md-6">
                 <div class="role-card">
                     <h4>Gallery</h4>
-                    <div class="gallery-grid">
-                        <div class="gallery-tile">Factory Floor</div>
-                        <div class="gallery-tile">Packing Unit</div>
-                        <div class="gallery-tile">Quality Desk</div>
+                    <div class="gallery-grid gallery-grid-image">
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/factory.svg")" alt="Factory floor" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Packing logistics" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Quality dashboard" />
                     </div>
                 </div>
             </div>
@@ -55,10 +61,13 @@
     }
     else if (loggedInRole == "Distributor")
     {
-        <section class="dashboard-head distributor-head">
-            <p class="eyebrow">Distributor Home</p>
-            <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">Warehouse and dispatch overview with route and refill alerts.</p>
+        <section class="dashboard-head distributor-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Distributor Home</p>
+                <h1>Welcome, @loggedInUser</h1>
+                <p class="text-muted mb-0">Warehouse and dispatch overview with route and refill alerts.</p>
+            </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Warehouse dashboard" />
         </section>
 
         <div class="row g-3 mb-3">
@@ -81,10 +90,10 @@
             <div class="col-md-6">
                 <div class="role-card">
                     <h4>Gallery</h4>
-                    <div class="gallery-grid">
-                        <div class="gallery-tile">Warehouse Bay</div>
-                        <div class="gallery-tile">Dispatch Dock</div>
-                        <div class="gallery-tile">Route Console</div>
+                    <div class="gallery-grid gallery-grid-image">
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Warehouse bay" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/factory.svg")" alt="Dispatch dock" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Route console" />
                     </div>
                 </div>
             </div>
@@ -92,10 +101,13 @@
     }
     else if (loggedInRole == "Seller")
     {
-        <section class="dashboard-head seller-head">
-            <p class="eyebrow">Seller Home</p>
-            <h1>Welcome, @loggedInUser</h1>
-            <p class="text-muted mb-0">Storefront performance overview with customer and fulfillment highlights.</p>
+        <section class="dashboard-head seller-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Seller Home</p>
+                <h1>Welcome, @loggedInUser</h1>
+                <p class="text-muted mb-0">Storefront performance overview with customer and fulfillment highlights.</p>
+            </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Seller dashboard" />
         </section>
 
         <div class="row g-3 mb-3">
@@ -118,10 +130,10 @@
             <div class="col-md-6">
                 <div class="role-card">
                     <h4>Gallery</h4>
-                    <div class="gallery-grid">
-                        <div class="gallery-tile">Store Display</div>
-                        <div class="gallery-tile">Online Catalog</div>
-                        <div class="gallery-tile">Fulfillment Desk</div>
+                    <div class="gallery-grid gallery-grid-image">
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Store display" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Fulfillment desk" />
+                        <img class="gallery-image" src="@Url.Content("~/Content/images/factory.svg")" alt="Catalog studio" />
                     </div>
                 </div>
             </div>
