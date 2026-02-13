@@ -129,12 +129,12 @@ END;
                 var userMigrationScript = @"
 IF COL_LENGTH('dbo.Users', 'FullName') IS NULL
 BEGIN
-    ALTER TABLE dbo.Users ADD FullName NVARCHAR(150) NULL;
+    EXEC('ALTER TABLE dbo.Users ADD FullName NVARCHAR(150) NULL;');
 END;
 
 IF COL_LENGTH('dbo.Users', 'Email') IS NULL
 BEGIN
-    ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;
+    EXEC('ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;');
 END;";
 
                 using (var cmd = new SqlCommand(userMigrationScript, dbConnection))
