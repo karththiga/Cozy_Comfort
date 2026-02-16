@@ -22,6 +22,7 @@ The solution is split into two applications:
 See detailed diagrams and API documentation in:
 - [`docs/architecture.md`](docs/architecture.md)
 - [`docs/api-reference.md`](docs/api-reference.md)
+- [`docs/task2-checklist.md`](docs/task2-checklist.md)
 
 ---
 
@@ -39,11 +40,10 @@ See detailed diagrams and API documentation in:
 - Top-level inventory summary cards
 
 ### API Services
-- `GET /api/inventory/{role}`
-- `GET /api/inventory/{role}/{id}`
-- `POST /api/inventory/{role}`
-- `PUT /api/inventory/{role}/{id}`
-- `DELETE /api/inventory/{role}/{id}`
+- Inventory endpoints (`/api/inventory/*`)
+- Authentication endpoints (`/api/auth/login`, `/api/auth/signup`)
+- Order request workflow endpoints (`/api/orderrequests/*`)
+- Notification endpoints (`/api/notifications/*`)
 
 ---
 
