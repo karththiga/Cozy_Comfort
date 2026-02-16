@@ -1,92 +1,113 @@
-# API Reference - Inventory Service
+# API Reference - Cozy Comfort SOC Services
 
-Base Route: `/api/inventory`
-
-## Roles Supported
-- `Manufacturer`
-- `Distributor`
-- `Seller`
+Base URL: configured by environment (example: `https://localhost:44377/`)
 
 ---
 
-## 1) Get Inventory by Role
-**GET** `/api/inventory/{role}`
+## 1) Auth Service (`/api/auth`)
 
-### Response
-`200 OK`
+### `POST /api/auth/login`
+Authenticate user and resolve role.
+
+**Request**
 ```json
-[
-  {
-    "Id": 1,
-    "Sku": "CC-WOOL-QUEEN",
-    "Name": "Wool Queen Blanket",
-    "Quantity": 5420,
-    "Location": "Factory A",
-    "LastUpdated": "2026-02-10T10:30:00"
-  }
-]
+{ "UserName": "m_admin", "Password": "M@123" }
 ```
 
----
+**Responses**
+- `200 OK` with `{ UserName, Role, Message }`
+- `400 BadRequest` invalid payload
+- `401 Unauthorized` invalid credentials
 
-## 2) Get Inventory Item by Id
-**GET** `/api/inventory/{role}/{id}`
+### `POST /api/auth/signup`
+Create new user account request (persisted through API logic).
 
-### Responses
-- `200 OK` with item
-- `404 Not Found` if id missing
-
----
-
-## 3) Create Inventory Item
-**POST** `/api/inventory/{role}`
-
-### Request Body
+**Request**
 ```json
 {
-  "Sku": "CC-NEW-MODEL",
-  "Name": "New Blanket",
-  "Quantity": 100,
-  "Location": "Warehouse-A"
+  "FullName": "Jane Doe",
+  "Email": "jane@company.com",
+  "UserName": "jane_admin",
+  "Role": "Distributor",
+  "Password": "Strong@123"
 }
 ```
 
-### Responses
-- `200 OK` with created item
-- `400 Bad Request` for invalid role/payload
+**Responses**
+- `200 OK` signup success
+- `400 BadRequest` validation/duplicate errors
 
 ---
 
-## 4) Update Inventory Item
-**PUT** `/api/inventory/{role}/{id}`
+## 2) Inventory Service (`/api/inventory`)
 
-### Request Body
-```json
-{
-  "Sku": "CC-NEW-MODEL",
-  "Name": "New Blanket Updated",
-  "Quantity": 140,
-  "Location": "Warehouse-B"
-}
-```
+Supported roles: `Manufacturer`, `Distributor`, `Seller`
 
-### Responses
+### `GET /api/inventory/{role}`
+Get all inventory by role.
+
+### `GET /api/inventory/{role}/{id}`
+Get inventory row by id.
+
+### `POST /api/inventory/{role}`
+Create inventory row.
+
+### `PUT /api/inventory/{role}/{id}`
+Update inventory row.
+
+### `DELETE /api/inventory/{role}/{id}`
+Delete inventory row.
+
+**Common responses**
 - `200 OK`
-- `404 Not Found`
-- `400 Bad Request`
+- `400 BadRequest` invalid role/payload
+- `404 NotFound` for missing id
 
 ---
 
-## 5) Delete Inventory Item
-**DELETE** `/api/inventory/{role}/{id}`
+## 3) Order Request Service (`/api/orderrequests`)
 
-### Responses
+### Read Boards
+- `GET /api/orderrequests/incoming/{role}`
+- `GET /api/orderrequests/outgoing/{role}`
+
+### Seller -> Distributor
+- `POST /api/orderrequests/seller-to-distributor`
+
+### Distributor Actions
+- `POST /api/orderrequests/distributor/escalate/{requestId}`
+- `POST /api/orderrequests/distributor/fulfill/{requestId}`
+- `POST /api/orderrequests/distributor/cancel/{requestId}`
+
+### Manufacturer Actions
+- `POST /api/orderrequests/manufacturer/start-production/{requestId}`
+- `POST /api/orderrequests/manufacturer/dispatch/{requestId}`
+- `POST /api/orderrequests/manufacturer/cancel/{requestId}`
+
+### Seller Action
+- `POST /api/orderrequests/seller/cancel/{requestId}`
+
+**Common responses**
 - `200 OK`
-- `404 Not Found`
-- `400 Bad Request`
+- `400 BadRequest` invalid payload
+- `404 NotFound` request id not found
 
 ---
 
-## Integration Notes
-- Client consumes endpoints via `InventoryApiClient` using `InventoryApiBaseUrl` from `Web.config`.
-- Ensure API and client run together with matching URL/port configuration.
+## 4) Notification Service (`/api/notifications`)
+
+### `GET /api/notifications/{role}`
+Get all notifications for a role.
+
+### `POST /api/notifications/{role}/read/{id}`
+Mark a notification as read.
+
+---
+
+## 5) Client Integration Map
+- `AuthApiClient` -> `/api/auth/*`
+- `InventoryApiClient` -> `/api/inventory/*`
+- `OrderRequestApiClient` -> `/api/orderrequests/*`
+- `NotificationApiClient` -> `/api/notifications/*`
+
+This mapping demonstrates clear separation of concerns and reusable API client wrappers.
