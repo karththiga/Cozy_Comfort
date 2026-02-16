@@ -79,12 +79,42 @@ ORDER BY CreatedAt DESC", role);
 
         public static bool MarkDistributorFulfilled(int requestId, RequestActionDto action)
         {
-            var ok = UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, expectedToRole: "Distributor");
-            if (ok)
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedToRole, "Distributor", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationRepository.Add("Seller", "Distributor fulfilled request", $"Request #{requestId} was fulfilled by distributor.", "Fulfillment", requestId);
+                return false;
             }
-            return ok;
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    if (!TryDecreaseInventory(connection, transaction, "Distributor", request.Sku, request.Quantity))
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    AddOrIncreaseInventory(connection, transaction, "Seller", request.Sku, request.BlanketName, request.Quantity, "Seller Hub");
+
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Fulfilled and moved to seller inventory from distributor stock."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "FulfilledByDistributor", note, expectedToRole: "Distributor");
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Seller", "Distributor fulfilled request", $"Request #{requestId} was fulfilled by distributor and added to seller inventory.", "Fulfillment", requestId);
+            return true;
         }
 
         public static bool MarkManufacturerProductionStarted(int requestId, RequestActionDto action)
@@ -99,12 +129,36 @@ ORDER BY CreatedAt DESC", role);
 
         public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action)
         {
-            var ok = UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, expectedToRole: "Manufacturer");
-            if (ok)
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedToRole, "Manufacturer", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched to distributor.", "Dispatch", requestId);
+                return false;
             }
-            return ok;
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub");
+
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Dispatched by manufacturer and received in distributor inventory."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "DispatchedByManufacturer", note, expectedToRole: "Manufacturer");
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
+            return true;
         }
 
         public static bool CancelBySeller(int requestId, RequestActionDto action)
@@ -202,6 +256,95 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                 request.CreatedAt = now;
                 request.UpdatedAt = now;
                 return request;
+            }
+        }
+
+        private static bool TryDecreaseInventory(SqlConnection connection, SqlTransaction transaction, string roleName, string sku, int quantity)
+        {
+            const string sql = @"
+UPDATE dbo.InventoryItems
+SET Quantity = Quantity - @Quantity,
+    LastUpdated = @Now
+WHERE RoleName = @RoleName
+  AND Sku = @Sku
+  AND Quantity >= @Quantity";
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@Now", DateTime.Now);
+                command.Parameters.AddWithValue("@RoleName", roleName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        private static void AddOrIncreaseInventory(SqlConnection connection, SqlTransaction transaction, string roleName, string sku, string name, int quantity, string location)
+        {
+            const string sql = @"
+IF EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName = @RoleName AND Sku = @Sku)
+BEGIN
+    UPDATE dbo.InventoryItems
+    SET Quantity = Quantity + @Quantity,
+        LastUpdated = @Now,
+        [Location] = COALESCE(NULLIF([Location], ''), @Location)
+    WHERE RoleName = @RoleName AND Sku = @Sku;
+END
+ELSE
+BEGIN
+    INSERT INTO dbo.InventoryItems(RoleName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES(@RoleName, @Sku, @Name, @Quantity, @Location, @Now);
+END";
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@RoleName", roleName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@Location", location);
+                command.Parameters.AddWithValue("@Now", DateTime.Now);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private static bool UpdateStatus(SqlConnection connection, SqlTransaction transaction, int requestId, string status, string notes, string expectedByRole = null, string expectedToRole = null)
+        {
+            var sql = @"
+UPDATE dbo.OrderRequests
+SET [Status] = @Status,
+    Notes = COALESCE(@Notes, Notes),
+    UpdatedAt = @UpdatedAt
+WHERE Id = @Id";
+
+            if (!string.IsNullOrWhiteSpace(expectedByRole))
+            {
+                sql += " AND RequestedByRole = @RequestedByRole";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedToRole))
+            {
+                sql += " AND RequestedToRole = @RequestedToRole";
+            }
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@Status", status);
+                command.Parameters.AddWithValue("@Notes", (object)notes ?? DBNull.Value);
+                command.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                command.Parameters.AddWithValue("@Id", requestId);
+
+                if (!string.IsNullOrWhiteSpace(expectedByRole))
+                {
+                    command.Parameters.AddWithValue("@RequestedByRole", expectedByRole);
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedToRole))
+                {
+                    command.Parameters.AddWithValue("@RequestedToRole", expectedToRole);
+                }
+
+                return command.ExecuteNonQuery() > 0;
             }
         }
 
