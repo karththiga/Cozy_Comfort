@@ -14,7 +14,7 @@
     }
 
     <nav class="navbar navbar-expand-sm navbar-dark cc-topbar sticky-top">
-        <div class="container">
+        <div class="container-fluid px-3 px-lg-4">
             @Html.ActionLink("Cozy Comfort", "Index", "Home", new { area = "" }, new { @class = "navbar-brand fw-bold" })
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -22,8 +22,6 @@
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1 cc-nav-list">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-
                     @if (string.IsNullOrWhiteSpace(loggedInRole))
                     {
                         <li>@Html.ActionLink("Login", "Login", "Home", new { area = "" }, new { @class = "nav-link" })</li>
@@ -44,7 +42,6 @@
                         <li>@Html.ActionLink("Seller Requests", "SellerRequests", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
 
-                    <li>@Html.ActionLink("Order Flow", "Orders", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                 </ul>
 
                 @if (!string.IsNullOrWhiteSpace(loggedInRole))
@@ -61,7 +58,7 @@
         </div>
     </nav>
 
-    <div class="container body-content">
+    <div class="container-fluid body-content px-3 px-lg-4">
         @RenderBody()
         <hr />
         <footer class="cc-footer">

@@ -1,89 +1,58 @@
-# Architecture & Design Diagrams
+# Architecture & Design Diagrams (Updated for Submission)
 
 ## 1) High-Level SOC Component Diagram
 ```mermaid
 flowchart LR
-    U[User] --> C[Client MVC App\nSOC_Cozy_Comfort_Client]
-    C -->|HTTP JSON| A[Inventory API\nSOC_CozyComfort_API]
-    A --> R[(In-Memory Inventory Repository)]
+    U[End Customer] --> S[Seller]
+    S --> C[Client MVC App\nSOC_Cozy_Comfort_Client]
 
-    C --> CAuth[Role-based Session/Auth]
-    C --> CDash[Manufacturer/Distributor/Seller Dashboards]
+    C -->|HTTP JSON| A[API Gateway Layer\nSOC_CozyComfort_API]
+    A --> INV[Inventory Service]
+    A --> ORQ[Order Request Service]
+    A --> AUT[Auth Service]
+    A --> NOTI[Notification Service]
 
-    A --> ACtrl[InventoryController]
-    A --> AModel[InventoryItemDto]
+    INV --> DB[(SQL Server: CozyComfortDb)]
+    ORQ --> DB
+    AUT --> DB
+    NOTI --> DB
 ```
 
-## 2) Role Flow Diagram (Login to CRUD)
+## 2) Service Interaction Flow (Seller Shortage Scenario)
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Client as MVC Client
-    participant API as Inventory API
+    participant Customer
+    participant SellerUI as Seller (MVC Client)
+    participant API as Web API
+    participant DB as SQL Server
 
-    User->>Client: Login (username/password/role)
-    Client-->>User: Role dashboard
+    Customer->>SellerUI: Place order (SKU, Qty)
+    SellerUI->>API: GET /api/inventory/Seller
+    API->>DB: Read seller stock
+    DB-->>API: Inventory rows
+    API-->>SellerUI: Current stock
 
-    User->>Client: Open dashboard inventory
-    Client->>API: GET /api/inventory/{role}
-    API-->>Client: Inventory items JSON
-    Client-->>User: Inventory table + summary cards
-
-    User->>Client: Add/Edit/Delete item
-    Client->>API: POST/PUT/DELETE /api/inventory/{role}[/{id}]
-    API-->>Client: Success/Failure
-    Client->>API: GET /api/inventory/{role}
-    API-->>Client: Updated list
-    Client-->>User: Refreshed UI
+    alt Seller stock available
+        SellerUI->>API: PUT /api/inventory/Seller/{id}
+        API->>DB: Update quantity
+        DB-->>API: Success
+        API-->>SellerUI: Order fulfilled from seller
+    else Seller stock unavailable
+        SellerUI->>API: POST /api/orderrequests/seller-to-distributor
+        API->>DB: Create request + notification
+        DB-->>API: Success
+        API-->>SellerUI: Request sent to distributor
+    end
 ```
 
-## 3) Client Logical Design
+## 3) Logical Service Design
 ```mermaid
 classDiagram
-    class HomeController {
-      +Login()
-      +Manufacturer()
-      +Distributor()
-      +Seller()
-      +AddInventory()
-      +EditInventory()
-      +DeleteInventory()
-      -RenderDashboard()
-      -IsAuthorizedFor()
+    class AuthController {
+      +Signup(request)
+      +Login(request)
     }
 
-    class InventoryApiClient {
-      +GetByRole(role)
-      +GetById(role,id)
-      +Create(role,item)
-      +Update(role,id,item)
-      +Delete(role,id)
-    }
-
-    class RoleDashboardViewModel {
-      +Role
-      +LoggedInUser
-      +Items
-      +NewItem
-    }
-
-    class InventoryItem {
-      +Id
-      +Sku
-      +Name
-      +Quantity
-      +Location
-      +LastUpdated
-    }
-
-    HomeController --> InventoryApiClient
-    HomeController --> RoleDashboardViewModel
-    RoleDashboardViewModel --> InventoryItem
-```
-
-## 4) API Logical Design
-```mermaid
-classDiagram
     class InventoryController {
       +GetByRole(role)
       +GetById(role,id)
@@ -92,31 +61,54 @@ classDiagram
       +Delete(role,id)
     }
 
-    class InventoryRepository {
-      +IsValidRole(role)
+    class OrderRequestsController {
+      +Incoming(role)
+      +Outgoing(role)
+      +CreateSellerToDistributor(request)
+      +DistributorEscalate(requestId, action)
+      +DistributorFulfill(requestId, action)
+      +ManufacturerStartProduction(requestId, action)
+      +ManufacturerDispatch(requestId, action)
+    }
+
+    class NotificationsController {
       +GetByRole(role)
-      +GetById(role,id)
-      +Add(role,item)
-      +Update(role,id,item)
-      +Delete(role,id)
+      +MarkRead(role,id)
     }
 
-    class InventoryItemDto {
-      +Id
-      +Sku
-      +Name
-      +Quantity
-      +Location
-      +LastUpdated
+    class ClientHomeController {
+      +Login()
+      +Signup()
+      +Manufacturer()
+      +Distributor()
+      +Seller()
+      +SellerRequests()
+      +DistributorRequests()
+      +ManufacturerRequests()
+      +Notifications()
     }
 
-    InventoryController --> InventoryRepository
-    InventoryRepository --> InventoryItemDto
+    ClientHomeController --> AuthController : via AuthApiClient
+    ClientHomeController --> InventoryController : via InventoryApiClient
+    ClientHomeController --> OrderRequestsController : via OrderRequestApiClient
+    ClientHomeController --> NotificationsController : via NotificationApiClient
 ```
 
-## 5) Maintainability & Reusability Design Decisions
-- Service interaction is centralized in `InventoryApiClient`.
-- API CRUD is centralized in a single controller + repository.
-- Role-aware behavior is consolidated through helper methods (`RenderDashboard`, `IsAuthorizedFor`).
-- View models separate UI concerns from transport DTOs.
-- Config-driven API base URL allows environment portability without code changes.
+## 4) Data Design (Core Tables)
+- `Roles` (`Id`, `RoleName`)
+- `Users` (`Id`, `UserName`, `Password`, `RoleId`) + optional schema extension support handled safely by signup logic
+- `InventoryItems` (`Id`, `RoleName`, `Sku`, `Name`, `Quantity`, `Location`, `LastUpdated`)
+- `OrderRequests` (`Id`, `RequestType`, `RequestedByRole`, `RequestedToRole`, `RequestedByUser`, `Sku`, `BlanketName`, `Quantity`, `Status`, `Notes`, timestamps)
+- `Notifications` (`Id`, `RecipientRole`, `Title`, `Message`, `NotificationType`, `IsRead`, `RelatedRequestId`, `CreatedAt`)
+
+## 5) Maintainability and Reusability Decisions
+1. **Service boundaries by domain**: auth, inventory, requests, notifications are separated at controller/repository layer.
+2. **Client adapters**: all API calls are centralized in service classes (`AuthApiClient`, `InventoryApiClient`, etc.), reducing duplication.
+3. **Role isolation**: role checks are consistently enforced in client and API paths.
+4. **Schema compatibility**: signup supports legacy DB schema safely while maintaining upgrade compatibility.
+5. **Config-driven integration**: API base URL is externalized through configuration.
+
+## 6) Scalability Notes
+- API services can be scaled horizontally behind IIS/Web farm.
+- Request-heavy endpoints (`/api/orderrequests/*`, `/api/inventory/*`) are independently optimizable.
+- Database indexing can be extended on SKU, RoleName, and request status fields as usage grows.
