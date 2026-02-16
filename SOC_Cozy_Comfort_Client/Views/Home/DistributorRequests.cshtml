@@ -4,10 +4,13 @@
 }
 
 <section class="request-page">
-    <div class="dashboard-head distributor-head">
+    <div class="dashboard-head distributor-head dashboard-head-pro">
+        <div>
         <p class="eyebrow">Distributor Workflow</p>
         <h1>Seller Requests Received</h1>
         <p class="text-muted mb-0">Fulfill seller requests from distributor inventory or escalate to manufacturer.</p>
+        </div>
+        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Distributor workflow operations" />
     </div>
 
     @if (TempData["RequestMessage"] != null)
@@ -33,8 +36,8 @@
                         {
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="requestId" value="@req.Id" />
-                            <input type="hidden" name="notes" value="Fulfilled from distributor stock." />
-                            <button class="btn btn-sm btn-outline-success" type="submit" onclick="return confirm('Mark this as fulfilled by distributor?');">Fulfill</button>
+                            <input type="hidden" name="notes" value="Fulfilled from distributor stock and moved to seller inventory." />
+                            <button class="btn btn-sm btn-outline-success" type="submit" onclick="return confirm('Mark this as fulfilled by distributor?');">Fulfill &amp; Transfer</button>
                         }
                         @using (Html.BeginForm("DistributorEscalate", "Home", FormMethod.Post, new { @class = "d-inline" }))
                         {
