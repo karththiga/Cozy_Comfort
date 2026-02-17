@@ -1,26 +1,48 @@
-﻿<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="aspnetTitle">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-            a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-            is an ideal platform for building RESTful applications on the .NET Framework.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301870">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301871">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
-        </section>>
+@{
+    ViewBag.Title = "Home";
+}
+
+<section class="hero-section rounded-4 overflow-hidden mt-4">
+    <div class="hero-overlay"></div>
+    <div class="hero-content p-4 p-md-5">
+        <span class="badge rounded-pill text-bg-light mb-3">Premium Comfort, Modern Care</span>
+        <h1 class="display-5 fw-bold">Beautiful spaces for restful living.</h1>
+        <p class="lead mb-4">Cozy Comfort helps teams manage inventory, requests, and notifications with a polished experience inspired by boutique hospitality design.</p>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="#services" class="btn btn-cozy">Explore Features</a>
+            <a href="/Help" class="btn btn-outline-light">View API Documentation</a>
+        </div>
     </div>
-</main>
+</section>
+
+<section id="services" class="services-section py-5 mt-4 rounded-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="feature-card feature-card--inventory h-100">
+                <img src="https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=1200&q=80" alt="Curated home furnishings" class="feature-image" />
+                <div class="p-4">
+                    <h2 class="h4">Curated Inventory</h2>
+                    <p class="mb-0">Track product availability with clarity, from cozy blankets to full room setups, with intuitive status visibility.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="feature-card feature-card--orders h-100">
+                <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80" alt="Elegant hotel bed setup" class="feature-image" />
+                <div class="p-4">
+                    <h2 class="h4">Smart Order Requests</h2>
+                    <p class="mb-0">Submit and monitor requests in a flow designed for speed, accuracy, and a premium operations experience.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="feature-card feature-card--notifications h-100">
+                <img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80" alt="Soft ambient interior lights" class="feature-image" />
+                <div class="p-4">
+                    <h2 class="h4">Elegant Notifications</h2>
+                    <p class="mb-0">Keep your team aligned with timely updates and meaningful alerts crafted to reduce noise and improve response times.</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
