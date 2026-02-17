@@ -1,0 +1,145 @@
+%PDF-1.4
+%
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Length 2561 >>
+stream
+BT
+/F1 11 Tf
+50 790 Td
+14 TL
+(# Cozy Comfort - Task 3, 4 and 5 Answers) Tj
+T* () Tj
+T* (## 3\) Testing Scope and Coverage \(LO3\)) Tj
+T* () Tj
+T* (### 3.1 Testing strategy used) Tj
+T* (- **Unit-level checks** for service/repository rules \(status transitions, inventory update guards, role constraints\).) Tj
+T* (- **API-level validation** for endpoint payloads and expected response behavior \(`200`, `400`, `404`\).) Tj
+T* (- **Workflow testing** for end-to-end request lifecycle:) Tj
+T* (  1. Seller creates request.) Tj
+T* (  2. Distributor fulfills/escalates.) Tj
+T* (  3. Manufacturer dispatches when applicable.) Tj
+T* (  4. Receiver confirms delivery.) Tj
+T* (  5. Inventory updates after receive.) Tj
+T* (- **Regression testing** for previously reported failures \(signup + missing `Email` column, invalid order transitions\).) Tj
+T* () Tj
+T* (### 3.2 Debugging evidence to demonstrate) Tj
+T* (- Reproduce issue with known input.) Tj
+T* (- Capture logs/stack trace and identify failing module.) Tj
+T* (- Apply fix in isolated layer \(service/repository/controller\).) Tj
+T* (- Retest the same scenario + edge cases.) Tj
+T* (- Record before/after behavior.) Tj
+T* () Tj
+T* (### 3.3 Suggested test cases table) Tj
+T* (1. Signup on legacy DB without `Users.Email` column -> should not crash.) Tj
+T* (2. Distributor fulfill with insufficient stock -> should reject transition.) Tj
+T* (3. Manufacturer dispatch with insufficient stock -> should reject transition.) Tj
+T* (4. Seller receive before `OnTheWayToSeller` -> should reject.) Tj
+T* (5. Seller receive after `OnTheWayToSeller` -> should update seller inventory.) Tj
+T* (6. Distributor receive before `OnTheWayToDistributor` -> should reject.) Tj
+T* (7. Distributor receive after `OnTheWayToDistributor` -> should update distributor inventory.) Tj
+T* (8. Invalid role on incoming/outgoing endpoints -> should return `400`.) Tj
+T* () Tj
+T* (### 3.4 What to include in your report/demo) Tj
+T* (- Test matrix with expected vs actual results.) Tj
+T* (- Screenshots of successful and failed validation paths.) Tj
+T* (- Bug history \(issue -> root cause -> fix -> retest\).) Tj
+T* (- Coverage note: what is tested and what is not.) Tj
+T* () Tj
+T* (---) Tj
+T* () Tj
+T* (## 4\) Suitable Deployment Techniques \(LO4\)) Tj
+T* () Tj
+T* (### 4.1 Option A: Traditional Windows Server + IIS + SQL Server) Tj
+T* (**Use when:** simple academic deployment and low ops complexity.) Tj
+T* () Tj
+T* (**Pros:**) Tj
+T* (- Easy for ASP.NET MVC/Web API projects.) Tj
+T* (- Familiar setup for .NET Framework projects.) Tj
+ET
+endstream
+endobj
+3 0 obj
+<< /Length 1994 >>
+stream
+BT
+/F1 11 Tf
+50 790 Td
+14 TL
+(- Straightforward demo environment.) Tj
+T* () Tj
+T* (**Cons:**) Tj
+T* (- Manual scaling and environment setup.) Tj
+T* (- Harder to keep environments identical.) Tj
+T* () Tj
+T* (### 4.2 Option B: Dockerized services) Tj
+T* (**Use when:** you need repeatable environments and cleaner delivery pipeline.) Tj
+T* () Tj
+T* (**Pros:**) Tj
+T* (- Consistent runtime from dev to production.) Tj
+T* (- Easier CI/CD integration.) Tj
+T* (- Better portability and rollback.) Tj
+T* () Tj
+T* (**Cons:**) Tj
+T* (- Additional container learning curve.) Tj
+T* (- .NET Framework apps may require Windows containers and more setup care.) Tj
+T* () Tj
+T* (### 4.3 Option C: Kubernetes orchestration) Tj
+T* (**Use when:** high-scale, multi-service, production-grade operations are required.) Tj
+T* () Tj
+T* (**Pros:**) Tj
+T* (- Auto-scaling, self-healing, rolling deployments.) Tj
+T* (- Strong service management for larger SOC systems.) Tj
+T* () Tj
+T* (**Cons:**) Tj
+T* (- Highest operational complexity.) Tj
+T* (- Overkill for small/medium coursework projects.) Tj
+T* () Tj
+T* (### 4.4 Recommended approach for this project) Tj
+T* (- **Primary recommendation \(assignment fit\):** IIS + SQL Server for baseline demonstration.) Tj
+T* (- **Forward-looking recommendation:** add Docker-based packaging for reproducibility and future scalability.) Tj
+T* (- Document release steps, configuration strategy, backup policy, and rollback plan.) Tj
+T* () Tj
+T* (---) Tj
+T* () Tj
+T* (## 5\) Conclusion / Evaluation Summary) Tj
+T* () Tj
+T* (- The Cozy Comfort solution aligns with SOC intent by separating API services and client consumption.) Tj
+T* (- To score higher, focus on:) Tj
+T* (  1. Strong test evidence \(automated + manual traceability\).) Tj
+T* (  2. Clear deployment justification with trade-off analysis.) Tj
+T* (  3. Professional diagrams + maintainability rationale.) Tj
+T* (- Final report should explicitly map each deliverable to LO2/LO3/LO4 and rubric criteria.) Tj
+T* () Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 6 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 2 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 6 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 3 0 R >>
+endobj
+6 0 obj
+<< /Type /Pages /Kids [ 4 0 R 5 0 R ] /Count 2 >>
+endobj
+7 0 obj
+<< /Type /Catalog /Pages 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000002697 00000 n 
+0000004742 00000 n 
+0000004868 00000 n 
+0000004994 00000 n 
+0000005059 00000 n 
+trailer
+<< /Size 8 /Root 7 0 R >>
+startxref
+5108
+%%EOF

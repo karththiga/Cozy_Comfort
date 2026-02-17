@@ -62,6 +62,17 @@ namespace SOC_Cozy_Comfort_Client.Services
         }
 
 
+
+        public ApiOperationResult SellerReceive(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/seller/receive/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Seller marked shipment as received.");
+        }
+
+        public ApiOperationResult DistributorReceive(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/distributor/receive/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Distributor marked shipment as received.");
+        }
+
         public ApiOperationResult SellerCancel(int requestId, string userName, string notes)
         {
             return Post("api/orderrequests/seller/cancel/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Seller cancelled request.");

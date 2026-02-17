@@ -79,12 +79,48 @@ ORDER BY CreatedAt DESC", role);
 
         public static bool MarkDistributorFulfilled(int requestId, RequestActionDto action)
         {
-            var ok = UpdateStatus(requestId, "FulfilledByDistributor", action.Notes, expectedToRole: "Distributor");
-            if (ok)
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedToRole, "Distributor", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationRepository.Add("Seller", "Distributor fulfilled request", $"Request #{requestId} was fulfilled by distributor.", "Fulfillment", requestId);
+                return false;
             }
-            return ok;
+
+            var canShipToSeller = string.Equals(request.Status, "PendingDistributorReview", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(request.Status, "EscalatedToManufacturer", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(request.Status, "ReceivedByDistributor", StringComparison.OrdinalIgnoreCase);
+            if (!canShipToSeller)
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    if (!TryDecreaseInventory(connection, transaction, "Distributor", request.Sku, request.Quantity))
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Shipped by distributor and currently on the way to seller hub."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "OnTheWayToSeller", note, expectedToRole: "Distributor", expectedCurrentStatus: request.Status);
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Seller", "Shipment on the way", $"Request #{requestId} is on the way from distributor.", "Dispatch", requestId);
+            return true;
         }
 
         public static bool MarkManufacturerProductionStarted(int requestId, RequestActionDto action)
@@ -99,12 +135,118 @@ ORDER BY CreatedAt DESC", role);
 
         public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action)
         {
-            var ok = UpdateStatus(requestId, "DispatchedByManufacturer", action.Notes, expectedToRole: "Manufacturer");
-            if (ok)
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedToRole, "Manufacturer", StringComparison.OrdinalIgnoreCase))
             {
-                NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched to distributor.", "Dispatch", requestId);
+                return false;
             }
-            return ok;
+
+            var canDispatch = string.Equals(request.Status, "PendingManufacturerReview", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(request.Status, "ProductionInProgress", StringComparison.OrdinalIgnoreCase);
+            if (!canDispatch)
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    if (!TryDecreaseInventory(connection, transaction, "Manufacturer", request.Sku, request.Quantity))
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Dispatched by manufacturer and currently on the way to distributor hub."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "OnTheWayToDistributor", note, expectedToRole: "Manufacturer", expectedCurrentStatus: request.Status);
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Distributor", "Manufacturer shipment on the way", $"Request #{requestId} is on the way from manufacturer.", "Dispatch", requestId);
+            return true;
+        }
+
+
+        public static bool MarkSellerReceived(int requestId, RequestActionDto action)
+        {
+            var request = GetById(requestId);
+            if (request == null
+                || !string.Equals(request.RequestedByRole, "Seller", StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(request.Status, "OnTheWayToSeller", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    AddOrIncreaseInventory(connection, transaction, "Seller", request.Sku, request.BlanketName, request.Quantity, "Seller Hub");
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Shipment received at seller hub and inventory updated."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "ReceivedBySeller", note, expectedByRole: "Seller", expectedCurrentStatus: "OnTheWayToSeller");
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Distributor", "Seller confirmed receipt", $"Seller confirmed request #{requestId} received.", "Fulfillment", requestId);
+            return true;
+        }
+
+        public static bool MarkDistributorReceivedFromManufacturer(int requestId, RequestActionDto action)
+        {
+            var request = GetById(requestId);
+            if (request == null
+                || !string.Equals(request.RequestedByRole, "Distributor", StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(request.Status, "OnTheWayToDistributor", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub");
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Shipment received at distributor hub and inventory updated."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "ReceivedByDistributor", note, expectedByRole: "Distributor", expectedCurrentStatus: "OnTheWayToDistributor");
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Manufacturer", "Distributor confirmed receipt", $"Distributor confirmed request #{requestId} received.", "Fulfillment", requestId);
+            return true;
         }
 
         public static bool CancelBySeller(int requestId, RequestActionDto action)
@@ -205,7 +347,56 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
             }
         }
 
-        private static bool UpdateStatus(int requestId, string status, string notes, string expectedByRole = null, string expectedToRole = null)
+        private static bool TryDecreaseInventory(SqlConnection connection, SqlTransaction transaction, string roleName, string sku, int quantity)
+        {
+            const string sql = @"
+UPDATE dbo.InventoryItems
+SET Quantity = Quantity - @Quantity,
+    LastUpdated = @Now
+WHERE RoleName = @RoleName
+  AND Sku = @Sku
+  AND Quantity >= @Quantity";
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@Now", DateTime.Now);
+                command.Parameters.AddWithValue("@RoleName", roleName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        private static void AddOrIncreaseInventory(SqlConnection connection, SqlTransaction transaction, string roleName, string sku, string name, int quantity, string location)
+        {
+            const string sql = @"
+IF EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName = @RoleName AND Sku = @Sku)
+BEGIN
+    UPDATE dbo.InventoryItems
+    SET Quantity = Quantity + @Quantity,
+        LastUpdated = @Now,
+        [Location] = COALESCE(NULLIF([Location], ''), @Location)
+    WHERE RoleName = @RoleName AND Sku = @Sku;
+END
+ELSE
+BEGIN
+    INSERT INTO dbo.InventoryItems(RoleName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES(@RoleName, @Sku, @Name, @Quantity, @Location, @Now);
+END";
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@RoleName", roleName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                command.Parameters.AddWithValue("@Name", name);
+                command.Parameters.AddWithValue("@Quantity", quantity);
+                command.Parameters.AddWithValue("@Location", location);
+                command.Parameters.AddWithValue("@Now", DateTime.Now);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private static bool UpdateStatus(SqlConnection connection, SqlTransaction transaction, int requestId, string status, string notes, string expectedByRole = null, string expectedToRole = null, string expectedCurrentStatus = null)
         {
             var sql = @"
 UPDATE dbo.OrderRequests
@@ -224,6 +415,61 @@ WHERE Id = @Id";
                 sql += " AND RequestedToRole = @RequestedToRole";
             }
 
+            if (!string.IsNullOrWhiteSpace(expectedCurrentStatus))
+            {
+                sql += " AND [Status] = @ExpectedCurrentStatus";
+            }
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@Status", status);
+                command.Parameters.AddWithValue("@Notes", (object)notes ?? DBNull.Value);
+                command.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                command.Parameters.AddWithValue("@Id", requestId);
+
+                if (!string.IsNullOrWhiteSpace(expectedByRole))
+                {
+                    command.Parameters.AddWithValue("@RequestedByRole", expectedByRole);
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedToRole))
+                {
+                    command.Parameters.AddWithValue("@RequestedToRole", expectedToRole);
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedCurrentStatus))
+                {
+                    command.Parameters.AddWithValue("@ExpectedCurrentStatus", expectedCurrentStatus);
+                }
+
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
+
+        private static bool UpdateStatus(int requestId, string status, string notes, string expectedByRole = null, string expectedToRole = null, string expectedCurrentStatus = null)
+        {
+            var sql = @"
+UPDATE dbo.OrderRequests
+SET [Status] = @Status,
+    Notes = COALESCE(@Notes, Notes),
+    UpdatedAt = @UpdatedAt
+WHERE Id = @Id";
+
+            if (!string.IsNullOrWhiteSpace(expectedByRole))
+            {
+                sql += " AND RequestedByRole = @RequestedByRole";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedToRole))
+            {
+                sql += " AND RequestedToRole = @RequestedToRole";
+            }
+
+            if (!string.IsNullOrWhiteSpace(expectedCurrentStatus))
+            {
+                sql += " AND [Status] = @ExpectedCurrentStatus";
+            }
+
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
@@ -240,6 +486,11 @@ WHERE Id = @Id";
                 if (!string.IsNullOrWhiteSpace(expectedToRole))
                 {
                     command.Parameters.AddWithValue("@RequestedToRole", expectedToRole);
+                }
+
+                if (!string.IsNullOrWhiteSpace(expectedCurrentStatus))
+                {
+                    command.Parameters.AddWithValue("@ExpectedCurrentStatus", expectedCurrentStatus);
                 }
 
                 connection.Open();

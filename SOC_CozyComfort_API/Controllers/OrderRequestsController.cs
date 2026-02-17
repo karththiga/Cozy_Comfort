@@ -100,6 +100,31 @@ namespace SOC_CozyComfort_API.Controllers
         }
 
 
+
+        [HttpPost]
+        [Route("seller/receive/{requestId:int}")]
+        public IHttpActionResult SellerReceive(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.MarkSellerReceived(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
+        [HttpPost]
+        [Route("distributor/receive/{requestId:int}")]
+        public IHttpActionResult DistributorReceive(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.MarkDistributorReceivedFromManufacturer(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
         [HttpPost]
         [Route("seller/cancel/{requestId:int}")]
         public IHttpActionResult SellerCancel(int requestId, [FromBody] RequestActionDto action)
