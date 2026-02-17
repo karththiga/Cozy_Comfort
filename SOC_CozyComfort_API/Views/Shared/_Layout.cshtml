@@ -1,36 +1,41 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Cozy Comfort</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+    <header class="site-header sticky-top">
+        <nav class="navbar navbar-expand-lg cozy-navbar">
+            <div class="container">
+                @Html.ActionLink("Cozy Comfort", "Index", "Home", new { area = "" }, new { @class = "navbar-brand fw-semibold" })
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="mainNav" class="collapse navbar-collapse justify-content-end">
+                    <ul class="navbar-nav align-items-lg-center gap-lg-3">
+                        <li class="nav-item">@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li class="nav-item">@Html.ActionLink("API Docs", "Index", "Help", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li class="nav-item mt-2 mt-lg-0"><a class="btn btn-sm btn-cozy" href="#contact">Contact Us</a></li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container body-content">
+        </nav>
+    </header>
+
+    <main class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    </main>
+
+    <footer id="contact" class="site-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 py-4">
+            <p class="mb-0">&copy; @DateTime.Now.Year Cozy Comfort. Crafted for calm and comfort.</p>
+            <p class="mb-0 footer-note">support@cozycomfort.com</p>
+        </div>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
