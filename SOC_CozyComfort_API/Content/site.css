@@ -70,13 +70,50 @@ body {
     max-width: 700px;
 }
 
+.services-section {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(231, 243, 255, 0.95), rgba(218, 236, 255, 0.85));
+    border: 1px solid #cfe2f5;
+}
+
+.services-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.services-section .row {
+    position: relative;
+    z-index: 1;
+}
+
 .feature-card {
     border: 1px solid #d6e8fb;
     border-radius: 1rem;
     overflow: hidden;
-    background-color: #f4faff;
     box-shadow: 0 10px 24px rgba(22, 35, 51, 0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card--inventory {
+    background: linear-gradient(180deg, #eff7ff 0%, #deeeff 100%);
+    border-color: #c7def6;
+}
+
+.feature-card--orders {
+    background: linear-gradient(180deg, #e9f4ff 0%, #d4e9ff 100%);
+    border-color: #b9d7f6;
+}
+
+.feature-card--notifications {
+    background: linear-gradient(180deg, #f2f8ff 0%, #e0efff 100%);
+    border-color: #c5def9;
 }
 
 .feature-card:hover {
