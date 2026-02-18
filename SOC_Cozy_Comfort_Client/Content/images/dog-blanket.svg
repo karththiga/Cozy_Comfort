@@ -11,5 +11,4 @@
     <ellipse cx="0" cy="8" rx="10" ry="8" fill="#7c2d12"/>
     <path d="M-14 22c8 8 20 8 28 0" stroke="#1f2937" stroke-width="3" fill="none"/>
   </g>
-  <text x="300" y="62" text-anchor="middle" font-size="30" fill="#78350f" font-family="Arial">Dog Design Blanket</text>
 </svg>
