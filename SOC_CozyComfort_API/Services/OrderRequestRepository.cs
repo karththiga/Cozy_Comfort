@@ -29,6 +29,26 @@ WHERE RequestedByRole = @Role
 ORDER BY CreatedAt DESC", role);
         }
 
+        public static OrderRequestDto CreateCustomerToSeller(CreateCustomerOrderDto request)
+        {
+            var dto = new OrderRequestDto
+            {
+                RequestType = "CustomerToSeller",
+                RequestedByRole = "Customer",
+                RequestedToRole = "Seller",
+                RequestedByUser = request.RequestedByUser,
+                Sku = request.Sku,
+                BlanketName = request.BlanketName,
+                Quantity = request.Quantity,
+                Status = "PendingSellerConfirmation",
+                Notes = request.Notes
+            };
+
+            var created = Insert(dto);
+            NotificationRepository.Add("Seller", "New customer order", $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}).", "CustomerOrder", created.Id);
+            return created;
+        }
+
         public static OrderRequestDto CreateSellerToDistributor(CreateSellerRequestDto request)
         {
             var dto = new OrderRequestDto
@@ -158,6 +178,44 @@ ORDER BY CreatedAt DESC", role);
             }
 
             NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
+            return true;
+        }
+
+        public static bool ConfirmCustomerOrderBySeller(int requestId, RequestActionDto action)
+        {
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedByRole, "Customer", StringComparison.OrdinalIgnoreCase) || !string.Equals(request.RequestedToRole, "Seller", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    if (!TryDecreaseInventory(connection, transaction, "Seller", request.Sku, request.Quantity))
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    var note = string.IsNullOrWhiteSpace(action.Notes)
+                        ? "Order confirmed by seller and stock reserved for customer."
+                        : action.Notes;
+
+                    var ok = UpdateStatus(connection, transaction, requestId, "ConfirmedBySeller", note, expectedByRole: "Customer", expectedToRole: "Seller");
+                    if (!ok)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                }
+            }
+
+            NotificationRepository.Add("Customer", "Order confirmed", $"Your order #{requestId} was confirmed by seller.", "CustomerOrder", requestId);
             return true;
         }
 

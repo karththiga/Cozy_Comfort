@@ -200,6 +200,8 @@
     <Content Include="Views\Home\DistributorRequests.cshtml" />
     <Content Include="Views\Home\ManufacturerRequests.cshtml" />
     <Content Include="Views\Home\Notifications.cshtml" />
+    <Content Include="Views\Home\Customer.cshtml" />
+    <Content Include="Views\Home\CustomerSignup.cshtml" />
     <Content Include="Views\Home\Admin.cshtml" />
   </ItemGroup>
   <ItemGroup>

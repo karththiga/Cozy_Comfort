@@ -28,6 +28,12 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return View();
         }
 
+        [HttpGet]
+        public ActionResult CustomerSignup()
+        {
+            return View();
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Signup(string fullName, string email, string userName, string role, string password, string confirmPassword)
@@ -45,6 +51,33 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             }
 
             var signupResult = _authApiClient.Signup(fullName, email, userName, role, password);
+            if (!signupResult.Success)
+            {
+                ViewBag.ErrorMessage = signupResult.Message;
+                return View();
+            }
+
+            TempData["AuthMessage"] = signupResult.Message;
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CustomerSignup(string fullName, string email, string userName, string password, string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName))
+            {
+                ViewBag.ErrorMessage = "All fields are required.";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(password) || password != confirmPassword)
+            {
+                ViewBag.ErrorMessage = "Password and confirm password must match.";
+                return View();
+            }
+
+            var signupResult = _authApiClient.Signup(fullName, email, userName, "Customer", password);
             if (!signupResult.Success)
             {
                 ViewBag.ErrorMessage = signupResult.Message;
@@ -92,6 +125,25 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         public ActionResult Seller()
         {
             return RenderDashboard("Seller");
+        }
+
+        [HttpGet]
+        public ActionResult Customer()
+        {
+            if (!IsAuthorizedFor("Customer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new RequestBoardViewModel
+            {
+                Role = "Customer",
+                LoggedInUser = Session["LoggedInUser"] as string,
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Customer"),
+                NewRequest = new OrderRequestItem()
+            };
+
+            return View(model);
         }
 
         [HttpGet]
@@ -269,6 +321,21 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public ActionResult CreateCustomerOrder(OrderRequestItem newRequest)
+        {
+            if (!IsAuthorizedFor("Customer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userName = Session["LoggedInUser"] as string;
+            var result = _orderRequestApiClient.CreateCustomerOrder(userName, newRequest);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("Customer");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateSellerRequest(OrderRequestItem newRequest)
         {
             if (!IsAuthorizedFor("Seller"))
@@ -282,6 +349,20 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return RedirectToAction("SellerRequests");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SellerConfirmCustomerOrder(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.SellerConfirmCustomerOrder(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("SellerRequests");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -502,6 +583,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                     return RedirectToAction("Seller");
                 case "Admin":
                     return RedirectToAction("Admin");
+                case "Customer":
+                    return RedirectToAction("Customer");
                 default:
                     return RedirectToAction("Login");
             }

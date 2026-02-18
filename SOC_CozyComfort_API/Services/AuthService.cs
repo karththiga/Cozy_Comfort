@@ -72,6 +72,8 @@ WHERE u.UserName = @UserName
             {
                 connection.Open();
 
+                var isCustomerRole = string.Equals(role, "Customer", System.StringComparison.OrdinalIgnoreCase);
+
                 var sql = @"IF EXISTS(SELECT 1 FROM dbo.Users WHERE UserName = @UserName)
 BEGIN
     SELECT -1;
@@ -85,7 +87,7 @@ BEGIN
 END;
 
 INSERT INTO dbo.Users(UserName, [Password], RoleId, FullName, Email, IsApproved)
-SELECT @UserName, @Password, r.Id, @FullName, @Email, 0
+SELECT @UserName, @Password, r.Id, @FullName, @Email, @IsApproved
 FROM dbo.Roles r
 WHERE r.RoleName = @Role;
 
@@ -98,6 +100,7 @@ SELECT 1;";
                     command.Parameters.AddWithValue("@Role", role.Trim());
                     command.Parameters.AddWithValue("@FullName", fullName.Trim());
                     command.Parameters.AddWithValue("@Email", email.Trim());
+                    command.Parameters.AddWithValue("@IsApproved", isCustomerRole ? 1 : 0);
 
                     var result = (int)command.ExecuteScalar();
                     if (result == -1)
@@ -112,7 +115,9 @@ SELECT 1;";
                         return false;
                     }
 
-                    message = "Signup request submitted. Wait for admin approval before login.";
+                    message = isCustomerRole
+                        ? "Customer account created. You can login and place orders now."
+                        : "Signup request submitted. Wait for admin approval before login.";
                     return true;
                 }
             }

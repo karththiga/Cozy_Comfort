@@ -45,6 +45,10 @@
                     {
                         <li>@Html.ActionLink("Admin Panel", "Admin", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
+                    else if (loggedInRole == "Customer")
+                    {
+                        <li>@Html.ActionLink("My Orders", "Customer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
 
                 </ul>
 

@@ -153,6 +153,7 @@ END;
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Manufacturer') INSERT INTO dbo.Roles(RoleName) VALUES('Manufacturer');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Distributor') INSERT INTO dbo.Roles(RoleName) VALUES('Distributor');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Seller') INSERT INTO dbo.Roles(RoleName) VALUES('Seller');
+IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Customer') INSERT INTO dbo.Roles(RoleName) VALUES('Customer');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Admin') INSERT INTO dbo.Roles(RoleName) VALUES('Admin');
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='m_admin')
@@ -171,7 +172,11 @@ IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='admin')
     INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
     SELECT 'admin', 'Admin@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Admin';
 
-UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 'admin');
+IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='c_customer')
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 'c_customer', 'C@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Customer';
+
+UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 'admin', 'c_customer');
 
 IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems)
 BEGIN
