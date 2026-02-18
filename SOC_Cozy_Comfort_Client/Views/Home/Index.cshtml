@@ -139,4 +139,32 @@
             </div>
         </div>
     }
+    else if (loggedInRole == "Customer")
+    {
+        <section class="dashboard-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Customer Home</p>
+                <h1>Welcome, @loggedInUser</h1>
+                <p class="text-muted mb-0">Track your order requests and confirmation updates from sellers.</p>
+                <div class="hero-actions mt-3">
+                    <a href="@Url.Action("Customer", "Home")" class="btn btn-primary">Open My Orders</a>
+                </div>
+            </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Customer dashboard" />
+        </section>
+    }
+    else if (loggedInRole == "Admin")
+    {
+        <section class="dashboard-head dashboard-head-pro">
+            <div>
+                <p class="eyebrow">Admin Home</p>
+                <h1>Welcome, @loggedInUser</h1>
+                <p class="text-muted mb-0">Use the admin panel to approve role signup requests and control access to dashboards.</p>
+                <div class="hero-actions mt-3">
+                    <a href="@Url.Action("Admin", "Home")" class="btn btn-primary">Open Admin Panel</a>
+                </div>
+            </div>
+            <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/warehouse.svg")" alt="Admin dashboard" />
+        </section>
+    }
 </main>

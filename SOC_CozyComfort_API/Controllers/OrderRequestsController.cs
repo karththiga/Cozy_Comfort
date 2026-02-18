@@ -33,6 +33,31 @@ namespace SOC_CozyComfort_API.Controllers
         }
 
         [HttpPost]
+        [Route("customer-to-seller")]
+        public IHttpActionResult CreateCustomerToSeller([FromBody] CreateCustomerOrderDto request)
+        {
+            if (!ValidatePayload(request))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            var created = OrderRequestRepository.CreateCustomerToSeller(request);
+            return Ok(created);
+        }
+
+        [HttpPost]
+        [Route("seller/confirm-customer/{requestId:int}")]
+        public IHttpActionResult SellerConfirmCustomer(int requestId, [FromBody] RequestActionDto action)
+        {
+            if (!ValidatePayload(action))
+            {
+                return BadRequest(GetModelStateErrors());
+            }
+
+            return OrderRequestRepository.ConfirmCustomerOrderBySeller(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+        }
+
+        [HttpPost]
         [Route("seller-to-distributor")]
         public IHttpActionResult CreateSellerToDistributor([FromBody] CreateSellerRequestDto request)
         {
