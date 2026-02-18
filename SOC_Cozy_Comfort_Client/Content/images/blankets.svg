@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#f7f1ff"/>
+  <rect x="70" y="90" width="460" height="180" rx="20" fill="#8b5cf6"/>
+  <rect x="95" y="115" width="410" height="130" rx="16" fill="#c4b5fd"/>
+  <path d="M95 180h410" stroke="#7c3aed" stroke-width="10"/>
+  <circle cx="150" cy="300" r="16" fill="#6d28d9"/>
+  <circle cx="450" cy="300" r="16" fill="#6d28d9"/>
+  <text x="300" y="65" text-anchor="middle" font-size="28" fill="#4c1d95" font-family="Arial">Blanket Collection</text>
+</svg>

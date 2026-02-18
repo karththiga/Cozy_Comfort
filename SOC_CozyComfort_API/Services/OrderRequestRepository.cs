@@ -29,6 +29,26 @@ WHERE RequestedByRole = @Role
 ORDER BY CreatedAt DESC", role);
         }
 
+        public static OrderRequestDto CreateCustomerToSeller(CreateCustomerOrderDto request)
+        {
+            var dto = new OrderRequestDto
+            {
+                RequestType = "CustomerToSeller",
+                RequestedByRole = "Customer",
+                RequestedToRole = "Seller",
+                RequestedByUser = request.RequestedByUser,
+                Sku = request.Sku,
+                BlanketName = request.BlanketName,
+                Quantity = request.Quantity,
+                Status = "PendingSellerConfirmation",
+                Notes = request.Notes
+            };
+
+            var created = Insert(dto);
+            NotificationRepository.Add("Seller", "New customer order", $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}).", "CustomerOrder", created.Id);
+            return created;
+        }
+
         public static OrderRequestDto CreateSellerToDistributor(CreateSellerRequestDto request)
         {
             var dto = new OrderRequestDto
@@ -161,6 +181,69 @@ ORDER BY CreatedAt DESC", role);
             return true;
         }
 
+        public static bool ConfirmCustomerOrderBySeller(int requestId, RequestActionDto action)
+        {
+            var request = GetById(requestId);
+            if (request == null || !string.Equals(request.RequestedByRole, "Customer", StringComparison.OrdinalIgnoreCase) || !string.Equals(request.RequestedToRole, "Seller", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    var hasStock = TryDecreaseInventory(connection, transaction, "Seller", request.Sku, request.Quantity);
+
+                    if (hasStock)
+                    {
+                        var note = string.IsNullOrWhiteSpace(action.Notes)
+                            ? "Order confirmed by seller and stock reserved for customer."
+                            : action.Notes;
+
+                        var confirmed = UpdateStatus(connection, transaction, requestId, "ConfirmedBySeller", note, expectedByRole: "Customer", expectedToRole: "Seller");
+                        if (!confirmed)
+                        {
+                            transaction.Rollback();
+                            return false;
+                        }
+
+                        transaction.Commit();
+                        NotificationRepository.Add("Customer", "Order confirmed", $"Your order #{requestId} was confirmed by seller.", "CustomerOrder", requestId);
+                        return true;
+                    }
+
+                    var sellerRequest = new OrderRequestDto
+                    {
+                        RequestType = "SellerToDistributor",
+                        RequestedByRole = "Seller",
+                        RequestedToRole = "Distributor",
+                        RequestedByUser = action.PerformedByUser,
+                        Sku = request.Sku,
+                        BlanketName = request.BlanketName,
+                        Quantity = request.Quantity,
+                        Status = "PendingDistributorReview",
+                        Notes = $"Auto-created from customer order #{requestId} due to seller stock shortage.",
+                        SourceRequestId = requestId
+                    };
+
+                    var sellerRequestId = Insert(connection, transaction, sellerRequest);
+                    var updated = UpdateStatus(connection, transaction, requestId, "RequestedFromDistributor", "Seller stock unavailable. Request sent to distributor.", expectedByRole: "Customer", expectedToRole: "Seller");
+                    if (!updated)
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    transaction.Commit();
+                    NotificationRepository.Add("Distributor", "Seller requested stock for customer order", $"Seller created request #{sellerRequestId} for customer order #{requestId} ({request.Sku}).", "OrderRequest", sellerRequestId);
+                    NotificationRepository.Add("Customer", "Order forwarded", $"Your order #{requestId} was forwarded to distributor via seller due to stock shortage.", "CustomerOrder", requestId);
+                    return true;
+                }
+            }
+        }
+
         public static bool CancelBySeller(int requestId, RequestActionDto action)
         {
             var ok = UpdateStatus(requestId, "CancelledBySeller", action.Notes, expectedByRole: "Seller");
@@ -223,6 +306,34 @@ ORDER BY CreatedAt DESC", role);
             }
 
             return result;
+        }
+
+        private static int Insert(SqlConnection connection, SqlTransaction transaction, OrderRequestDto request)
+        {
+            const string sql = @"
+INSERT INTO dbo.OrderRequests
+(RequestType, RequestedByRole, RequestedToRole, RequestedByUser, Sku, BlanketName, Quantity, [Status], Notes, CreatedAt, UpdatedAt, SourceRequestId)
+VALUES
+(@RequestType, @RequestedByRole, @RequestedToRole, @RequestedByUser, @Sku, @BlanketName, @Quantity, @Status, @Notes, @CreatedAt, @UpdatedAt, @SourceRequestId);
+SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+            var now = DateTime.Now;
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@RequestType", request.RequestType);
+                command.Parameters.AddWithValue("@RequestedByRole", request.RequestedByRole);
+                command.Parameters.AddWithValue("@RequestedToRole", request.RequestedToRole);
+                command.Parameters.AddWithValue("@RequestedByUser", request.RequestedByUser);
+                command.Parameters.AddWithValue("@Sku", request.Sku);
+                command.Parameters.AddWithValue("@BlanketName", request.BlanketName);
+                command.Parameters.AddWithValue("@Quantity", request.Quantity);
+                command.Parameters.AddWithValue("@Status", request.Status);
+                command.Parameters.AddWithValue("@Notes", (object)request.Notes ?? DBNull.Value);
+                command.Parameters.AddWithValue("@CreatedAt", now);
+                command.Parameters.AddWithValue("@UpdatedAt", now);
+                command.Parameters.Add("@SourceRequestId", SqlDbType.Int).Value = (object)request.SourceRequestId ?? DBNull.Value;
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
         }
 
         private static OrderRequestDto Insert(OrderRequestDto request)

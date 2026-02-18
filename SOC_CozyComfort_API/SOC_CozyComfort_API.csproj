@@ -167,6 +167,9 @@
     <Compile Include="Models\OrderRequestDto.cs" />
     <Compile Include="Models\NotificationDto.cs" />
     <Compile Include="Models\SignupRequestDto.cs" />
+    <Compile Include="Models\ApproveUserRequestDto.cs" />
+    <Compile Include="Models\LoginValidationResult.cs" />
+    <Compile Include="Models\PendingUserDto.cs" />
     <Compile Include="Services\InventoryRepository.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\DbInitializer.cs" />
