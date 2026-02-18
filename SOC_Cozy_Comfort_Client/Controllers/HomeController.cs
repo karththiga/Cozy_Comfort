@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System.Collections.Generic;
+using System.Web.Mvc;
 using SOC_Cozy_Comfort_Client.Models;
 using SOC_Cozy_Comfort_Client.Services;
 
@@ -10,6 +11,18 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         private readonly AuthApiClient _authApiClient = new AuthApiClient();
         private readonly OrderRequestApiClient _orderRequestApiClient = new OrderRequestApiClient();
         private readonly NotificationApiClient _notificationApiClient = new NotificationApiClient();
+
+        private static readonly string[] CustomerBlanketImageUrls =
+        {
+            "https://nanascraftyhome.com/wp-content/uploads/2021/11/Marjorie-Blanket-1-scaled.jpg",
+            "https://www.marymaxim.ca/cdn/shop/files/M95559.jpg?v=1713794020",
+            "https://i.ytimg.com/vi/2R6NSSxe-Dk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBXUZQZiDYHMEIdArUnFQWWL9ouEg",
+            "https://i.pinimg.com/736x/23/93/e7/2393e731c54011ecdf287c53f2f2ee3b.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSs58Vz8rJVp-CK27C8dMu3Ag7yf5qJX87gcA&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyY2gvs9wTv1Z3A893E11hRcG_3pvlLhT-CA&s",
+            "https://shop.babyspace.lk/cdn/shop/files/100_cotton-plain120x120cmbabyspaceshopIII_1.png?v=1721132338&width=533",
+            "https://www.inkandbrayer.co.nz/cdn/shop/articles/RuanuiStation-Stack-NZ-WoolThrows_1024x566.jpg?v=1695890470"
+        };
 
         public ActionResult Index()
         {
@@ -24,6 +37,12 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpGet]
         public ActionResult Signup()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult CustomerSignup()
         {
             return View();
         }
@@ -45,6 +64,33 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             }
 
             var signupResult = _authApiClient.Signup(fullName, email, userName, role, password);
+            if (!signupResult.Success)
+            {
+                ViewBag.ErrorMessage = signupResult.Message;
+                return View();
+            }
+
+            TempData["AuthMessage"] = signupResult.Message;
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CustomerSignup(string fullName, string email, string userName, string password, string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName))
+            {
+                ViewBag.ErrorMessage = "All fields are required.";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(password) || password != confirmPassword)
+            {
+                ViewBag.ErrorMessage = "Password and confirm password must match.";
+                return View();
+            }
+
+            var signupResult = _authApiClient.Signup(fullName, email, userName, "Customer", password);
             if (!signupResult.Success)
             {
                 ViewBag.ErrorMessage = signupResult.Message;
@@ -92,6 +138,62 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         public ActionResult Seller()
         {
             return RenderDashboard("Seller");
+        }
+
+        [HttpGet]
+        public ActionResult Customer()
+        {
+            if (!IsAuthorizedFor("Customer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller");
+
+            var model = new RequestBoardViewModel
+            {
+                Role = "Customer",
+                LoggedInUser = Session["LoggedInUser"] as string,
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Customer"),
+                SellerCatalogItems = sellerCatalogItems,
+                SellerCatalogImageUrls = BuildSellerCatalogImageUrls(sellerCatalogItems),
+                SellerCatalogDetails = BuildSellerCatalogDetails(sellerCatalogItems),
+                NewRequest = new OrderRequestItem()
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public ActionResult Admin()
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new AdminDashboardViewModel
+            {
+                LoggedInUser = Session["LoggedInUser"] as string,
+                PendingUsers = _authApiClient.GetPendingUsers(Session["LoggedInUser"] as string)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApproveUser(int userId)
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var adminUserName = Session["LoggedInUser"] as string;
+            var result = _authApiClient.ApproveUser(adminUserName, userId);
+            TempData[result.Success ? "AuthMessage" : "InventoryError"] = result.Message;
+            return RedirectToAction("Admin");
         }
 
         [HttpPost]
@@ -237,6 +339,21 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public ActionResult CreateCustomerOrder(OrderRequestItem newRequest)
+        {
+            if (!IsAuthorizedFor("Customer"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userName = Session["LoggedInUser"] as string;
+            var result = _orderRequestApiClient.CreateCustomerOrder(userName, newRequest);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("Customer");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CreateSellerRequest(OrderRequestItem newRequest)
         {
             if (!IsAuthorizedFor("Seller"))
@@ -250,6 +367,20 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return RedirectToAction("SellerRequests");
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SellerConfirmCustomerOrder(int requestId, string notes)
+        {
+            if (!IsAuthorizedFor("Seller"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _orderRequestApiClient.SellerConfirmCustomerOrder(requestId, Session["LoggedInUser"] as string, notes);
+            TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
+            return RedirectToAction("SellerRequests");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -434,6 +565,49 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return View();
         }
 
+
+        private Dictionary<string, string> BuildSellerCatalogImageUrls(List<InventoryItem> items)
+        {
+            var result = new Dictionary<string, string>();
+            if (items == null || items.Count == 0)
+            {
+                return result;
+            }
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                var sku = items[i].Sku ?? string.Empty;
+                if (!result.ContainsKey(sku))
+                {
+                    var img = CustomerBlanketImageUrls[i % CustomerBlanketImageUrls.Length];
+                    result.Add(sku, img);
+                }
+            }
+
+            return result;
+        }
+
+        private Dictionary<string, string> BuildSellerCatalogDetails(List<InventoryItem> items)
+        {
+            var result = new Dictionary<string, string>();
+            if (items == null)
+            {
+                return result;
+            }
+
+            foreach (var item in items)
+            {
+                var key = item.Sku ?? string.Empty;
+                if (!result.ContainsKey(key))
+                {
+                    var locationText = string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location;
+                    result.Add(key, "Location: " + locationText + " • Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm"));
+                }
+            }
+
+            return result;
+        }
+
         private ActionResult RenderDashboard(string role)
         {
             if (!IsAuthorizedFor(role))
@@ -468,6 +642,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                     return RedirectToAction("Distributor");
                 case "Seller":
                     return RedirectToAction("Seller");
+                case "Admin":
+                    return RedirectToAction("Admin");
+                case "Customer":
+                    return RedirectToAction("Customer");
                 default:
                     return RedirectToAction("Login");
             }

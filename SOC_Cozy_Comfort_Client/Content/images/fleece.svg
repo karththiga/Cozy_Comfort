@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#f0fdf4"/>
+  <ellipse cx="300" cy="200" rx="170" ry="95" fill="#86efac"/>
+  <circle cx="200" cy="170" r="45" fill="#dcfce7"/>
+  <circle cx="260" cy="145" r="50" fill="#dcfce7"/>
+  <circle cx="330" cy="145" r="50" fill="#dcfce7"/>
+  <circle cx="395" cy="170" r="45" fill="#dcfce7"/>
+  <path d="M175 230c40-20 210-20 250 0" stroke="#15803d" stroke-width="6" fill="none"/>
+  <text x="300" y="60" text-anchor="middle" font-size="30" fill="#14532d" font-family="Arial">Fleece Comfort</text>
+</svg>

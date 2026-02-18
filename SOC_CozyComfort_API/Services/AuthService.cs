@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using SOC_CozyComfort_API.Models;
 
 namespace SOC_CozyComfort_API.Services
 {
@@ -18,10 +20,10 @@ namespace SOC_CozyComfort_API.Services
             }
         }
 
-        public static string GetRoleForLogin(string userName, string password)
+        public static LoginValidationResult ValidateLogin(string userName, string password)
         {
             const string sql = @"
-SELECT TOP 1 r.RoleName
+SELECT TOP 1 r.RoleName, u.IsApproved
 FROM dbo.Users u
 JOIN dbo.Roles r ON r.Id = u.RoleId
 WHERE u.UserName = @UserName
@@ -33,15 +35,34 @@ WHERE u.UserName = @UserName
                 command.Parameters.AddWithValue("@UserName", userName);
                 command.Parameters.AddWithValue("@Password", password);
                 connection.Open();
-                return command.ExecuteScalar() as string;
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        return new LoginValidationResult { IsSuccess = false, Message = "Invalid username or password." };
+                    }
+
+                    var approved = reader["IsApproved"] != System.DBNull.Value && (bool)reader["IsApproved"];
+                    if (!approved)
+                    {
+                        return new LoginValidationResult { IsSuccess = false, Message = "Your account is waiting for admin approval." };
+                    }
+
+                    return new LoginValidationResult
+                    {
+                        IsSuccess = true,
+                        Role = reader["RoleName"] as string,
+                        Message = "Login successful."
+                    };
+                }
             }
         }
-
 
         public static bool TryCreateUser(string fullName, string email, string userName, string role, string password, out string message)
         {
             message = "";
-            if (!IsValidRole(role))
+            if (!IsValidRole(role) || role == "Admin")
             {
                 message = "Selected role is invalid.";
                 return false;
@@ -51,14 +72,9 @@ WHERE u.UserName = @UserName
             {
                 connection.Open();
 
-                var hasEmailColumn = false;
-                using (var schemaCommand = new SqlCommand("SELECT CASE WHEN COL_LENGTH('dbo.Users', 'Email') IS NULL THEN 0 ELSE 1 END", connection))
-                {
-                    hasEmailColumn = (int)schemaCommand.ExecuteScalar() == 1;
-                }
+                var isCustomerRole = string.Equals(role, "Customer", System.StringComparison.OrdinalIgnoreCase);
 
-                var sql = hasEmailColumn
-                    ? @"IF EXISTS(SELECT 1 FROM dbo.Users WHERE UserName = @UserName)
+                var sql = @"IF EXISTS(SELECT 1 FROM dbo.Users WHERE UserName = @UserName)
 BEGIN
     SELECT -1;
     RETURN;
@@ -70,20 +86,8 @@ BEGIN
     RETURN;
 END;
 
-INSERT INTO dbo.Users(UserName, [Password], RoleId, FullName, Email)
-SELECT @UserName, @Password, r.Id, @FullName, @Email
-FROM dbo.Roles r
-WHERE r.RoleName = @Role;
-
-SELECT 1;"
-                    : @"IF EXISTS(SELECT 1 FROM dbo.Users WHERE UserName = @UserName)
-BEGIN
-    SELECT -1;
-    RETURN;
-END;
-
-INSERT INTO dbo.Users(UserName, [Password], RoleId)
-SELECT @UserName, @Password, r.Id
+INSERT INTO dbo.Users(UserName, [Password], RoleId, FullName, Email, IsApproved)
+SELECT @UserName, @Password, r.Id, @FullName, @Email, @IsApproved
 FROM dbo.Roles r
 WHERE r.RoleName = @Role;
 
@@ -94,11 +98,9 @@ SELECT 1;";
                     command.Parameters.AddWithValue("@UserName", userName.Trim());
                     command.Parameters.AddWithValue("@Password", password);
                     command.Parameters.AddWithValue("@Role", role.Trim());
-                    if (hasEmailColumn)
-                    {
-                        command.Parameters.AddWithValue("@FullName", fullName.Trim());
-                        command.Parameters.AddWithValue("@Email", email.Trim());
-                    }
+                    command.Parameters.AddWithValue("@FullName", fullName.Trim());
+                    command.Parameters.AddWithValue("@Email", email.Trim());
+                    command.Parameters.AddWithValue("@IsApproved", isCustomerRole ? 1 : 0);
 
                     var result = (int)command.ExecuteScalar();
                     if (result == -1)
@@ -113,14 +115,80 @@ SELECT 1;";
                         return false;
                     }
 
-                    message = hasEmailColumn
-                        ? "Sign up successful. You can login now."
-                        : "Sign up successful. Please ask admin to upgrade DB schema for email tracking.";
+                    message = isCustomerRole
+                        ? "Customer account created. You can login and place orders now."
+                        : "Signup request submitted. Wait for admin approval before login.";
                     return true;
                 }
             }
         }
 
+        public static bool IsAdminUser(string userName)
+        {
+            const string sql = @"SELECT COUNT(1)
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE u.UserName = @UserName
+  AND r.RoleName = 'Admin'
+  AND u.IsApproved = 1";
 
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@UserName", userName);
+                connection.Open();
+                return (int)command.ExecuteScalar() > 0;
+            }
+        }
+
+        public static List<PendingUserDto> GetPendingUsers()
+        {
+            const string sql = @"SELECT u.Id, u.FullName, u.Email, u.UserName, r.RoleName
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE u.IsApproved = 0
+ORDER BY u.Id DESC";
+
+            var users = new List<PendingUserDto>();
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        users.Add(new PendingUserDto
+                        {
+                            Id = (int)reader["Id"],
+                            FullName = reader["FullName"] as string,
+                            Email = reader["Email"] as string,
+                            UserName = reader["UserName"] as string,
+                            RequestedRole = reader["RoleName"] as string
+                        });
+                    }
+                }
+            }
+
+            return users;
+        }
+
+        public static bool ApproveUser(int userId, string adminUserName)
+        {
+            const string sql = @"UPDATE dbo.Users
+SET IsApproved = 1,
+    ApprovedBy = @ApprovedBy,
+    ApprovedAt = GETDATE()
+WHERE Id = @Id AND IsApproved = 0";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@Id", userId);
+                command.Parameters.AddWithValue("@ApprovedBy", adminUserName);
+                connection.Open();
+                return command.ExecuteNonQuery() > 0;
+            }
+        }
     }
 }

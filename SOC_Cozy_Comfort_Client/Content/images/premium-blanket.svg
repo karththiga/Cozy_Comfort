@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fdf4ff"/>
+  <rect x="95" y="95" width="410" height="175" rx="20" fill="#e879f9"/>
+  <rect x="120" y="120" width="360" height="125" rx="14" fill="#f5d0fe"/>
+  <path d="M120 182h360" stroke="#a21caf" stroke-width="8"/>
+  <path d="M140 95v175M200 95v175M260 95v175M320 95v175M380 95v175M440 95v175" stroke="#c026d3" stroke-width="3" opacity=".55"/>
+  <text x="300" y="62" text-anchor="middle" font-size="30" fill="#86198f" font-family="Arial">Premium Blanket</text>
+</svg>

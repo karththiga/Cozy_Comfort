@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#eefaf7"/>
+  <ellipse cx="180" cy="170" rx="70" ry="55" fill="#ffffff"/>
+  <ellipse cx="245" cy="150" rx="72" ry="58" fill="#ffffff"/>
+  <ellipse cx="315" cy="170" rx="75" ry="60" fill="#ffffff"/>
+  <ellipse cx="380" cy="150" rx="70" ry="55" fill="#ffffff"/>
+  <rect x="285" y="210" width="30" height="85" rx="12" fill="#22c55e"/>
+  <path d="M300 240c-40 8-58 40-58 58" stroke="#16a34a" stroke-width="10" fill="none"/>
+  <path d="M300 240c40 8 58 40 58 58" stroke="#16a34a" stroke-width="10" fill="none"/>
+  <text x="300" y="60" text-anchor="middle" font-size="30" fill="#065f46" font-family="Arial">Cotton Supply</text>
+</svg>
