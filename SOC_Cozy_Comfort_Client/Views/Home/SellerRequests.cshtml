@@ -19,43 +19,7 @@
     {<div class="alert alert-danger">@TempData["RequestError"]</div>}
 
 
-    <div class="role-card mt-3">
-        <h4 class="mb-3">Incoming Customer Orders</h4>
-        <p class="text-muted">Process order: if stock exists it confirms immediately, otherwise it auto-requests distributor.</p>
-        <table class="table table-hover align-middle request-table">
-            <thead><tr><th>ID</th><th>Customer</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody>
-            @foreach (var req in Model.IncomingRequests)
-            {
-                if (req.RequestedByRole == "Customer")
-                {
-                    <tr>
-                        <td>@req.Id</td>
-                        <td>@req.RequestedByUser</td>
-                        <td>@req.Sku</td>
-                        <td>@req.BlanketName</td>
-                        <td>@req.Quantity</td>
-                        <td><span class="status-pill">@req.Status</span></td>
-                        <td>
-                            @if (req.Status == "PendingSellerConfirmation")
-                            {
-                                using (Html.BeginForm("SellerConfirmCustomerOrder", "Home", FormMethod.Post, new { @class = "d-inline" }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="requestId" value="@req.Id" />
-                                    <input type="hidden" name="notes" value="Confirmed by seller." />
-                                    <button class="btn btn-sm btn-success" type="submit">Process</button>
-                                }
-                            }
-                        </td>
-                    </tr>
-                }
-            }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="role-card mt-3">
+    <div class="role-card mt-3" id="incomingCustomerOrdersCard">
         <h4 class="mb-3">Incoming Customer Orders</h4>
         <p class="text-muted">Process order: if stock exists it confirms immediately, otherwise it auto-requests distributor.</p>
         <table class="table table-hover align-middle request-table">
@@ -144,3 +108,21 @@
         </div>
     </div>
 </section>
+
+@section scripts {
+    <script>
+        (function () {
+            var cards = Array.prototype.slice.call(document.querySelectorAll('.role-card'));
+            var incomingCards = cards.filter(function (card) {
+                var heading = card.querySelector('h4');
+                return heading && heading.textContent && heading.textContent.trim() === 'Incoming Customer Orders';
+            });
+
+            if (incomingCards.length > 1) {
+                for (var i = 0; i < incomingCards.length - 1; i++) {
+                    incomingCards[i].remove();
+                }
+            }
+        })();
+    </script>
+}
