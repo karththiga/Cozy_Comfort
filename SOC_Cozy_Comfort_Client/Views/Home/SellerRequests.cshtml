@@ -40,6 +40,7 @@
 
     <div class="role-card mt-3">
         <h4 class="mb-3">Incoming Customer Orders</h4>
+        <p class="text-muted">Process order: if stock exists it confirms immediately, otherwise it auto-requests distributor.</p>
         <table class="table table-hover align-middle request-table">
             <thead><tr><th>ID</th><th>Customer</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
@@ -62,7 +63,7 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="requestId" value="@req.Id" />
                                     <input type="hidden" name="notes" value="Confirmed by seller." />
-                                    <button class="btn btn-sm btn-success" type="submit">Confirm</button>
+                                    <button class="btn btn-sm btn-success" type="submit">Process</button>
                                 }
                             }
                         </td>

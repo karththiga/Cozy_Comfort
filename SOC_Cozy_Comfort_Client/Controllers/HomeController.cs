@@ -140,6 +140,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 Role = "Customer",
                 LoggedInUser = Session["LoggedInUser"] as string,
                 OutgoingRequests = _orderRequestApiClient.GetOutgoing("Customer"),
+                SellerCatalogItems = _inventoryApiClient.GetByRole("Seller"),
                 NewRequest = new OrderRequestItem()
             };
 
