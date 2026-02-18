@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fffaf0"/>
+  <rect x="90" y="90" width="420" height="210" rx="10" fill="#a16207"/>
+  <rect x="110" y="110" width="380" height="170" rx="8" fill="#d97706"/>
+  <path d="M110 165h380M110 220h380M220 110v170M380 110v170" stroke="#7c2d12" stroke-width="8"/>
+  <text x="300" y="62" text-anchor="middle" font-size="30" fill="#7c2d12" font-family="Arial">Wooden Crates</text>
+</svg>
