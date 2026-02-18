@@ -55,6 +55,25 @@ namespace SOC_CozyComfort_API.Models
         public string Notes { get; set; }
     }
 
+
+
+    public class CreateCustomerOrderDto
+    {
+        [Required]
+        public string RequestedByUser { get; set; }
+
+        [Required]
+        public string Sku { get; set; }
+
+        [Required]
+        public string BlanketName { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int Quantity { get; set; }
+
+        public string Notes { get; set; }
+    }
+
     public class RequestActionDto
     {
         [Required]

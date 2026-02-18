@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fff7ed"/>
+  <g>
+    <circle cx="190" cy="210" r="58" fill="#fed7aa" stroke="#9a3412" stroke-width="6"/>
+    <circle cx="190" cy="210" r="34" fill="#fdba74"/>
+    <circle cx="300" cy="200" r="68" fill="#fed7aa" stroke="#9a3412" stroke-width="6"/>
+    <circle cx="300" cy="200" r="40" fill="#fdba74"/>
+    <circle cx="420" cy="210" r="58" fill="#fed7aa" stroke="#9a3412" stroke-width="6"/>
+    <circle cx="420" cy="210" r="34" fill="#fdba74"/>
+  </g>
+  <text x="300" y="70" text-anchor="middle" font-size="30" fill="#7c2d12" font-family="Arial">Wool Rolls</text>
+</svg>
