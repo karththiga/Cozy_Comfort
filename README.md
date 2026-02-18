@@ -33,6 +33,7 @@ See detailed diagrams and API documentation in:
 - Session-based role authorization
 - Admin approval workflow for staff signup requests before dashboard access
 - Separate customer signup page and customer order tracking dashboard
+- Customer dashboard with seller catalog visibility and order placement flow
 
 ### Inventory Management (Per Role)
 - List inventory

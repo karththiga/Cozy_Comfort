@@ -8,7 +8,7 @@
         <div>
             <p class="eyebrow">Customer Orders</p>
             <h1>Request blankets from sellers</h1>
-            <p class="text-muted mb-0">Submit your order and track status updates once seller confirms.</p>
+            <p class="text-muted mb-0">Browse available seller stock, place orders, and track status updates from seller processing.</p>
         </div>
         <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Customer ordering" />
     </div>
@@ -18,10 +18,49 @@
     @if (TempData["RequestError"] != null)
     {<div class="alert alert-danger">@TempData["RequestError"]</div>}
 
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Available Blankets from Seller</h4>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle request-table">
+                <thead><tr><th>SKU</th><th>Name</th><th>Available Qty</th><th>Order Qty</th><th>Action</th></tr></thead>
+                <tbody>
+                @if (Model.SellerCatalogItems == null || Model.SellerCatalogItems.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-muted">No seller inventory available right now.</td></tr>
+                }
+                else
+                {
+                    foreach (var item in Model.SellerCatalogItems)
+                    {
+                        <tr>
+                            <td>@item.Sku</td>
+                            <td>@item.Name</td>
+                            <td>@item.Quantity</td>
+                            <td>
+                                @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post, new { @class = "d-flex gap-2 align-items-center" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="Sku" value="@item.Sku" />
+                                    <input type="hidden" name="BlanketName" value="@item.Name" />
+                                    <input type="hidden" name="Notes" value="Placed from customer catalog." />
+                                    <input type="number" name="Quantity" min="1" class="form-control form-control-sm" style="max-width:120px;" required @(item.Quantity <= 0 ? "disabled" : null) />
+                            </td>
+                            <td>
+                                    <button type="submit" class="btn btn-sm btn-primary" @(item.Quantity <= 0 ? "disabled" : null)>Order</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="row g-3 mt-1">
         <div class="col-md-4">
             <div class="role-card">
-                <h4 class="mb-3">New Customer Order</h4>
+                <h4 class="mb-3">Manual Order (Custom SKU)</h4>
                 @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post))
                 {
                     @Html.AntiForgeryToken()
