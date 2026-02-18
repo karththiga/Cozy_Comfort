@@ -41,6 +41,10 @@
                         <li>@Html.ActionLink("Inventory", "Seller", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Seller Requests", "SellerRequests", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
+                    else if (loggedInRole == "Admin")
+                    {
+                        <li>@Html.ActionLink("Admin Panel", "Admin", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
 
                 </ul>
 
