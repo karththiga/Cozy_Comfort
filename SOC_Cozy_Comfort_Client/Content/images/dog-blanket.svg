@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fef3c7"/>
+  <rect x="90" y="95" width="420" height="180" rx="20" fill="#fcd34d"/>
+  <rect x="115" y="120" width="370" height="130" rx="14" fill="#fde68a"/>
+  <g transform="translate(300 182)">
+    <ellipse cx="-56" cy="-6" rx="20" ry="34" fill="#92400e"/>
+    <ellipse cx="56" cy="-6" rx="20" ry="34" fill="#92400e"/>
+    <circle r="52" fill="#f59e0b"/>
+    <circle cx="-16" cy="-10" r="6" fill="#111827"/>
+    <circle cx="16" cy="-10" r="6" fill="#111827"/>
+    <ellipse cx="0" cy="8" rx="10" ry="8" fill="#7c2d12"/>
+    <path d="M-14 22c8 8 20 8 28 0" stroke="#1f2937" stroke-width="3" fill="none"/>
+  </g>
+  <text x="300" y="62" text-anchor="middle" font-size="30" fill="#78350f" font-family="Arial">Dog Design Blanket</text>
+</svg>

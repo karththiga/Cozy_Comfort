@@ -169,6 +169,10 @@
     <Content Include="Content\images\wool-rolls.svg" />
     <Content Include="Content\images\premium-blanket.svg" />
     <Content Include="Content\images\patchwork.svg" />
+    <Content Include="Content\images\flower-blanket.svg" />
+    <Content Include="Content\images\cat-blanket.svg" />
+    <Content Include="Content\images\rabbit-blanket.svg" />
+    <Content Include="Content\images\dog-blanket.svg" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
