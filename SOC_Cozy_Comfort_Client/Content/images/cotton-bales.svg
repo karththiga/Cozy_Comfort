@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#ecfeff"/>
+  <rect x="110" y="160" width="110" height="90" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="5"/>
+  <rect x="245" y="140" width="110" height="110" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="5"/>
+  <rect x="380" y="165" width="110" height="85" rx="12" fill="#f0fdfa" stroke="#0f766e" stroke-width="5"/>
+  <path d="M110 205h110M245 195h110M380 205h110" stroke="#14b8a6" stroke-width="6"/>
+  <text x="300" y="72" text-anchor="middle" font-size="30" fill="#134e4a" font-family="Arial">Cotton Bales</text>
+</svg>

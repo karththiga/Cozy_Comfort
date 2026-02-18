@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fffbeb"/>
+  <g>
+    <polygon points="120,90 210,90 165,170" fill="#f59e0b"/>
+    <polygon points="220,90 310,90 265,170" fill="#ef4444"/>
+    <polygon points="320,90 410,90 365,170" fill="#10b981"/>
+    <polygon points="420,90 500,90 460,170" fill="#3b82f6"/>
+    <polygon points="120,180 210,180 165,260" fill="#8b5cf6"/>
+    <polygon points="220,180 310,180 265,260" fill="#ec4899"/>
+    <polygon points="320,180 410,180 365,260" fill="#f97316"/>
+    <polygon points="420,180 500,180 460,260" fill="#14b8a6"/>
+  </g>
+  <text x="300" y="60" text-anchor="middle" font-size="30" fill="#78350f" font-family="Arial">Patchwork Blankets</text>
+</svg>

@@ -163,6 +163,12 @@
     <Content Include="Content\images\cotton.svg" />
     <Content Include="Content\images\wool.svg" />
     <Content Include="Content\images\wooden.svg" />
+    <Content Include="Content\images\quilt.svg" />
+    <Content Include="Content\images\fleece.svg" />
+    <Content Include="Content\images\cotton-bales.svg" />
+    <Content Include="Content\images\wool-rolls.svg" />
+    <Content Include="Content\images\premium-blanket.svg" />
+    <Content Include="Content\images\patchwork.svg" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
