@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fdf2f8"/>
+  <rect x="85" y="90" width="430" height="190" rx="22" fill="#f9a8d4"/>
+  <rect x="110" y="115" width="380" height="140" rx="16" fill="#fbcfe8"/>
+  <g transform="translate(170 175)">
+    <circle r="14" fill="#facc15"/>
+    <circle cx="-18" cy="0" r="10" fill="#ec4899"/>
+    <circle cx="18" cy="0" r="10" fill="#ec4899"/>
+    <circle cx="0" cy="-18" r="10" fill="#ec4899"/>
+    <circle cx="0" cy="18" r="10" fill="#ec4899"/>
+  </g>
+  <g transform="translate(300 175)">
+    <circle r="14" fill="#fde047"/>
+    <circle cx="-18" cy="0" r="10" fill="#22c55e"/>
+    <circle cx="18" cy="0" r="10" fill="#22c55e"/>
+    <circle cx="0" cy="-18" r="10" fill="#22c55e"/>
+    <circle cx="0" cy="18" r="10" fill="#22c55e"/>
+  </g>
+  <g transform="translate(430 175)">
+    <circle r="14" fill="#fde68a"/>
+    <circle cx="-18" cy="0" r="10" fill="#60a5fa"/>
+    <circle cx="18" cy="0" r="10" fill="#60a5fa"/>
+    <circle cx="0" cy="-18" r="10" fill="#60a5fa"/>
+    <circle cx="0" cy="18" r="10" fill="#60a5fa"/>
+  </g>
+</svg>

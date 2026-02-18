@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360">
+  <rect width="600" height="360" fill="#fff7ed"/>
+  <ellipse cx="300" cy="190" rx="140" ry="95" fill="#fde68a"/>
+  <circle cx="220" cy="170" r="40" fill="#fef3c7"/>
+  <circle cx="270" cy="140" r="44" fill="#fef3c7"/>
+  <circle cx="330" cy="140" r="44" fill="#fef3c7"/>
+  <circle cx="380" cy="170" r="40" fill="#fef3c7"/>
+  <circle cx="255" cy="190" r="6" fill="#78350f"/>
+  <circle cx="345" cy="190" r="6" fill="#78350f"/>
+  <path d="M260 225c20 20 60 20 80 0" stroke="#78350f" stroke-width="6" fill="none"/>
+  <text x="300" y="60" text-anchor="middle" font-size="30" fill="#92400e" font-family="Arial">Wool Stock</text>
+</svg>
