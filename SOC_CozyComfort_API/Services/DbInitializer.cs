@@ -67,6 +67,21 @@ BEGIN
     ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;
 END;
 
+IF COL_LENGTH('dbo.Users', 'IsApproved') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD IsApproved BIT NOT NULL CONSTRAINT DF_Users_IsApproved DEFAULT(0);
+END;
+
+IF COL_LENGTH('dbo.Users', 'ApprovedBy') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD ApprovedBy NVARCHAR(100) NULL;
+END;
+
+IF COL_LENGTH('dbo.Users', 'ApprovedAt') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD ApprovedAt DATETIME NULL;
+END;
+
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_Users_Email' AND object_id = OBJECT_ID('dbo.Users'))
 BEGIN
     CREATE UNIQUE INDEX UX_Users_Email ON dbo.Users(Email) WHERE Email IS NOT NULL;
@@ -138,18 +153,30 @@ END;
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Manufacturer') INSERT INTO dbo.Roles(RoleName) VALUES('Manufacturer');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Distributor') INSERT INTO dbo.Roles(RoleName) VALUES('Distributor');
 IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Seller') INSERT INTO dbo.Roles(RoleName) VALUES('Seller');
+IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Customer') INSERT INTO dbo.Roles(RoleName) VALUES('Customer');
+IF NOT EXISTS(SELECT 1 FROM dbo.Roles WHERE RoleName='Admin') INSERT INTO dbo.Roles(RoleName) VALUES('Admin');
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='m_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 'm_admin', 'M@123', Id FROM dbo.Roles WHERE RoleName='Manufacturer';
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 'm_admin', 'M@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Manufacturer';
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='d_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 'd_admin', 'D@123', Id FROM dbo.Roles WHERE RoleName='Distributor';
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 'd_admin', 'D@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Distributor';
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='s_admin')
-    INSERT INTO dbo.Users(UserName, [Password], RoleId)
-    SELECT 's_admin', 'S@123', Id FROM dbo.Roles WHERE RoleName='Seller';
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 's_admin', 'S@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Seller';
+
+IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='admin')
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 'admin', 'Admin@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Admin';
+
+IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='c_customer')
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 'c_customer', 'C@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Customer';
+
+UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 'admin', 'c_customer');
 
 IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems)
 BEGIN

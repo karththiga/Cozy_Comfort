@@ -128,6 +128,8 @@
     <Compile Include="Models\OrderRequestItem.cs" />
     <Compile Include="Models\RequestBoardViewModel.cs" />
     <Compile Include="Models\NotificationItem.cs" />
+    <Compile Include="Models\AdminDashboardViewModel.cs" />
+    <Compile Include="Models\PendingUserItem.cs" />
     <Compile Include="Services\InventoryApiClient.cs" />
     <Compile Include="Services\AuthApiClient.cs" />
     <Compile Include="Services\OrderRequestApiClient.cs" />
@@ -198,6 +200,9 @@
     <Content Include="Views\Home\DistributorRequests.cshtml" />
     <Content Include="Views\Home\ManufacturerRequests.cshtml" />
     <Content Include="Views\Home\Notifications.cshtml" />
+    <Content Include="Views\Home\Customer.cshtml" />
+    <Content Include="Views\Home\CustomerSignup.cshtml" />
+    <Content Include="Views\Home\Admin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
