@@ -1,0 +1,59 @@
+@model SOC_Cozy_Comfort_Client.Models.RequestBoardViewModel
+@{
+    ViewBag.Title = "Customer Dashboard";
+}
+
+<section class="request-page">
+    <div class="dashboard-head dashboard-head-pro">
+        <div>
+            <p class="eyebrow">Customer Orders</p>
+            <h1>Request blankets from sellers</h1>
+            <p class="text-muted mb-0">Submit your order and track status updates once seller confirms.</p>
+        </div>
+        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Customer ordering" />
+    </div>
+
+    @if (TempData["RequestMessage"] != null)
+    {<div class="alert alert-success">@TempData["RequestMessage"]</div>}
+    @if (TempData["RequestError"] != null)
+    {<div class="alert alert-danger">@TempData["RequestError"]</div>}
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-4">
+            <div class="role-card">
+                <h4 class="mb-3">New Customer Order</h4>
+                @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-2"><label class="form-label">SKU</label><input name="Sku" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Blanket Name</label><input name="BlanketName" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Quantity</label><input type="number" name="Quantity" min="1" class="form-control" required /></div>
+                    <div class="mb-3"><label class="form-label">Notes</label><textarea name="Notes" class="form-control" rows="3" placeholder="Address / preference"></textarea></div>
+                    <button type="submit" class="btn btn-primary w-100">Place Order Request</button>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="role-card">
+                <h4 class="mb-3">My Orders</h4>
+                <table class="table table-hover align-middle request-table">
+                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+                    <tbody>
+                    @foreach (var req in Model.OutgoingRequests)
+                    {
+                        <tr>
+                            <td>@req.Id</td>
+                            <td>@req.Sku</td>
+                            <td>@req.BlanketName</td>
+                            <td>@req.Quantity</td>
+                            <td><span class="status-pill">@req.Status</span></td>
+                            <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

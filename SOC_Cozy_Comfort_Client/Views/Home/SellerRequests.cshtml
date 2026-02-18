@@ -38,6 +38,41 @@
         }
     </div>
 
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Incoming Customer Orders</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>Customer</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var req in Model.IncomingRequests)
+            {
+                if (req.RequestedByRole == "Customer")
+                {
+                    <tr>
+                        <td>@req.Id</td>
+                        <td>@req.RequestedByUser</td>
+                        <td>@req.Sku</td>
+                        <td>@req.BlanketName</td>
+                        <td>@req.Quantity</td>
+                        <td><span class="status-pill">@req.Status</span></td>
+                        <td>
+                            @if (req.Status == "PendingSellerConfirmation")
+                            {
+                                using (Html.BeginForm("SellerConfirmCustomerOrder", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@req.Id" />
+                                    <input type="hidden" name="notes" value="Confirmed by seller." />
+                                    <button class="btn btn-sm btn-success" type="submit">Confirm</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+
     <div class="row g-3 mt-1">
         <div class="col-md-4">
             <div class="role-card">
