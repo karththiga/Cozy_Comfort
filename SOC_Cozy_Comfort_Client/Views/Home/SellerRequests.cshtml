@@ -19,23 +19,40 @@
     {<div class="alert alert-danger">@TempData["RequestError"]</div>}
 
 
-    <div class="role-card mt-3 mb-3">
-        <h4 class="mb-3">Customer Order Intake (Auto Stock Check)</h4>
-        <p class="text-muted">When seller stock is unavailable, this creates a distributor request automatically.</p>
-        @using (Html.BeginForm("ProcessCustomerOrder", "Home", FormMethod.Post))
-        {
-            @Html.AntiForgeryToken()
-            <div class="row g-2">
-                <div class="col-md-3"><label class="form-label">SKU</label><input name="sku" class="form-control" required /></div>
-                <div class="col-md-3"><label class="form-label">Blanket Name</label><input name="blanketName" class="form-control" /></div>
-                <div class="col-md-2"><label class="form-label">Quantity</label><input type="number" name="quantity" min="1" class="form-control" required /></div>
-                <div class="col-md-4"><label class="form-label">Order Notes</label><input name="notes" class="form-control" placeholder="Customer order reference" /></div>
-            </div>
-            <div class="mt-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary" onclick="return confirm('Process this customer order now?');">Process Customer Order</button>
-                <a href="@Url.Action("Seller", "Home")" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        }
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Incoming Customer Orders</h4>
+        <p class="text-muted">Process order: if stock exists it confirms immediately, otherwise it auto-requests distributor.</p>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>Customer</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var req in Model.IncomingRequests)
+            {
+                if (req.RequestedByRole == "Customer")
+                {
+                    <tr>
+                        <td>@req.Id</td>
+                        <td>@req.RequestedByUser</td>
+                        <td>@req.Sku</td>
+                        <td>@req.BlanketName</td>
+                        <td>@req.Quantity</td>
+                        <td><span class="status-pill">@req.Status</span></td>
+                        <td>
+                            @if (req.Status == "PendingSellerConfirmation")
+                            {
+                                using (Html.BeginForm("SellerConfirmCustomerOrder", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="requestId" value="@req.Id" />
+                                    <input type="hidden" name="notes" value="Confirmed by seller." />
+                                    <button class="btn btn-sm btn-success" type="submit">Process</button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
     </div>
 
     <div class="row g-3 mt-1">
