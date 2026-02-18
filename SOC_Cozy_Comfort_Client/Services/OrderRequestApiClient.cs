@@ -27,6 +27,26 @@ namespace SOC_Cozy_Comfort_Client.Services
             return GetList("api/orderrequests/outgoing/" + role);
         }
 
+
+        public ApiOperationResult CreateCustomerOrder(string userName, OrderRequestItem request)
+        {
+            var payload = new
+            {
+                RequestedByUser = userName,
+                Sku = request.Sku,
+                BlanketName = request.BlanketName,
+                Quantity = request.Quantity,
+                Notes = request.Notes
+            };
+
+            return Post("api/orderrequests/customer-to-seller", payload, "Order request sent to seller.");
+        }
+
+        public ApiOperationResult SellerConfirmCustomerOrder(int requestId, string userName, string notes)
+        {
+            return Post("api/orderrequests/seller/confirm-customer/" + requestId, new { PerformedByUser = userName, Notes = notes }, "Customer order confirmed.");
+        }
+
         public ApiOperationResult CreateSellerRequest(string userName, OrderRequestItem request)
         {
             var payload = new
