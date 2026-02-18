@@ -1,0 +1,70 @@
+@model SOC_Cozy_Comfort_Client.Models.AdminDashboardViewModel
+@{
+    ViewBag.Title = "Admin Panel";
+}
+
+<section class="dashboard-shell">
+    <div class="dashboard-head dashboard-head-pro mb-3">
+        <div>
+            <p class="eyebrow">Access Control</p>
+            <h2>Admin user management</h2>
+            <p class="text-muted mb-0">Approve pending signup requests to enable Manufacturer, Distributor, and Seller dashboards.</p>
+        </div>
+    </div>
+
+    @if (TempData["AuthMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["AuthMessage"]</div>
+    }
+
+    @if (TempData["InventoryError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["InventoryError"]</div>
+    }
+
+    <div class="role-card">
+        <h4>Pending signup requests</h4>
+
+        @if (Model.PendingUsers == null || Model.PendingUsers.Count == 0)
+        {
+            <p class="text-muted mb-0">No pending users right now.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Requested Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.PendingUsers)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>@user.UserName</td>
+                                <td>@user.RequestedRole</td>
+                                <td>
+                                    @using (Html.BeginForm("ApproveUser", "Home", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

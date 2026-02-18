@@ -31,6 +31,7 @@ See detailed diagrams and API documentation in:
 - Common login page for all roles
 - Role-based dashboard navigation
 - Session-based role authorization
+- Admin approval workflow for signup requests before dashboard access
 
 ### Inventory Management (Per Role)
 - List inventory
@@ -52,6 +53,7 @@ Use these in client login:
 - Manufacturer: `m_admin / M@123`
 - Distributor: `d_admin / D@123`
 - Seller: `s_admin / S@123`
+- Admin: `admin / Admin@123`
 
 ---
 

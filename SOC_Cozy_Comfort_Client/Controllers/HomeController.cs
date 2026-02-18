@@ -94,6 +94,38 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             return RenderDashboard("Seller");
         }
 
+        [HttpGet]
+        public ActionResult Admin()
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = new AdminDashboardViewModel
+            {
+                LoggedInUser = Session["LoggedInUser"] as string,
+                PendingUsers = _authApiClient.GetPendingUsers(Session["LoggedInUser"] as string)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ApproveUser(int userId)
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var adminUserName = Session["LoggedInUser"] as string;
+            var result = _authApiClient.ApproveUser(adminUserName, userId);
+            TempData[result.Success ? "AuthMessage" : "InventoryError"] = result.Message;
+            return RedirectToAction("Admin");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult AddInventory(string role, InventoryItem newItem)
@@ -468,6 +500,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                     return RedirectToAction("Distributor");
                 case "Seller":
                     return RedirectToAction("Seller");
+                case "Admin":
+                    return RedirectToAction("Admin");
                 default:
                     return RedirectToAction("Login");
             }
