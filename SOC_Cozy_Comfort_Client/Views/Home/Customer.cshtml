@@ -8,7 +8,7 @@
         <div>
             <p class="eyebrow">Customer Orders</p>
             <h1>Request blankets from sellers</h1>
-            <p class="text-muted mb-0">Browse available seller stock, place orders, and track status updates from seller processing.</p>
+            <p class="text-muted mb-0">Browse blanket catalog with images and details, place orders, and track status updates.</p>
         </div>
         <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/rabbit-blanket.svg")" alt="Customer rabbit blanket ordering" />
     </div>
@@ -22,19 +22,31 @@
         <h4 class="mb-3">Available Blankets from Seller</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle request-table">
-                <thead><tr><th>SKU</th><th>Name</th><th>Available Qty</th><th>Order</th></tr></thead>
+                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Details</th><th>Available Qty</th><th>Order</th></tr></thead>
                 <tbody>
                     @if (Model.SellerCatalogItems == null || Model.SellerCatalogItems.Count == 0)
                     {
-                        <tr><td colspan="4" class="text-muted">No seller inventory available right now.</td></tr>
+                        <tr><td colspan="6" class="text-muted">No seller inventory available right now.</td></tr>
                     }
                     else
                     {
                         foreach (var item in Model.SellerCatalogItems)
                         {
+                            var imgUrl = (Model.SellerCatalogImageUrls != null && Model.SellerCatalogImageUrls.ContainsKey(item.Sku))
+                                ? Model.SellerCatalogImageUrls[item.Sku]
+                                : Url.Content("~/Content/images/blankets.svg");
+
+                            var details = (Model.SellerCatalogDetails != null && Model.SellerCatalogDetails.ContainsKey(item.Sku))
+                                ? Model.SellerCatalogDetails[item.Sku]
+                                : "Premium blanket from seller stock.";
+
                             <tr>
+                                <td style="width:120px;">
+                                    <img src="@imgUrl" alt="@item.Name blanket" style="width:96px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #dee2e6;" />
+                                </td>
                                 <td>@item.Sku</td>
                                 <td>@item.Name</td>
+                                <td><small class="text-muted">@details</small></td>
                                 <td>@item.Quantity</td>
                                 <td>
                                     @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post, new { @class = "d-flex gap-2 align-items-center" }))
