@@ -130,6 +130,7 @@
     <Compile Include="Models\NotificationItem.cs" />
     <Compile Include="Models\AdminDashboardViewModel.cs" />
     <Compile Include="Models\PendingUserItem.cs" />
+    <Compile Include="Models\DistributorOptionItem.cs" />
     <Compile Include="Services\InventoryApiClient.cs" />
     <Compile Include="Services\AuthApiClient.cs" />
     <Compile Include="Services\OrderRequestApiClient.cs" />
