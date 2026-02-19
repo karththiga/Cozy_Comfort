@@ -29,7 +29,7 @@
         <h1>Request Blankets from Distributor</h1>
         <p class="text-muted mb-0">Create request when seller inventory is not enough. Distributor will receive it immediately.</p>
         </div>
-        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/storefront.svg")" alt="Seller workflow operations" />
+        <img class="dashboard-hero-image" src="https://i5.walmartimages.com/seo/JML-Queen-Mink-Plush-Fleece-Bed-Blanket-For-Winter-520GSM-Silky-Soft-Warm-Blanket-77-x87_9a48d68f-08a3-4a18-8c79-a8a0a6f437c3_2.f50161ba9446ad968e72e98cb14697b6.jpeg" alt="Seller workflow operations" />
     </div>
 
     @if (TempData["RequestMessage"] != null)
@@ -56,14 +56,14 @@
                         <td>@req.Quantity</td>
                         <td><span class="status-pill">@req.Status</span></td>
                         <td>
-                            @if (req.Status == "PendingSellerConfirmation")
+                            @if (req.Status == "PendingSellerConfirmation" || req.Status == "RequestedFromDistributor")
                             {
                                 using (Html.BeginForm("SellerConfirmCustomerOrder", "Home", FormMethod.Post, new { @class = "d-inline" }))
                                 {
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="requestId" value="@req.Id" />
-                                    <input type="hidden" name="notes" value="Confirmed by seller." />
-                                    <button class="btn btn-sm btn-success" type="submit">Process</button>
+                                    <input type="hidden" name="notes" value="Dispatched to customer by seller." />
+                                    <button class="btn btn-sm btn-success" type="submit">Send to Customer</button>
                                 }
                             }
                         </td>

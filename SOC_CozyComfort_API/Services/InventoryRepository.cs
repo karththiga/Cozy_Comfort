@@ -180,9 +180,9 @@ ORDER BY LastUpdated DESC";
         public static bool Delete(string role, int id, string userName = null)
         {
             const string sql = @"DELETE FROM dbo.InventoryItems
-WHERE i.RoleName = @RoleName
-  AND i.Id = @Id
-  AND (@OwnerUserName IS NULL OR i.OwnerUserName = @OwnerUserName)";
+WHERE RoleName = @RoleName
+  AND Id = @Id
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -197,10 +197,13 @@ WHERE i.RoleName = @RoleName
 
         private static object GetOwnerUserNameParam(string role, string userName)
         {
-            return (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+            if (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
-                ? (object)(userName ?? string.Empty)
-                : DBNull.Value;
+            {
+                return string.IsNullOrWhiteSpace(userName) ? (object)DBNull.Value : userName;
+            }
+
+            return DBNull.Value;
         }
 
         private static InventoryItemDto Map(SqlDataReader reader)
