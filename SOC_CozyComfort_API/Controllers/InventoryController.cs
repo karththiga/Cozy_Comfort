@@ -13,26 +13,26 @@ namespace SOC_CozyComfort_API.Controllers
     {
         [HttpGet]
         [Route("{role}")]
-        public IHttpActionResult GetByRole(string role)
+        public IHttpActionResult GetByRole(string role, string userName = null)
         {
             if (!InventoryRepository.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            return Ok(InventoryRepository.GetByRole(role));
+            return Ok(InventoryRepository.GetByRole(role, userName));
         }
 
         [HttpGet]
         [Route("{role}/{id:int}")]
-        public IHttpActionResult GetById(string role, int id)
+        public IHttpActionResult GetById(string role, int id, string userName = null)
         {
             if (!InventoryRepository.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            var item = InventoryRepository.GetById(role, id);
+            var item = InventoryRepository.GetById(role, id, userName);
             if (item == null)
             {
                 return NotFound();
@@ -43,7 +43,7 @@ namespace SOC_CozyComfort_API.Controllers
 
         [HttpPost]
         [Route("{role}")]
-        public IHttpActionResult Create(string role, [FromBody] InventoryItemDto item)
+        public IHttpActionResult Create(string role, [FromBody] InventoryItemDto item, string userName = null)
         {
             if (!InventoryRepository.IsValidRole(role))
             {
@@ -55,13 +55,13 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest(GetModelStateErrors());
             }
 
-            var created = InventoryRepository.Add(role, item);
+            var created = InventoryRepository.Add(role, item, userName);
             return Ok(created);
         }
 
         [HttpPut]
         [Route("{role}/{id:int}")]
-        public IHttpActionResult Update(string role, int id, [FromBody] InventoryItemDto item)
+        public IHttpActionResult Update(string role, int id, [FromBody] InventoryItemDto item, string userName = null)
         {
             if (!InventoryRepository.IsValidRole(role))
             {
@@ -73,7 +73,7 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest(GetModelStateErrors());
             }
 
-            var updated = InventoryRepository.Update(role, id, item);
+            var updated = InventoryRepository.Update(role, id, item, userName);
             if (!updated)
             {
                 return NotFound();
@@ -84,14 +84,14 @@ namespace SOC_CozyComfort_API.Controllers
 
         [HttpDelete]
         [Route("{role}/{id:int}")]
-        public IHttpActionResult Delete(string role, int id)
+        public IHttpActionResult Delete(string role, int id, string userName = null)
         {
             if (!InventoryRepository.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            var deleted = InventoryRepository.Delete(role, id);
+            var deleted = InventoryRepository.Delete(role, id, userName);
             if (!deleted)
             {
                 return NotFound();

@@ -50,9 +50,9 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Signup(string fullName, string email, string userName, string role, string password, string confirmPassword, int? distributorUserId)
+        public ActionResult Signup(string fullName, string email, string userName, string password, string confirmPassword, int? distributorUserId)
         {
-            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(role))
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName))
             {
                 ViewBag.ErrorMessage = "All fields are required.";
                 ViewBag.Distributors = _authApiClient.GetDistributors();
@@ -66,7 +66,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return View();
             }
 
-            var signupResult = _authApiClient.Signup(fullName, email, userName, role, password, distributorUserId);
+            var signupResult = _authApiClient.Signup(fullName, email, userName, "Seller", password, distributorUserId);
             if (!signupResult.Success)
             {
                 ViewBag.ErrorMessage = signupResult.Message;
@@ -152,7 +152,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller");
+            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller", Session["LoggedInUser"] as string);
 
             var model = new RequestBoardViewModel
             {
@@ -236,7 +236,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var result = _inventoryApiClient.Create(role, newItem);
+            var result = _inventoryApiClient.Create(role, newItem, Session["LoggedInUser"] as string);
             TempData[result.Success ? "InventoryMessage" : "InventoryError"] = result.Message;
             return RedirectToRoleDashboard(role);
         }
@@ -249,7 +249,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var item = _inventoryApiClient.GetById(role, id);
+            var item = _inventoryApiClient.GetById(role, id, Session["LoggedInUser"] as string);
             if (item == null)
             {
                 TempData["InventoryError"] = "Inventory item not found.";
@@ -269,7 +269,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var result = _inventoryApiClient.Update(role, item.Id, item);
+            var result = _inventoryApiClient.Update(role, item.Id, item, Session["LoggedInUser"] as string);
             if (!result.Success)
             {
                 ViewBag.Role = role;
@@ -290,7 +290,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var result = _inventoryApiClient.Delete(role, id);
+            var result = _inventoryApiClient.Delete(role, id, Session["LoggedInUser"] as string);
             TempData[result.Success ? "InventoryMessage" : "InventoryError"] = result.Message;
             return RedirectToRoleDashboard(role);
         }
@@ -307,7 +307,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             {
                 Role = "Seller",
                 LoggedInUser = Session["LoggedInUser"] as string,
-                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Seller"),
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Seller", Session["LoggedInUser"] as string),
                 IncomingRequests = _orderRequestApiClient.GetIncoming("Seller"),
                 NewRequest = new OrderRequestItem()
             };
@@ -331,13 +331,13 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("SellerRequests");
             }
 
-            var sellerItems = _inventoryApiClient.GetByRole("Seller");
+            var sellerItems = _inventoryApiClient.GetByRole("Seller", Session["LoggedInUser"] as string);
             var inventoryItem = sellerItems.Find(i => string.Equals(i.Sku, sku, System.StringComparison.OrdinalIgnoreCase));
 
             if (inventoryItem != null && inventoryItem.Quantity >= quantity)
             {
                 inventoryItem.Quantity -= quantity;
-                var updateResult = _inventoryApiClient.Update("Seller", inventoryItem.Id, inventoryItem);
+                var updateResult = _inventoryApiClient.Update("Seller", inventoryItem.Id, inventoryItem, Session["LoggedInUser"] as string);
                 TempData[updateResult.Success ? "RequestMessage" : "RequestError"] = updateResult.Success
                     ? $"Customer order fulfilled from seller stock for {sku} (Qty: {quantity})."
                     : updateResult.Message;
@@ -439,8 +439,8 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             {
                 Role = "Distributor",
                 LoggedInUser = Session["LoggedInUser"] as string,
-                IncomingRequests = _orderRequestApiClient.GetIncoming("Distributor"),
-                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Distributor")
+                IncomingRequests = _orderRequestApiClient.GetIncoming("Distributor", Session["LoggedInUser"] as string),
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Distributor", Session["LoggedInUser"] as string)
             };
 
             return View(model);
@@ -650,7 +650,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             {
                 Role = role,
                 LoggedInUser = Session["LoggedInUser"] as string,
-                Items = _inventoryApiClient.GetByRole(role),
+                Items = _inventoryApiClient.GetByRole(role, Session["LoggedInUser"] as string),
                 NewItem = new InventoryItem()
             };
 
