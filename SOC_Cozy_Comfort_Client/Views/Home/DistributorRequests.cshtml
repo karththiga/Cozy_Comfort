@@ -8,7 +8,14 @@
     var activeIncomingRequests = incomingRequests
         .Where(r => !string.IsNullOrWhiteSpace(r.Status)
                     && !r.Status.Contains("Cancelled")
-                    && !r.Status.Contains("Fulfilled"))
+                    && !r.Status.Contains("Fulfilled")
+                    && !r.Status.Contains("Escalated"))
+        .ToList();
+
+    var manufacturerAcceptedRequests = outgoingRequests
+        .Where(r => string.Equals(r.Status, "PendingManufacturerReview")
+                    || string.Equals(r.Status, "ProductionInProgress"))
+        .OrderByDescending(r => r.UpdatedAt)
         .ToList();
 
     var fulfilledOrReadyRequests = incomingRequests
@@ -89,6 +96,32 @@
                             <span class="text-muted">No action</span>
                         }
                     </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="role-card mt-3">
+        <h4 class="mb-3">Manufacturer Accepted / In Progress</h4>
+        <table class="table table-hover align-middle request-table">
+            <thead><tr><th>ID</th><th>From</th><th>SKU</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+            <tbody>
+            @if (manufacturerAcceptedRequests.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-muted">No accepted manufacturer requests yet.</td>
+                </tr>
+            }
+
+            @foreach (var req in manufacturerAcceptedRequests)
+            {
+                <tr>
+                    <td>@req.Id</td>
+                    <td>@req.Sku</td>
+                    <td>@req.Quantity</td>
+                    <td><span class="status-pill">@req.Status</span></td>
+                    <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                 </tr>
             }
             </tbody>
