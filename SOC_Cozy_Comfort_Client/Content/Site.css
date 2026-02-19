@@ -532,6 +532,9 @@ textarea {
 
 .dashboard-hero-image {
     width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    object-position: center;
     border-radius: 12px;
     border: 1px solid #d6e3f7;
     box-shadow: 0 10px 22px rgba(30, 58, 138, 0.14);
@@ -557,6 +560,10 @@ textarea {
 
     .gallery-grid-image {
         grid-template-columns: 1fr;
+    }
+
+    .dashboard-hero-image {
+        max-height: 240px;
     }
 
     .gallery-image {
