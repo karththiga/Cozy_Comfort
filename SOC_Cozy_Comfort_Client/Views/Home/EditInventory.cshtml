@@ -18,9 +18,11 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="role" value="@role" />
             <input type="hidden" name="Id" value="@Model.Id" />
-            var fixedLocation = string.IsNullOrWhiteSpace(Model.Location)
-                ? ((role == "Manufacturer") ? "Main Manufacturing Facility" : ((role == "Distributor") ? "Distributor Hub" : string.Empty))
-                : Model.Location;
+            @{ 
+                var fixedLocation = string.IsNullOrWhiteSpace(Model.Location)
+                    ? ((role == "Manufacturer") ? "Main Manufacturing Facility" : ((role == "Distributor") ? "Distributor Hub" : string.Empty))
+                    : Model.Location;
+            }
 
             <div class="mb-3"><label class="form-label">SKU</label><input name="Sku" class="form-control" value="@Model.Sku" required /></div>
             <div class="mb-3"><label class="form-label">Item Name</label><input name="Name" class="form-control" value="@Model.Name" required /></div>
