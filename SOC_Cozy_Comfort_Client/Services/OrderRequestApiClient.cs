@@ -48,6 +48,7 @@ namespace SOC_Cozy_Comfort_Client.Services
                 Sku = request.Sku,
                 BlanketName = request.BlanketName,
                 Quantity = request.Quantity,
+                RequestedToUser = request.RequestedToUser,
                 Notes = request.Notes
             };
 
