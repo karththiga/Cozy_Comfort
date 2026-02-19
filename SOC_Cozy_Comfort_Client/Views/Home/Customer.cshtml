@@ -50,6 +50,8 @@
                                 </td>
                                 <td>@item.Sku</td>
                                 <td>@item.Name</td>
+                                <td>@sellerName</td>
+                                <td>@location</td>
                                 <td><small class="text-muted">@details</small></td>
                                 <td>
                                     @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post, new { @class = "d-flex gap-2 align-items-center" }))

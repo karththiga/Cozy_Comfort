@@ -180,9 +180,9 @@ ORDER BY LastUpdated DESC";
         public static bool Delete(string role, int id, string userName = null)
         {
             const string sql = @"DELETE FROM dbo.InventoryItems
-WHERE RoleName = @RoleName
-  AND Id = @Id
-  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
+WHERE i.RoleName = @RoleName
+  AND i.Id = @Id
+  AND (@OwnerUserName IS NULL OR i.OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
