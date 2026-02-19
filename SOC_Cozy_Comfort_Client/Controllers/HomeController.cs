@@ -242,20 +242,20 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         }
 
         [HttpGet]
-        public ActionResult EditInventory(string role, string id)
+        public ActionResult EditInventory(string role, int id = 0)
         {
             if (!IsAuthorizedFor(role))
             {
                 return RedirectToAction("Login");
             }
 
-            if (!int.TryParse(id, out var inventoryId) || inventoryId <= 0)
+            if (id <= 0)
             {
                 TempData["InventoryError"] = "Please choose a valid inventory item to edit.";
                 return RedirectToRoleDashboard(role);
             }
 
-            var item = _inventoryApiClient.GetById(role, inventoryId, Session["LoggedInUser"] as string);
+            var item = _inventoryApiClient.GetById(role, id, Session["LoggedInUser"] as string);
             if (item == null)
             {
                 TempData["InventoryError"] = "Inventory item not found.";
