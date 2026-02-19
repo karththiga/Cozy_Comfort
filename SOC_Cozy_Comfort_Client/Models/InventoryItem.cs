@@ -21,6 +21,8 @@ namespace SOC_Cozy_Comfort_Client.Models
         [Display(Name = "Location")]
         public string Location { get; set; }
 
+        public string OwnerUserName { get; set; }
+
         [Display(Name = "Last Updated")]
         public DateTime LastUpdated { get; set; }
     }

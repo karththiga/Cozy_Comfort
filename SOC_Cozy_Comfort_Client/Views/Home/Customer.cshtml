@@ -22,11 +22,11 @@
         <h4 class="mb-3">Available Blankets from Seller</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle request-table">
-                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Details</th><th>Available Qty</th><th>Order</th></tr></thead>
+                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Seller</th><th>Location</th><th>Details</th><th>Available Qty</th><th>Order</th></tr></thead>
                 <tbody>
                     @if (Model.SellerCatalogItems == null || Model.SellerCatalogItems.Count == 0)
                     {
-                        <tr><td colspan="6" class="text-muted">No seller inventory available right now.</td></tr>
+                        <tr><td colspan="8" class="text-muted">No seller inventory available right now.</td></tr>
                     }
                     else
                     {
@@ -36,9 +36,9 @@
                                 ? Model.SellerCatalogImageUrls[item.Sku]
                                 : Url.Content("~/Content/images/blankets.svg");
 
-                            var details = (Model.SellerCatalogDetails != null && Model.SellerCatalogDetails.ContainsKey(item.Sku))
-                                ? Model.SellerCatalogDetails[item.Sku]
-                                : "Premium blanket from seller stock.";
+                            var sellerName = string.IsNullOrWhiteSpace(item.OwnerUserName) ? "Unknown seller" : item.OwnerUserName;
+                            var location = string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location;
+                            var details = "Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm");
 
                             <tr>
                                 <td style="width:120px;">
@@ -46,6 +46,8 @@
                                 </td>
                                 <td>@item.Sku</td>
                                 <td>@item.Name</td>
+                                <td>@sellerName</td>
+                                <td>@location</td>
                                 <td><small class="text-muted">@details</small></td>
                                 <td>@item.Quantity</td>
                                 <td>
@@ -55,6 +57,7 @@
                                         <input type="hidden" name="Sku" value="@item.Sku" />
                                         <input type="hidden" name="BlanketName" value="@item.Name" />
                                         <input type="hidden" name="Notes" value="Placed from customer catalog." />
+                                        <input type="hidden" name="RequestedToUser" value="@item.OwnerUserName" />
                                         <input type="number" name="Quantity" min="1" class="form-control form-control-sm" style="max-width:120px;" required @(item.Quantity <= 0 ? "disabled" : null) />
                                         <button type="submit" class="btn btn-sm btn-primary" @(item.Quantity <= 0 ? "disabled" : null)>Order</button>
                                     }
@@ -76,6 +79,7 @@
                     @Html.AntiForgeryToken()
                     <div class="mb-2"><label class="form-label">SKU</label><input name="Sku" class="form-control" required /></div>
                     <div class="mb-2"><label class="form-label">Blanket Name</label><input name="BlanketName" class="form-control" required /></div>
+                    <div class="mb-2"><label class="form-label">Seller User Name</label><input name="RequestedToUser" class="form-control" required /></div>
                     <div class="mb-2"><label class="form-label">Quantity</label><input type="number" name="Quantity" min="1" class="form-control" required /></div>
                     <div class="mb-3"><label class="form-label">Notes</label><textarea name="Notes" class="form-control" rows="3" placeholder="Address / preference"></textarea></div>
                     <button type="submit" class="btn btn-primary w-100">Place Order Request</button>
