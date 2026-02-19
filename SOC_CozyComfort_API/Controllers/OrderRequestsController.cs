@@ -10,26 +10,26 @@ namespace SOC_CozyComfort_API.Controllers
     {
         [HttpGet]
         [Route("incoming/{role}")]
-        public IHttpActionResult Incoming(string role)
+        public IHttpActionResult Incoming(string role, string userName = null)
         {
             if (!AuthService.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            return Ok(OrderRequestRepository.GetIncoming(role));
+            return Ok(OrderRequestRepository.GetIncoming(role, userName));
         }
 
         [HttpGet]
         [Route("outgoing/{role}")]
-        public IHttpActionResult Outgoing(string role)
+        public IHttpActionResult Outgoing(string role, string userName = null)
         {
             if (!AuthService.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            return Ok(OrderRequestRepository.GetOutgoing(role));
+            return Ok(OrderRequestRepository.GetOutgoing(role, userName));
         }
 
         [HttpPost]
@@ -66,7 +66,15 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest(GetModelStateErrors());
             }
 
-            var created = OrderRequestRepository.CreateSellerToDistributor(request);
+            OrderRequestDto created;
+            try
+            {
+                created = OrderRequestRepository.CreateSellerToDistributor(request);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return Ok(created);
         }
 
