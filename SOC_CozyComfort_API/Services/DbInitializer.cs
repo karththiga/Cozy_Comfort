@@ -54,6 +54,7 @@ BEGIN
         DistributorUserId INT NULL,
         FullName NVARCHAR(150) NULL,
         Email NVARCHAR(200) NULL,
+        SellerLocation NVARCHAR(200) NULL,
         CONSTRAINT FK_Users_Roles FOREIGN KEY(RoleId) REFERENCES dbo.Roles(Id),
         CONSTRAINT FK_Users_Distributor FOREIGN KEY(DistributorUserId) REFERENCES dbo.Users(Id)
     );
@@ -77,6 +78,11 @@ END;
 IF COL_LENGTH('dbo.Users', 'Email') IS NULL
 BEGIN
     ALTER TABLE dbo.Users ADD Email NVARCHAR(200) NULL;
+END;
+
+IF COL_LENGTH('dbo.Users', 'SellerLocation') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD SellerLocation NVARCHAR(200) NULL;
 END;
 
 IF COL_LENGTH('dbo.Users', 'IsApproved') IS NULL
@@ -208,6 +214,15 @@ IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='admin')
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='c_customer')
     INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
     SELECT 'c_customer', 'C@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Customer';
+
+UPDATE dbo.Users SET FullName = COALESCE(NULLIF(FullName, ''), 'Seller Admin') WHERE UserName = 's_admin';
+UPDATE dbo.Users SET FullName = COALESCE(NULLIF(FullName, ''), 'Northern Seller') WHERE UserName = 's_north';
+UPDATE dbo.Users SET FullName = COALESCE(NULLIF(FullName, ''), 'Southern Seller') WHERE UserName = 's_south';
+UPDATE dbo.Users SET FullName = COALESCE(NULLIF(FullName, ''), 'Distributor Admin') WHERE UserName = 'd_admin';
+
+UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'Store A-12') WHERE UserName = 's_admin';
+UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'North Outlet') WHERE UserName = 's_north';
+UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'South Gallery') WHERE UserName = 's_south';
 
 UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 's_north', 's_south', 'admin', 'c_customer');
 UPDATE s
