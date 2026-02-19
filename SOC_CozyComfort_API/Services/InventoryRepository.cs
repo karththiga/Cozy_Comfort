@@ -9,25 +9,28 @@ namespace SOC_CozyComfort_API.Services
     public static class InventoryRepository
     {
         private static string ConnectionString => ConfigurationManager.ConnectionStrings["CozyComfortDb"].ConnectionString;
+        private const string ManufacturerDefaultLocation = "Main Manufacturing Facility";
 
         public static bool IsValidRole(string role)
         {
             return AuthService.IsValidRole(role);
         }
 
-        public static List<InventoryItemDto> GetByRole(string role)
+        public static List<InventoryItemDto> GetByRole(string role, string userName = null)
         {
             var result = new List<InventoryItemDto>();
             const string sql = @"
 SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
 FROM dbo.InventoryItems
 WHERE RoleName = @RoleName
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)
 ORDER BY Sku";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
                 connection.Open();
 
                 using (var reader = command.ExecuteReader())
@@ -42,17 +45,20 @@ ORDER BY Sku";
             return result;
         }
 
-        public static InventoryItemDto GetById(string role, int id)
+        public static InventoryItemDto GetById(string role, int id, string userName = null)
         {
             const string sql = @"
 SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
 FROM dbo.InventoryItems
-WHERE RoleName = @RoleName AND Id = @Id";
+WHERE RoleName = @RoleName
+  AND Id = @Id
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
                 command.Parameters.AddWithValue("@Id", id);
                 connection.Open();
 
@@ -63,33 +69,36 @@ WHERE RoleName = @RoleName AND Id = @Id";
             }
         }
 
-        public static InventoryItemDto Add(string role, InventoryItemDto item)
+        public static InventoryItemDto Add(string role, InventoryItemDto item, string userName = null)
         {
             const string sql = @"
-INSERT INTO dbo.InventoryItems(RoleName, Sku, [Name], Quantity, [Location], LastUpdated)
-VALUES(@RoleName, @Sku, @Name, @Quantity, @Location, @LastUpdated);
+INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+VALUES(@RoleName, @OwnerUserName, @Sku, @Name, @Quantity, @Location, @LastUpdated);
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             var now = DateTime.Now;
+            var normalizedLocation = NormalizeLocation(role, item.Location);
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
                 command.Parameters.AddWithValue("@Sku", item.Sku);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@Quantity", item.Quantity);
-                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Location", (object)normalizedLocation ?? DBNull.Value);
                 command.Parameters.AddWithValue("@LastUpdated", now);
 
                 connection.Open();
                 var id = (int)command.ExecuteScalar();
                 item.Id = id;
+                item.Location = normalizedLocation;
                 item.LastUpdated = now;
                 return item;
             }
         }
 
-        public static bool Update(string role, int id, InventoryItemDto item)
+        public static bool Update(string role, int id, InventoryItemDto item, string userName = null)
         {
             const string sql = @"
 UPDATE dbo.InventoryItems
@@ -99,17 +108,20 @@ SET Sku = @Sku,
     [Location] = @Location,
     LastUpdated = @LastUpdated
 WHERE RoleName = @RoleName
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)
   AND Id = @Id";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
+                var normalizedLocation = NormalizeLocation(role, item.Location);
                 command.Parameters.AddWithValue("@Sku", item.Sku);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@Quantity", item.Quantity);
-                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Location", (object)normalizedLocation ?? DBNull.Value);
                 command.Parameters.AddWithValue("@LastUpdated", DateTime.Now);
                 command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
                 command.Parameters.AddWithValue("@Id", id);
 
                 connection.Open();
@@ -117,18 +129,36 @@ WHERE RoleName = @RoleName
             }
         }
 
-        public static bool Delete(string role, int id)
+        private static string NormalizeLocation(string role, string location)
         {
-            const string sql = "DELETE FROM dbo.InventoryItems WHERE RoleName = @RoleName AND Id = @Id";
+            return string.Equals(role, "Manufacturer", StringComparison.OrdinalIgnoreCase)
+                ? ManufacturerDefaultLocation
+                : location;
+        }
+
+        public static bool Delete(string role, int id, string userName = null)
+        {
+            const string sql = @"DELETE FROM dbo.InventoryItems
+WHERE RoleName = @RoleName
+  AND Id = @Id
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@RoleName", role);
+                command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
                 command.Parameters.AddWithValue("@Id", id);
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
             }
+        }
+
+        private static object GetOwnerUserNameParam(string role, string userName)
+        {
+            return string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+                ? (object)(userName ?? string.Empty)
+                : DBNull.Value;
         }
 
         private static InventoryItemDto Map(SqlDataReader reader)

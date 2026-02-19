@@ -20,11 +20,12 @@ namespace SOC_Cozy_Comfort_Client.Services
             _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
-        public List<InventoryItem> GetByRole(string role)
+        public List<InventoryItem> GetByRole(string role, string userName = null)
         {
             using (var client = BuildClient())
             {
-                var response = client.GetAsync("api/inventory/" + role).Result;
+                var path = BuildInventoryPath(role, null, userName);
+                var response = client.GetAsync(path).Result;
                 if (!response.IsSuccessStatusCode)
                 {
                     return new List<InventoryItem>();
@@ -35,11 +36,11 @@ namespace SOC_Cozy_Comfort_Client.Services
             }
         }
 
-        public InventoryItem GetById(string role, int id)
+        public InventoryItem GetById(string role, int id, string userName = null)
         {
             using (var client = BuildClient())
             {
-                var response = client.GetAsync("api/inventory/" + role + "/" + id).Result;
+                var response = client.GetAsync(BuildInventoryPath(role, id, userName)).Result;
                 if (!response.IsSuccessStatusCode)
                 {
                     return null;
@@ -50,33 +51,44 @@ namespace SOC_Cozy_Comfort_Client.Services
             }
         }
 
-        public ApiOperationResult Create(string role, InventoryItem item)
+        public ApiOperationResult Create(string role, InventoryItem item, string userName = null)
         {
             using (var client = BuildClient())
             {
                 var body = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
-                var response = client.PostAsync("api/inventory/" + role, body).Result;
+                var response = client.PostAsync(BuildInventoryPath(role, null, userName), body).Result;
                 return BuildResult(response, "Inventory item added successfully.");
             }
         }
 
-        public ApiOperationResult Update(string role, int id, InventoryItem item)
+        public ApiOperationResult Update(string role, int id, InventoryItem item, string userName = null)
         {
             using (var client = BuildClient())
             {
                 var body = new StringContent(JsonConvert.SerializeObject(item), Encoding.UTF8, "application/json");
-                var response = client.PutAsync("api/inventory/" + role + "/" + id, body).Result;
+                var response = client.PutAsync(BuildInventoryPath(role, id, userName), body).Result;
                 return BuildResult(response, "Inventory item updated successfully.");
             }
         }
 
-        public ApiOperationResult Delete(string role, int id)
+        public ApiOperationResult Delete(string role, int id, string userName = null)
         {
             using (var client = BuildClient())
             {
-                var response = client.DeleteAsync("api/inventory/" + role + "/" + id).Result;
+                var response = client.DeleteAsync(BuildInventoryPath(role, id, userName)).Result;
                 return BuildResult(response, "Inventory item deleted successfully.");
             }
+        }
+
+        private static string BuildInventoryPath(string role, int? id, string userName)
+        {
+            var path = "api/inventory/" + role + (id.HasValue ? "/" + id.Value : string.Empty);
+            if (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(userName))
+            {
+                path += "?userName=" + System.Net.WebUtility.UrlEncode(userName);
+            }
+
+            return path;
         }
 
         private HttpClient BuildClient()
