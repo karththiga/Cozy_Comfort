@@ -18,6 +18,8 @@ namespace SOC_CozyComfort_API.Models
 
         public string Location { get; set; }
 
+        public string OwnerUserName { get; set; }
+
         public DateTime LastUpdated { get; set; }
     }
 }
