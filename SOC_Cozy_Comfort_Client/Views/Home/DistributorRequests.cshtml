@@ -62,21 +62,21 @@
                     <td>
                         @if (string.Equals(req.Status, "PendingDistributorReview"))
                         {
-                            @using (Html.BeginForm("DistributorFulfill", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            using (Html.BeginForm("DistributorFulfill", "Home", FormMethod.Post, new { @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="requestId" value="@req.Id" />
                                 <input type="hidden" name="notes" value="Fulfilled from distributor stock and moved to seller inventory." />
                                 <button class="btn btn-sm btn-outline-success" type="submit" onclick="return confirm('Mark this as fulfilled by distributor?');">Fulfill &amp; Transfer</button>
                             }
-                            @using (Html.BeginForm("DistributorEscalate", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            using (Html.BeginForm("DistributorEscalate", "Home", FormMethod.Post, new { @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="requestId" value="@req.Id" />
                                 <input type="hidden" name="notes" value="Escalated to manufacturer due to low stock." />
                                 <button class="btn btn-sm btn-outline-primary" type="submit" onclick="return confirm('Escalate this request to manufacturer?');">Request Manufacturer</button>
                             }
-                            @using (Html.BeginForm("DistributorCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            using (Html.BeginForm("DistributorCancelRequest", "Home", FormMethod.Post, new { @class = "d-inline" }))
                             {
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="requestId" value="@req.Id" />
