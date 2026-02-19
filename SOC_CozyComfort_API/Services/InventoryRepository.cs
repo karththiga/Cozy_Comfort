@@ -10,6 +10,7 @@ namespace SOC_CozyComfort_API.Services
     {
         private static string ConnectionString => ConfigurationManager.ConnectionStrings["CozyComfortDb"].ConnectionString;
         private const string ManufacturerDefaultLocation = "Main Manufacturing Facility";
+        private const string DistributorDefaultLocationSuffix = "Hub";
 
         public static bool IsValidRole(string role)
         {
@@ -77,7 +78,7 @@ VALUES(@RoleName, @OwnerUserName, @Sku, @Name, @Quantity, @Location, @LastUpdate
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             var now = DateTime.Now;
-            var normalizedLocation = NormalizeLocation(role, item.Location);
+            var normalizedLocation = NormalizeLocation(role, userName, item.Location);
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
@@ -114,7 +115,7 @@ WHERE RoleName = @RoleName
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
-                var normalizedLocation = NormalizeLocation(role, item.Location);
+                var normalizedLocation = NormalizeLocation(role, userName, item.Location);
                 command.Parameters.AddWithValue("@Sku", item.Sku);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@Quantity", item.Quantity);
@@ -129,11 +130,49 @@ WHERE RoleName = @RoleName
             }
         }
 
-        private static string NormalizeLocation(string role, string location)
+        private static string NormalizeLocation(string role, string userName, string location)
         {
-            return string.Equals(role, "Manufacturer", StringComparison.OrdinalIgnoreCase)
-                ? ManufacturerDefaultLocation
-                : location;
+            if (string.Equals(role, "Manufacturer", StringComparison.OrdinalIgnoreCase))
+            {
+                return ManufacturerDefaultLocation;
+            }
+
+            if (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(userName))
+                {
+                    var existingLocation = GetDistributorLocationForOwner(userName);
+                    if (!string.IsNullOrWhiteSpace(existingLocation))
+                    {
+                        return existingLocation;
+                    }
+
+                    return userName + " " + DistributorDefaultLocationSuffix;
+                }
+
+                return "Distributor " + DistributorDefaultLocationSuffix;
+            }
+
+            return location;
+        }
+
+        private static string GetDistributorLocationForOwner(string ownerUserName)
+        {
+            const string sql = @"SELECT TOP 1 [Location]
+FROM dbo.InventoryItems
+WHERE RoleName = 'Distributor'
+  AND OwnerUserName = @OwnerUserName
+  AND [Location] IS NOT NULL
+  AND LTRIM(RTRIM([Location])) <> ''
+ORDER BY LastUpdated DESC";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@OwnerUserName", ownerUserName);
+                connection.Open();
+                return command.ExecuteScalar() as string;
+            }
         }
 
         public static bool Delete(string role, int id, string userName = null)
