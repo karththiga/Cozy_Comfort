@@ -166,12 +166,18 @@ ORDER BY CreatedAt DESC", role, userName);
                 return false;
             }
 
+            var distributorUserName = ResolveDistributorUserNameForManufacturerRequest(request);
+            if (string.IsNullOrWhiteSpace(distributorUserName))
+            {
+                return false;
+            }
+
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
-                    AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub", request.RequestedByUser);
+                    AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub", distributorUserName);
 
                     var note = string.IsNullOrWhiteSpace(action.Notes)
                         ? "Dispatched by manufacturer and received in distributor inventory."
@@ -190,6 +196,32 @@ ORDER BY CreatedAt DESC", role, userName);
 
             NotificationRepository.Add("Distributor", "Manufacturer dispatched blankets", $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
             return true;
+        }
+
+        private static string ResolveDistributorUserNameForManufacturerRequest(OrderRequestDto manufacturerRequest)
+        {
+            if (!string.IsNullOrWhiteSpace(manufacturerRequest.RequestedByUser))
+            {
+                return manufacturerRequest.RequestedByUser;
+            }
+
+            if (!manufacturerRequest.SourceRequestId.HasValue)
+            {
+                return null;
+            }
+
+            var sourceRequest = GetById(manufacturerRequest.SourceRequestId.Value);
+            if (sourceRequest == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(sourceRequest.RequestedToUser))
+            {
+                return sourceRequest.RequestedToUser;
+            }
+
+            return sourceRequest.RequestedByUser;
         }
 
         public static bool ConfirmCustomerOrderBySeller(int requestId, RequestActionDto action)
