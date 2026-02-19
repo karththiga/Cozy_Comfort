@@ -10,6 +10,7 @@ namespace SOC_Cozy_Comfort_Client.Models
         public string RequestedByRole { get; set; }
         public string RequestedToRole { get; set; }
         public string RequestedByUser { get; set; }
+        public string RequestedToUser { get; set; }
 
         [Required]
         public string Sku { get; set; }
