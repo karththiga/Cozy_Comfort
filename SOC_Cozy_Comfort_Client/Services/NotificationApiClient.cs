@@ -16,11 +16,12 @@ namespace SOC_Cozy_Comfort_Client.Services
             _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
-        public List<NotificationItem> GetByRole(string role)
+        public List<NotificationItem> GetByRole(string role, string userName)
         {
             using (var client = BuildClient())
             {
-                var response = client.GetAsync("api/notifications/" + role).Result;
+                var encodedUser = Uri.EscapeDataString(userName ?? string.Empty);
+                var response = client.GetAsync("api/notifications/" + role + "?userName=" + encodedUser).Result;
                 if (!response.IsSuccessStatusCode)
                 {
                     return new List<NotificationItem>();
@@ -31,11 +32,12 @@ namespace SOC_Cozy_Comfort_Client.Services
             }
         }
 
-        public ApiOperationResult MarkRead(string role, int id)
+        public ApiOperationResult MarkRead(string role, string userName, int id)
         {
             using (var client = BuildClient())
             {
-                var response = client.PostAsync("api/notifications/" + role + "/read/" + id, new StringContent("{}", System.Text.Encoding.UTF8, "application/json")).Result;
+                var encodedUser = Uri.EscapeDataString(userName ?? string.Empty);
+                var response = client.PostAsync("api/notifications/" + role + "/read/" + id + "?userName=" + encodedUser, new StringContent("{}", System.Text.Encoding.UTF8, "application/json")).Result;
                 return new ApiOperationResult
                 {
                     Success = response.IsSuccessStatusCode,

@@ -573,7 +573,13 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View(_notificationApiClient.GetByRole(role));
+            var userName = Session["LoggedInUser"] as string;
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View(_notificationApiClient.GetByRole(role, userName));
         }
 
         [HttpPost]
@@ -586,7 +592,13 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var result = _notificationApiClient.MarkRead(role, id);
+            var userName = Session["LoggedInUser"] as string;
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var result = _notificationApiClient.MarkRead(role, userName, id);
             TempData[result.Success ? "RequestMessage" : "RequestError"] = result.Message;
             return RedirectToAction("Notifications");
         }

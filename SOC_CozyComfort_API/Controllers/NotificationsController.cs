@@ -8,26 +8,36 @@ namespace SOC_CozyComfort_API.Controllers
     {
         [HttpGet]
         [Route("{role}")]
-        public IHttpActionResult GetByRole(string role)
+        public IHttpActionResult GetByRole(string role, [FromUri] string userName)
         {
             if (!AuthService.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            return Ok(NotificationRepository.GetByRole(role));
+            if (string.IsNullOrWhiteSpace(userName) || !AuthService.IsApprovedUserInRole(userName, role))
+            {
+                return BadRequest("Invalid notification recipient.");
+            }
+
+            return Ok(NotificationRepository.GetByRoleAndUser(role, userName));
         }
 
         [HttpPost]
         [Route("{role}/read/{id:int}")]
-        public IHttpActionResult MarkRead(string role, int id)
+        public IHttpActionResult MarkRead(string role, int id, [FromUri] string userName)
         {
             if (!AuthService.IsValidRole(role))
             {
                 return BadRequest("Invalid role.");
             }
 
-            return NotificationRepository.MarkAsRead(id, role) ? (IHttpActionResult)Ok() : NotFound();
+            if (string.IsNullOrWhiteSpace(userName) || !AuthService.IsApprovedUserInRole(userName, role))
+            {
+                return BadRequest("Invalid notification recipient.");
+            }
+
+            return NotificationRepository.MarkAsRead(id, role, userName) ? (IHttpActionResult)Ok() : NotFound();
         }
     }
 }
