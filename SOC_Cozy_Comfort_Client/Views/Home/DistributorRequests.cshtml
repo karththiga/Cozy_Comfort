@@ -17,6 +17,11 @@
         .OrderByDescending(r => r.UpdatedAt)
         .ToList();
 
+    var dispatchedSourceRequestIds = outgoingRequests
+        .Where(r => string.Equals(r.Status, "DispatchedByManufacturer") && r.SourceRequestId.HasValue)
+        .Select(r => r.SourceRequestId.Value)
+        .ToList();
+
     var fulfilledOrReadyRequests = incomingRequests
         .Where(r => !string.IsNullOrWhiteSpace(r.Status) && r.Status.Contains("Fulfilled"))
         .Concat(outgoingRequests.Where(r => string.Equals(r.Status, "DispatchedByManufacturer")))
@@ -88,6 +93,16 @@
                                 <input type="hidden" name="requestId" value="@req.Id" />
                                 <input type="hidden" name="notes" value="Cancelled by distributor." />
                                 <button class="btn btn-sm btn-outline-secondary" type="submit" onclick="return confirm('Cancel this request?');">Cancel</button>
+                            }
+                        }
+                        else if (string.Equals(req.Status, "EscalatedToManufacturer") && dispatchedSourceRequestIds.Contains(req.Id))
+                        {
+                            using (Html.BeginForm("DistributorFulfill", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="requestId" value="@req.Id" />
+                                <input type="hidden" name="notes" value="Fulfilled to seller after manufacturer dispatch." />
+                                <button class="btn btn-sm btn-outline-success" type="submit" onclick="return confirm('Manufacturer stock received. Send this request to seller now?');">Send / Fulfill to Seller</button>
                             }
                         }
                         else
