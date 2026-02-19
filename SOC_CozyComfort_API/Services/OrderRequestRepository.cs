@@ -53,7 +53,7 @@ ORDER BY CreatedAt DESC", role, userName);
             };
 
             var created = Insert(dto);
-            NotificationRepository.Add("Seller", request.RequestedToUser, $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}) from seller {request.RequestedToUser}.", "CustomerOrder", created.Id);
+            NotificationRepository.Add("Seller", request.RequestedToUser, "New customer order", $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}) from seller {request.RequestedToUser}.", "CustomerOrder", created.Id);
             return created;
         }
 
@@ -80,7 +80,7 @@ ORDER BY CreatedAt DESC", role, userName);
             };
 
             var created = Insert(dto);
-            NotificationRepository.Add("Distributor", distributorUserName, $"Seller {request.RequestedByUser} requested {request.Quantity} x {request.BlanketName} ({request.Sku}).", "OrderRequest", created.Id);
+            NotificationRepository.Add("Distributor", distributorUserName, "New seller request", $"Seller {request.RequestedByUser} requested {request.Quantity} x {request.BlanketName} ({request.Sku}).", "OrderRequest", created.Id);
             return created;
         }
 
@@ -108,8 +108,8 @@ ORDER BY CreatedAt DESC", role, userName);
             });
 
             UpdateStatus(source.Id, "EscalatedToManufacturer", action.Notes, expectedToRole: "Distributor", expectedToUser: action.PerformedByUser);
-            NotificationRepository.Add("Manufacturer", AuthService.GetApprovedUserNameByRole("Manufacturer"), $"Distributor {action.PerformedByUser} escalated request #{source.Id} for {source.Sku}.", "Escalation", created.Id);
-            NotificationRepository.Add("Seller", source.RequestedByUser, $"Your request #{source.Id} was escalated to manufacturer.", "Escalation", source.Id);
+            NotificationRepository.Add("Manufacturer", AuthService.GetApprovedUserNameByRole("Manufacturer"), "Request escalated by distributor", $"Distributor {action.PerformedByUser} escalated request #{source.Id} for {source.Sku}.", "Escalation", created.Id);
+            NotificationRepository.Add("Seller", source.RequestedByUser, "Request escalated", $"Your request #{source.Id} was escalated to manufacturer.", "Escalation", source.Id);
             return created;
         }
 
@@ -149,7 +149,7 @@ ORDER BY CreatedAt DESC", role, userName);
                 }
             }
 
-            NotificationRepository.Add("Seller", request.RequestedByUser, $"Request #{requestId} was fulfilled by distributor and added to seller inventory.", "Fulfillment", requestId);
+            NotificationRepository.Add("Seller", request.RequestedByUser, "Distributor fulfilled request", $"Request #{requestId} was fulfilled by distributor and added to seller inventory.", "Fulfillment", requestId);
             return true;
         }
 
@@ -159,7 +159,7 @@ ORDER BY CreatedAt DESC", role, userName);
             var ok = UpdateStatus(requestId, "ProductionInProgress", action.Notes, expectedToRole: "Manufacturer");
             if (ok)
             {
-                NotificationRepository.Add("Distributor", request?.RequestedByUser, $"Manufacturer started production for request #{requestId}.", "Production", requestId);
+                NotificationRepository.Add("Distributor", request?.RequestedByUser, "Production started", $"Manufacturer started production for request #{requestId}.", "Production", requestId);
             }
             return ok;
         }
@@ -200,7 +200,7 @@ ORDER BY CreatedAt DESC", role, userName);
                 }
             }
 
-            NotificationRepository.Add("Distributor", distributorUserName, $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
+            NotificationRepository.Add("Distributor", distributorUserName, "Manufacturer dispatched blankets", $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
             return true;
         }
 
@@ -259,7 +259,7 @@ ORDER BY CreatedAt DESC", role, userName);
                         }
 
                         transaction.Commit();
-                        NotificationRepository.Add("Customer", request.RequestedByUser, $"Your order #{requestId} was confirmed by seller.", "CustomerOrder", requestId);
+                        NotificationRepository.Add("Customer", request.RequestedByUser, "Order confirmed", $"Your order #{requestId} was confirmed by seller.", "CustomerOrder", requestId);
                         return true;
                     }
 
@@ -293,8 +293,8 @@ ORDER BY CreatedAt DESC", role, userName);
                     }
 
                     transaction.Commit();
-                    NotificationRepository.Add("Distributor", sellerRequest.RequestedToUser, $"Seller created request #{sellerRequestId} for customer order #{requestId} ({request.Sku}).", "OrderRequest", sellerRequestId);
-                    NotificationRepository.Add("Customer", request.RequestedByUser, $"Your order #{requestId} was forwarded to distributor via seller due to stock shortage.", "CustomerOrder", requestId);
+                    NotificationRepository.Add("Distributor", sellerRequest.RequestedToUser, "Seller requested stock for customer order", $"Seller created request #{sellerRequestId} for customer order #{requestId} ({request.Sku}).", "OrderRequest", sellerRequestId);
+                    NotificationRepository.Add("Customer", request.RequestedByUser, "Order forwarded", $"Your order #{requestId} was forwarded to distributor via seller due to stock shortage.", "CustomerOrder", requestId);
                     return true;
                 }
             }
@@ -306,7 +306,7 @@ ORDER BY CreatedAt DESC", role, userName);
             var ok = UpdateStatus(requestId, "CancelledBySeller", action.Notes, expectedByRole: "Seller");
             if (ok)
             {
-                NotificationRepository.Add("Distributor", request?.RequestedToUser, $"Seller cancelled request #{requestId}.", "Cancellation", requestId);
+                NotificationRepository.Add("Distributor", request?.RequestedToUser, "Seller cancelled request", $"Seller cancelled request #{requestId}.", "Cancellation", requestId);
             }
             return ok;
         }
@@ -317,7 +317,7 @@ ORDER BY CreatedAt DESC", role, userName);
             var ok = UpdateStatus(requestId, "CancelledByDistributor", action.Notes, expectedToRole: "Distributor", expectedToUser: action.PerformedByUser);
             if (ok)
             {
-                NotificationRepository.Add("Seller", request?.RequestedByUser, $"Distributor cancelled request #{requestId}.", "Cancellation", requestId);
+                NotificationRepository.Add("Seller", request?.RequestedByUser, "Distributor cancelled request", $"Distributor cancelled request #{requestId}.", "Cancellation", requestId);
             }
             return ok;
         }
@@ -328,7 +328,7 @@ ORDER BY CreatedAt DESC", role, userName);
             var ok = UpdateStatus(requestId, "CancelledByManufacturer", action.Notes, expectedToRole: "Manufacturer");
             if (ok)
             {
-                NotificationRepository.Add("Distributor", request?.RequestedByUser, $"Manufacturer cancelled request #{requestId}.", "Cancellation", requestId);
+                NotificationRepository.Add("Distributor", request?.RequestedByUser, "Manufacturer cancelled request", $"Manufacturer cancelled request #{requestId}.", "Cancellation", requestId);
             }
             return ok;
         }
