@@ -195,7 +195,8 @@ WHERE RoleName = @RoleName
 
         private static object GetOwnerUserNameParam(string role, string userName)
         {
-            return string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+            return (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
                 ? (object)(userName ?? string.Empty)
                 : DBNull.Value;
         }

@@ -152,7 +152,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller", Session["LoggedInUser"] as string);
+            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller");
 
             var model = new RequestBoardViewModel
             {

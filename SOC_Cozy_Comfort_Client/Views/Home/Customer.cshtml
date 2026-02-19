@@ -22,7 +22,7 @@
         <h4 class="mb-3">Available Blankets</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle request-table">
-                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Location</th><th>Details</th><th>Order</th></tr></thead>
+                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Seller</th><th>Location</th><th>Details</th><th>Order</th></tr></thead>
                 <tbody>
                     @if (Model.SellerCatalogItems == null || Model.SellerCatalogItems.Count == 0)
                     {
@@ -36,6 +36,7 @@
                                 ? Model.SellerCatalogImageUrls[item.Sku]
                                 : Url.Content("~/Content/images/blankets.svg");
 
+                            var sellerName = string.IsNullOrWhiteSpace(item.OwnerUserName) ? "Unknown seller" : item.OwnerUserName;
                             var location = string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location;
                             var details = "Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm");
 
@@ -45,6 +46,7 @@
                                 </td>
                                 <td>@item.Sku</td>
                                 <td>@item.Name</td>
+                                <td>@sellerName</td>
                                 <td>@location</td>
                                 <td><small class="text-muted">@details</small></td>
                                 <td>
