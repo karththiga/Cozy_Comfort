@@ -17,14 +17,26 @@ namespace SOC_Cozy_Comfort_Client.Services
             _baseUrl = ConfigurationManager.AppSettings["InventoryApiBaseUrl"] ?? "https://localhost:44377";
         }
 
-        public List<OrderRequestItem> GetIncoming(string role)
+        public List<OrderRequestItem> GetIncoming(string role, string userName = null)
         {
-            return GetList("api/orderrequests/incoming/" + role);
+            var path = "api/orderrequests/incoming/" + role;
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                path += "?userName=" + System.Net.WebUtility.UrlEncode(userName);
+            }
+
+            return GetList(path);
         }
 
-        public List<OrderRequestItem> GetOutgoing(string role)
+        public List<OrderRequestItem> GetOutgoing(string role, string userName = null)
         {
-            return GetList("api/orderrequests/outgoing/" + role);
+            var path = "api/orderrequests/outgoing/" + role;
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                path += "?userName=" + System.Net.WebUtility.UrlEncode(userName);
+            }
+
+            return GetList(path);
         }
 
 
