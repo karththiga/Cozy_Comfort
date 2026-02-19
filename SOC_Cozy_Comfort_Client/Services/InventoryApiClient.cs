@@ -83,7 +83,7 @@ namespace SOC_Cozy_Comfort_Client.Services
         private static string BuildInventoryPath(string role, int? id, string userName)
         {
             var path = "api/inventory/" + role + (id.HasValue ? "/" + id.Value : string.Empty);
-            if (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(userName))
+            if ((string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase) || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase)) && !string.IsNullOrWhiteSpace(userName))
             {
                 path += "?userName=" + System.Net.WebUtility.UrlEncode(userName);
             }

@@ -61,10 +61,10 @@ WHERE u.UserName = @UserName
 
         public static bool TryCreateUser(string fullName, string email, string userName, string role, string password, out string message)
         {
-            return TryCreateUser(fullName, email, userName, role, password, null, false, out message);
+            return TryCreateUser(fullName, email, userName, role, password, null, null, false, out message);
         }
 
-        public static bool TryCreateUser(string fullName, string email, string userName, string role, string password, int? distributorUserId, bool createdByAdmin, out string message)
+        public static bool TryCreateUser(string fullName, string email, string userName, string role, string password, int? distributorUserId, string sellerLocation, bool createdByAdmin, out string message)
         {
             message = "";
             if (!IsValidRole(role) || role == "Admin")
@@ -87,6 +87,12 @@ WHERE u.UserName = @UserName
             if (isSellerRole && (!distributorUserId.HasValue || distributorUserId.Value <= 0))
             {
                 message = "Seller signup requires selecting a distributor.";
+                return false;
+            }
+
+            if (isSellerRole && string.IsNullOrWhiteSpace(sellerLocation))
+            {
+                message = "Seller signup requires location.";
                 return false;
             }
 
@@ -142,8 +148,8 @@ BEGIN
     RETURN;
 END;
 
-INSERT INTO dbo.Users(UserName, [Password], RoleId, FullName, Email, IsApproved, DistributorUserId, ApprovedBy, ApprovedAt)
-SELECT @UserName, @Password, r.Id, @FullName, @Email, @IsApproved, @DistributorUserId, @ApprovedBy, @ApprovedAt
+INSERT INTO dbo.Users(UserName, [Password], RoleId, FullName, Email, IsApproved, DistributorUserId, SellerLocation, ApprovedBy, ApprovedAt)
+SELECT @UserName, @Password, r.Id, @FullName, @Email, @IsApproved, @DistributorUserId, @SellerLocation, @ApprovedBy, @ApprovedAt
 FROM dbo.Roles r
 WHERE r.RoleName = @Role;
 
@@ -158,6 +164,8 @@ SELECT 1;";
                     command.Parameters.AddWithValue("@Email", email.Trim());
                     command.Parameters.AddWithValue("@IsApproved", isApproved ? 1 : 0);
                     command.Parameters.AddWithValue("@DistributorUserId", (object)distributorUserId ?? System.DBNull.Value);
+                    var normalizedSellerLocation = string.IsNullOrWhiteSpace(sellerLocation) ? null : sellerLocation.Trim();
+                    command.Parameters.AddWithValue("@SellerLocation", isSellerRole ? ((object)normalizedSellerLocation ?? System.DBNull.Value) : System.DBNull.Value);
                     command.Parameters.AddWithValue("@ApprovedBy", createdByAdmin ? "admin" : (object)System.DBNull.Value);
                     command.Parameters.AddWithValue("@ApprovedAt", createdByAdmin ? (object)System.DateTime.Now : System.DBNull.Value);
 
@@ -259,9 +267,10 @@ WHERE u.UserName = @UserName
 
         public static List<PendingUserDto> GetPendingUsers()
         {
-            const string sql = @"SELECT u.Id, u.FullName, u.Email, u.UserName, r.RoleName
+            const string sql = @"SELECT u.Id, u.FullName, u.Email, u.UserName, r.RoleName, d.UserName AS DistributorUserName, d.FullName AS DistributorFullName
 FROM dbo.Users u
 JOIN dbo.Roles r ON r.Id = u.RoleId
+LEFT JOIN dbo.Users d ON d.Id = u.DistributorUserId
 WHERE u.IsApproved = 0
 ORDER BY u.Id DESC";
 
@@ -280,13 +289,35 @@ ORDER BY u.Id DESC";
                             FullName = reader["FullName"] as string,
                             Email = reader["Email"] as string,
                             UserName = reader["UserName"] as string,
-                            RequestedRole = reader["RoleName"] as string
+                            RequestedRole = reader["RoleName"] as string,
+                            AssignedDistributor = string.Equals(reader["RoleName"] as string, "Seller", System.StringComparison.OrdinalIgnoreCase)
+                                ? BuildDistributorDisplayName(reader["DistributorUserName"] as string, reader["DistributorFullName"] as string)
+                                : null
                         });
                     }
                 }
             }
 
             return users;
+        }
+
+
+        private static string BuildDistributorDisplayName(string userName, string fullName)
+        {
+            var hasFullName = !string.IsNullOrWhiteSpace(fullName);
+            var hasUserName = !string.IsNullOrWhiteSpace(userName);
+
+            if (hasFullName && hasUserName)
+            {
+                return fullName.Trim() + " (" + userName.Trim() + ")";
+            }
+
+            if (hasFullName)
+            {
+                return fullName.Trim();
+            }
+
+            return hasUserName ? userName.Trim() : null;
         }
 
         public static bool ApproveUser(int userId, string adminUserName)
