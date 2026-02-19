@@ -19,6 +19,8 @@ namespace SOC_CozyComfort_API.Models
         [Required]
         public string RequestedByUser { get; set; }
 
+        public string RequestedToUser { get; set; }
+
         [Required]
         public string Sku { get; set; }
 
