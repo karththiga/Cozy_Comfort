@@ -192,6 +192,15 @@ IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='s_admin')
     INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
     SELECT 's_admin', 'S@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Seller';
 
+
+IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='s_north')
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 's_north', 'S@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Seller';
+
+IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='s_south')
+    INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
+    SELECT 's_south', 'S@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Seller';
+
 IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='admin')
     INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
     SELECT 'admin', 'Admin@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Admin';
@@ -200,14 +209,13 @@ IF NOT EXISTS(SELECT 1 FROM dbo.Users WHERE UserName='c_customer')
     INSERT INTO dbo.Users(UserName, [Password], RoleId, IsApproved, ApprovedBy, ApprovedAt)
     SELECT 'c_customer', 'C@123', Id, 1, 'system', GETDATE() FROM dbo.Roles WHERE RoleName='Customer';
 
-UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 'admin', 'c_customer');
+UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 's_north', 's_south', 'admin', 'c_customer');
 UPDATE s
 SET s.DistributorUserId = d.Id
 FROM dbo.Users s
 JOIN dbo.Users d ON d.UserName = 'd_admin'
 JOIN dbo.Roles sr ON sr.Id = s.RoleId
 WHERE sr.RoleName = 'Seller'
-  AND s.UserName = 's_admin'
   AND s.DistributorUserId IS NULL;
 
 IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems)
@@ -215,10 +223,18 @@ BEGIN
     INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated) VALUES
     ('Manufacturer', NULL, 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 5420, 'Main Manufacturing Facility', GETDATE()),
     ('Manufacturer', NULL, 'CC-COTTON-KING', 'Cotton King Blanket', 2210, 'Main Manufacturing Facility', GETDATE()),
+    ('Manufacturer', NULL, 'CC-MICROFIBER-DOUBLE', 'Microfiber Double Blanket', 3150, 'Main Manufacturing Facility', GETDATE()),
+    ('Manufacturer', NULL, 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 1880, 'Main Manufacturing Facility', GETDATE()),
     ('Distributor', 'd_admin', 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 640, 'Central Warehouse', GETDATE()),
     ('Distributor', 'd_admin', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 190, 'North Hub', GETDATE()),
-    ('Seller', NULL, 'CC-COTTON-KING', 'Cotton King Blanket', 24, 'Store A-12', GETDATE()),
-    ('Seller', NULL, 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 16, 'Store A-12', GETDATE());
+    ('Distributor', 'd_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 425, 'Central Warehouse', GETDATE()),
+    ('Distributor', 'd_admin', 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 210, 'North Hub', GETDATE()),
+    ('Seller', 's_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 24, 'Store A-12', GETDATE()),
+    ('Seller', 's_admin', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 16, 'Store A-12', GETDATE()),
+    ('Seller', 's_north', 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 11, 'North Outlet', GETDATE()),
+    ('Seller', 's_north', 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 15, 'North Outlet', GETDATE()),
+    ('Seller', 's_south', 'CC-MICROFIBER-DOUBLE', 'Microfiber Double Blanket', 19, 'South Gallery', GETDATE()),
+    ('Seller', 's_south', 'CC-COTTON-KING', 'Cotton King Blanket', 9, 'South Gallery', GETDATE());
 END;
 
 UPDATE dbo.InventoryItems
@@ -228,6 +244,39 @@ WHERE RoleName = 'Manufacturer';
 UPDATE dbo.InventoryItems
 SET OwnerUserName = 'd_admin'
 WHERE RoleName = 'Distributor' AND OwnerUserName IS NULL;
+
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Manufacturer' AND Sku='CC-MICROFIBER-DOUBLE')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Manufacturer', NULL, 'CC-MICROFIBER-DOUBLE', 'Microfiber Double Blanket', 3150, 'Main Manufacturing Facility', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Manufacturer' AND Sku='CC-BAMBOO-THROW')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Manufacturer', NULL, 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 1880, 'Main Manufacturing Facility', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Distributor' AND OwnerUserName='d_admin' AND Sku='CC-COTTON-KING')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Distributor', 'd_admin', 'CC-COTTON-KING', 'Cotton King Blanket', 425, 'Central Warehouse', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Distributor' AND OwnerUserName='d_admin' AND Sku='CC-BAMBOO-THROW')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Distributor', 'd_admin', 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 210, 'North Hub', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Seller' AND OwnerUserName='s_north' AND Sku='CC-WOOL-QUEEN')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Seller', 's_north', 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 11, 'North Outlet', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Seller' AND OwnerUserName='s_north' AND Sku='CC-BAMBOO-THROW')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Seller', 's_north', 'CC-BAMBOO-THROW', 'Bamboo Throw Blanket', 15, 'North Outlet', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Seller' AND OwnerUserName='s_south' AND Sku='CC-MICROFIBER-DOUBLE')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Seller', 's_south', 'CC-MICROFIBER-DOUBLE', 'Microfiber Double Blanket', 19, 'South Gallery', GETDATE());
+
+IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems WHERE RoleName='Seller' AND OwnerUserName='s_south' AND Sku='CC-COTTON-KING')
+    INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated)
+    VALUES('Seller', 's_south', 'CC-COTTON-KING', 'Cotton King Blanket', 9, 'South Gallery', GETDATE());
 
 
 IF NOT EXISTS(SELECT 1 FROM dbo.OrderRequests)

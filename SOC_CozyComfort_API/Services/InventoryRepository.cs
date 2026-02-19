@@ -21,7 +21,7 @@ namespace SOC_CozyComfort_API.Services
         {
             var result = new List<InventoryItemDto>();
             const string sql = @"
-SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
+SELECT Id, Sku, [Name], Quantity, [Location], OwnerUserName, LastUpdated
 FROM dbo.InventoryItems
 WHERE RoleName = @RoleName
   AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)
@@ -49,7 +49,7 @@ ORDER BY Sku";
         public static InventoryItemDto GetById(string role, int id, string userName = null)
         {
             const string sql = @"
-SELECT Id, Sku, [Name], Quantity, [Location], LastUpdated
+SELECT Id, Sku, [Name], Quantity, [Location], OwnerUserName, LastUpdated
 FROM dbo.InventoryItems
 WHERE RoleName = @RoleName
   AND Id = @Id
@@ -195,7 +195,8 @@ WHERE RoleName = @RoleName
 
         private static object GetOwnerUserNameParam(string role, string userName)
         {
-            return string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+            return (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
                 ? (object)(userName ?? string.Empty)
                 : DBNull.Value;
         }
@@ -209,6 +210,7 @@ WHERE RoleName = @RoleName
                 Name = Convert.ToString(reader["Name"]),
                 Quantity = Convert.ToInt32(reader["Quantity"]),
                 Location = reader["Location"] == DBNull.Value ? null : Convert.ToString(reader["Location"]),
+                OwnerUserName = reader["OwnerUserName"] == DBNull.Value ? null : Convert.ToString(reader["OwnerUserName"]),
                 LastUpdated = Convert.ToDateTime(reader["LastUpdated"])
             };
         }
