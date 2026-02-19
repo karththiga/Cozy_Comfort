@@ -38,6 +38,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
         [HttpGet]
         public ActionResult Signup()
         {
+            ViewBag.Distributors = _authApiClient.GetDistributors();
             return View();
         }
 
@@ -49,24 +50,27 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Signup(string fullName, string email, string userName, string role, string password, string confirmPassword)
+        public ActionResult Signup(string fullName, string email, string userName, string role, string password, string confirmPassword, int? distributorUserId)
         {
             if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(role))
             {
                 ViewBag.ErrorMessage = "All fields are required.";
+                ViewBag.Distributors = _authApiClient.GetDistributors();
                 return View();
             }
 
             if (string.IsNullOrWhiteSpace(password) || password != confirmPassword)
             {
                 ViewBag.ErrorMessage = "Password and confirm password must match.";
+                ViewBag.Distributors = _authApiClient.GetDistributors();
                 return View();
             }
 
-            var signupResult = _authApiClient.Signup(fullName, email, userName, role, password);
+            var signupResult = _authApiClient.Signup(fullName, email, userName, role, password, distributorUserId);
             if (!signupResult.Success)
             {
                 ViewBag.ErrorMessage = signupResult.Message;
+                ViewBag.Distributors = _authApiClient.GetDistributors();
                 return View();
             }
 
@@ -192,6 +196,33 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
             var adminUserName = Session["LoggedInUser"] as string;
             var result = _authApiClient.ApproveUser(adminUserName, userId);
+            TempData[result.Success ? "AuthMessage" : "InventoryError"] = result.Message;
+            return RedirectToAction("Admin");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AdminCreateUser(string fullName, string email, string userName, string role, string password, string confirmPassword)
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(password))
+            {
+                TempData["InventoryError"] = "All user creation fields are required.";
+                return RedirectToAction("Admin");
+            }
+
+            if (password != confirmPassword)
+            {
+                TempData["InventoryError"] = "Password and confirm password must match.";
+                return RedirectToAction("Admin");
+            }
+
+            var adminUserName = Session["LoggedInUser"] as string;
+            var result = _authApiClient.AdminCreateUser(adminUserName, fullName, email, userName, role, password);
             TempData[result.Success ? "AuthMessage" : "InventoryError"] = result.Message;
             return RedirectToAction("Admin");
         }

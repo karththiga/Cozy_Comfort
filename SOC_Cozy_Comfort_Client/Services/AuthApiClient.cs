@@ -45,11 +45,11 @@ namespace SOC_Cozy_Comfort_Client.Services
 
 
 
-        public ApiOperationResult Signup(string fullName, string email, string userName, string role, string password)
+        public ApiOperationResult Signup(string fullName, string email, string userName, string role, string password, int? distributorUserId = null)
         {
             using (var client = BuildClient())
             {
-                var request = new { FullName = fullName, Email = email, UserName = userName, Role = role, Password = password };
+                var request = new { FullName = fullName, Email = email, UserName = userName, Role = role, Password = password, DistributorUserId = distributorUserId };
                 var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = client.PostAsync("api/auth/signup", body).Result;
 
@@ -60,6 +60,46 @@ namespace SOC_Cozy_Comfort_Client.Services
                 }
 
                 return new ApiOperationResult { Success = false, Message = ReadErrorMessage(response, "Signup failed from API.") };
+            }
+        }
+
+        public List<DistributorOptionItem> GetDistributors()
+        {
+            using (var client = BuildClient())
+            {
+                var response = client.GetAsync("api/auth/distributors").Result;
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new List<DistributorOptionItem>();
+                }
+
+                var json = response.Content.ReadAsStringAsync().Result;
+                return JsonConvert.DeserializeObject<List<DistributorOptionItem>>(json) ?? new List<DistributorOptionItem>();
+            }
+        }
+
+        public ApiOperationResult AdminCreateUser(string adminUserName, string fullName, string email, string userName, string role, string password)
+        {
+            using (var client = BuildClient())
+            {
+                var request = new
+                {
+                    AdminUserName = adminUserName,
+                    FullName = fullName,
+                    Email = email,
+                    UserName = userName,
+                    Role = role,
+                    Password = password
+                };
+                var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = client.PostAsync("api/auth/admin-create-user", body).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return new ApiOperationResult { Success = true, Message = ReadMessageObject(response, "User account created successfully.") };
+                }
+
+                return new ApiOperationResult { Success = false, Message = ReadErrorMessage(response, "Could not create user.") };
             }
         }
 
