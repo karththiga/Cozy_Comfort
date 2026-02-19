@@ -10,6 +10,8 @@ namespace SOC_CozyComfort_API.Models
         [Required]
         public string RecipientRole { get; set; }
 
+        public string RecipientUserName { get; set; }
+
         [Required]
         public string Title { get; set; }
 

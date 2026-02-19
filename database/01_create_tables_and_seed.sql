@@ -95,6 +95,7 @@ BEGIN
     CREATE TABLE dbo.Notifications(
         Id INT IDENTITY(1,1) PRIMARY KEY,
         RecipientRole NVARCHAR(50) NOT NULL,
+        RecipientUserName NVARCHAR(100) NULL,
         Title NVARCHAR(200) NOT NULL,
         Message NVARCHAR(1000) NOT NULL,
         NotificationType NVARCHAR(80) NOT NULL,
@@ -102,6 +103,12 @@ BEGIN
         RelatedRequestId INT NULL,
         CreatedAt DATETIME NOT NULL
     );
+END;
+GO
+
+IF COL_LENGTH('dbo.Notifications', 'RecipientUserName') IS NULL
+BEGIN
+    ALTER TABLE dbo.Notifications ADD RecipientUserName NVARCHAR(100) NULL;
 END;
 GO
 
@@ -167,9 +174,9 @@ GO
 
 IF NOT EXISTS(SELECT 1 FROM dbo.Notifications)
 BEGIN
-    INSERT INTO dbo.Notifications(RecipientRole, Title, Message, NotificationType, IsRead, RelatedRequestId, CreatedAt)
+    INSERT INTO dbo.Notifications(RecipientRole, RecipientUserName, Title, Message, NotificationType, IsRead, RelatedRequestId, CreatedAt)
     VALUES
-    ('Distributor', 'New seller request', 'Seller s_admin requested replenishment for CC-COTTON-KING.', 'OrderRequest', 0, 1, GETDATE()),
-    ('Manufacturer', 'Escalation alert', 'Distributor escalated a blanket request to manufacturer.', 'Escalation', 0, 1, GETDATE());
+    ('Distributor', 'd_admin', 'New seller request', 'Seller s_admin requested replenishment for CC-COTTON-KING.', 'OrderRequest', 0, 1, GETDATE()),
+    ('Manufacturer', 'm_admin', 'Escalation alert', 'Distributor escalated a blanket request to manufacturer.', 'Escalation', 0, 1, GETDATE());
 END;
 GO

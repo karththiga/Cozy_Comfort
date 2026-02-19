@@ -247,6 +247,44 @@ WHERE s.UserName = @SellerUserName
             }
         }
 
+
+        public static bool IsApprovedUserInRole(string userName, string role)
+        {
+            const string sql = @"SELECT COUNT(1)
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE u.UserName = @UserName
+  AND r.RoleName = @RoleName
+  AND u.IsApproved = 1";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@UserName", userName);
+                command.Parameters.AddWithValue("@RoleName", role);
+                connection.Open();
+                return (int)command.ExecuteScalar() > 0;
+            }
+        }
+
+        public static string GetApprovedUserNameByRole(string role)
+        {
+            const string sql = @"SELECT TOP 1 u.UserName
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE r.RoleName = @RoleName
+  AND u.IsApproved = 1
+ORDER BY u.Id";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@RoleName", role);
+                connection.Open();
+                return command.ExecuteScalar() as string;
+            }
+        }
+
         public static bool IsAdminUser(string userName)
         {
             const string sql = @"SELECT COUNT(1)
