@@ -41,7 +41,16 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest(GetModelStateErrors());
             }
 
-            var created = OrderRequestRepository.CreateCustomerToSeller(request);
+            OrderRequestDto created;
+            try
+            {
+                created = OrderRequestRepository.CreateCustomerToSeller(request);
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             return Ok(created);
         }
 

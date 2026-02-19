@@ -19,7 +19,7 @@ namespace SOC_CozyComfort_API.Controllers
             }
 
             string message;
-            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, request.DistributorUserId, false, out message))
+            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, request.DistributorUserId, request.SellerLocation, false, out message))
             {
                 return BadRequest(message);
             }
@@ -79,7 +79,7 @@ namespace SOC_CozyComfort_API.Controllers
             }
 
             string message;
-            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, null, true, out message))
+            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, null, null, true, out message))
             {
                 return BadRequest(message);
             }
