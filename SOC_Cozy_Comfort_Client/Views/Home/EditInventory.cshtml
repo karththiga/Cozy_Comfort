@@ -2,6 +2,13 @@
 @{
     var role = ViewBag.Role as string;
     ViewBag.Title = "Edit Inventory";
+    var isFixedRole = role == "Manufacturer" || role == "Distributor";
+    var fixedLocation = string.IsNullOrWhiteSpace(Model.Location)
+        ? (role == "Manufacturer" ? "Main Manufacturing Facility" : (role == "Distributor" ? "Distributor Hub" : string.Empty))
+        : Model.Location;
+    var locationValue = isFixedRole ? fixedLocation : Model.Location;
+    var readonlyAttribute = isFixedRole ? "readonly" : null;
+    var cancelUrl = Url.Action(role, "Home");
 }
 
 <section class="dashboard-shell">
@@ -18,29 +25,18 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="role" value="@role" />
             <input type="hidden" name="Id" value="@Model.Id" />
-            var fixedLocation = string.IsNullOrWhiteSpace(Model.Location)
-                ? ((role == "Manufacturer") ? "Main Manufacturing Facility" : ((role == "Distributor") ? "Distributor Hub" : string.Empty))
-                : Model.Location;
 
             <div class="mb-3"><label class="form-label">SKU</label><input name="Sku" class="form-control" value="@Model.Sku" required /></div>
             <div class="mb-3"><label class="form-label">Item Name</label><input name="Name" class="form-control" value="@Model.Name" required /></div>
             <div class="mb-3"><label class="form-label">Quantity</label><input type="number" min="0" name="Quantity" class="form-control" value="@Model.Quantity" /></div>
-            @if (role == "Manufacturer" || role == "Distributor")
-            {
-                <div class="mb-3">
-                    <label class="form-label">Location</label>
-                    <input class="form-control" value="@fixedLocation" readonly />
-                    <input type="hidden" name="Location" value="@fixedLocation" />
-                </div>
-            }
-            else
-            {
-                <div class="mb-3"><label class="form-label">Location</label><input name="Location" class="form-control" value="@Model.Location" /></div>
-            }
+            <div class="mb-3">
+                <label class="form-label">Location</label>
+                <input name="Location" class="form-control" value="@locationValue" @readonlyAttribute />
+            </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a class="btn btn-outline-secondary" href="@Url.Action(role, "Home")">Cancel</a>
+                <a class="btn btn-outline-secondary" href="@cancelUrl">Cancel</a>
             </div>
         }
     </div>
