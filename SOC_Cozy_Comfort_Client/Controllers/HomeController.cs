@@ -158,7 +158,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             {
                 Role = "Customer",
                 LoggedInUser = Session["LoggedInUser"] as string,
-                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Customer"),
+                OutgoingRequests = _orderRequestApiClient.GetOutgoing("Customer", Session["LoggedInUser"] as string),
                 SellerCatalogItems = sellerCatalogItems,
                 SellerCatalogImageUrls = BuildSellerCatalogImageUrls(sellerCatalogItems),
                 SellerCatalogDetails = BuildSellerCatalogDetails(sellerCatalogItems),
@@ -308,7 +308,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 Role = "Seller",
                 LoggedInUser = Session["LoggedInUser"] as string,
                 OutgoingRequests = _orderRequestApiClient.GetOutgoing("Seller", Session["LoggedInUser"] as string),
-                IncomingRequests = _orderRequestApiClient.GetIncoming("Seller"),
+                IncomingRequests = _orderRequestApiClient.GetIncoming("Seller", Session["LoggedInUser"] as string),
                 NewRequest = new OrderRequestItem()
             };
 
@@ -375,6 +375,12 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             if (!IsAuthorizedFor("Customer"))
             {
                 return RedirectToAction("Login");
+            }
+
+            if (string.IsNullOrWhiteSpace(newRequest.RequestedToUser))
+            {
+                TempData["RequestError"] = "Please select a seller for this order.";
+                return RedirectToAction("Customer");
             }
 
             var userName = Session["LoggedInUser"] as string;
@@ -631,8 +637,9 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 var key = item.Sku ?? string.Empty;
                 if (!result.ContainsKey(key))
                 {
+                    var sellerText = string.IsNullOrWhiteSpace(item.OwnerUserName) ? "Unknown seller" : item.OwnerUserName;
                     var locationText = string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location;
-                    result.Add(key, "Location: " + locationText + " • Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm"));
+                    result.Add(key, "Seller: " + sellerText + " • Location: " + locationText + " • Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm"));
                 }
             }
 
