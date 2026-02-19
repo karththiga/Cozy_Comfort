@@ -8,8 +8,7 @@
     var activeIncomingRequests = incomingRequests
         .Where(r => !string.IsNullOrWhiteSpace(r.Status)
                     && !r.Status.Contains("Cancelled")
-                    && !r.Status.Contains("Fulfilled")
-                    && !r.Status.Contains("Escalated"))
+                    && !r.Status.Contains("Fulfilled"))
         .ToList();
 
     var manufacturerAcceptedRequests = outgoingRequests
@@ -47,7 +46,7 @@
     {<div class="alert alert-danger">@TempData["RequestError"]</div>}
 
     <div class="role-card mt-3">
-        <h4 class="mb-3">Incoming from Sellers (Active)</h4>
+        <h4 class="mb-3">Incoming from Sellers (Open)</h4>
         <table class="table table-hover align-middle request-table">
             <thead><tr><th>ID</th><th>Seller</th><th>SKU</th><th>Qty</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
@@ -93,7 +92,7 @@
                         }
                         else
                         {
-                            <span class="text-muted">No action</span>
+                            <span class="text-muted">Waiting for manufacturer response</span>
                         }
                     </td>
                 </tr>
