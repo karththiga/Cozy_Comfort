@@ -19,7 +19,7 @@ namespace SOC_CozyComfort_API.Controllers
             }
 
             string message;
-            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, out message))
+            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, request.DistributorUserId, false, out message))
             {
                 return BadRequest(message);
             }
@@ -48,6 +48,43 @@ namespace SOC_CozyComfort_API.Controllers
                 Role = loginResult.Role,
                 Message = loginResult.Message
             });
+        }
+
+        [HttpGet]
+        [Route("distributors")]
+        public IHttpActionResult Distributors()
+        {
+            return Ok(AuthService.GetApprovedDistributors());
+        }
+
+        [HttpPost]
+        [Route("admin-create-user")]
+        public IHttpActionResult AdminCreateUser([FromBody] AdminCreateUserRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.AdminUserName) || string.IsNullOrWhiteSpace(request.FullName) ||
+                string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.UserName) ||
+                string.IsNullOrWhiteSpace(request.Role) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest("All fields are required.");
+            }
+
+            if (!AuthService.IsAdminUser(request.AdminUserName))
+            {
+                return Unauthorized();
+            }
+
+            if (request.Role != "Distributor" && request.Role != "Manufacturer")
+            {
+                return BadRequest("Admin can only create Distributor or Manufacturer accounts.");
+            }
+
+            string message;
+            if (!AuthService.TryCreateUser(request.FullName, request.Email, request.UserName, request.Role, request.Password, null, true, out message))
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(new { Message = message });
         }
 
         [HttpGet]

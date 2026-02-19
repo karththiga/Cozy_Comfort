@@ -51,10 +51,22 @@ BEGIN
         UserName NVARCHAR(100) NOT NULL UNIQUE,
         [Password] NVARCHAR(100) NOT NULL,
         RoleId INT NOT NULL,
+        DistributorUserId INT NULL,
         FullName NVARCHAR(150) NULL,
         Email NVARCHAR(200) NULL,
-        CONSTRAINT FK_Users_Roles FOREIGN KEY(RoleId) REFERENCES dbo.Roles(Id)
+        CONSTRAINT FK_Users_Roles FOREIGN KEY(RoleId) REFERENCES dbo.Roles(Id),
+        CONSTRAINT FK_Users_Distributor FOREIGN KEY(DistributorUserId) REFERENCES dbo.Users(Id)
     );
+END;
+
+IF COL_LENGTH('dbo.Users', 'DistributorUserId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Users ADD DistributorUserId INT NULL;
+END;
+
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Users_Distributor')
+BEGIN
+    ALTER TABLE dbo.Users WITH CHECK ADD CONSTRAINT FK_Users_Distributor FOREIGN KEY(DistributorUserId) REFERENCES dbo.Users(Id);
 END;
 
 IF COL_LENGTH('dbo.Users', 'FullName') IS NULL
