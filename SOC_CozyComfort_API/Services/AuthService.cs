@@ -218,6 +218,27 @@ ORDER BY COALESCE(NULLIF(LTRIM(RTRIM(u.FullName)), ''), u.UserName)";
             return distributors;
         }
 
+        public static string GetAssignedDistributorUserName(string sellerUserName)
+        {
+            const string sql = @"SELECT d.UserName
+FROM dbo.Users s
+JOIN dbo.Roles sr ON sr.Id = s.RoleId
+LEFT JOIN dbo.Users d ON d.Id = s.DistributorUserId
+LEFT JOIN dbo.Roles dr ON dr.Id = d.RoleId
+WHERE s.UserName = @SellerUserName
+  AND sr.RoleName = 'Seller'
+  AND dr.RoleName = 'Distributor'
+  AND d.IsApproved = 1";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@SellerUserName", sellerUserName);
+                connection.Open();
+                return command.ExecuteScalar() as string;
+            }
+        }
+
         public static bool IsAdminUser(string userName)
         {
             const string sql = @"SELECT COUNT(1)
