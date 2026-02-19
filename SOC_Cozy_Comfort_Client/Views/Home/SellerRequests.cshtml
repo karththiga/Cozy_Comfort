@@ -1,6 +1,25 @@
 @model SOC_Cozy_Comfort_Client.Models.RequestBoardViewModel
+@using System.Linq
 @{
     ViewBag.Title = "Seller Requests";
+
+    var outgoingRequests = Model.OutgoingRequests ?? new System.Collections.Generic.List<SOC_Cozy_Comfort_Client.Models.OrderRequestItem>();
+    var activeSellerRequests = outgoingRequests
+        .Where(r => !string.IsNullOrWhiteSpace(r.Status)
+                    && !r.Status.Contains("Cancelled")
+                    && !r.Status.Contains("Fulfilled"))
+        .OrderByDescending(r => r.UpdatedAt)
+        .ToList();
+
+    var fulfilledSellerRequests = outgoingRequests
+        .Where(r => !string.IsNullOrWhiteSpace(r.Status) && r.Status.Contains("Fulfilled"))
+        .OrderByDescending(r => r.UpdatedAt)
+        .ToList();
+
+    var cancelledSellerRequests = outgoingRequests
+        .Where(r => !string.IsNullOrWhiteSpace(r.Status) && r.Status.Contains("Cancelled"))
+        .OrderByDescending(r => r.UpdatedAt)
+        .ToList();
 }
 
 <section class="request-page">
@@ -75,11 +94,18 @@
         </div>
         <div class="col-md-8">
             <div class="role-card">
-                <h4 class="mb-3">My Requests to Distributor</h4>
+                <h4 class="mb-3">My Requests to Distributor (Active)</h4>
                 <table class="table table-hover align-middle request-table">
                     <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead>
                     <tbody>
-                    @foreach (var req in Model.OutgoingRequests)
+                    @if (activeSellerRequests.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-muted">No active requests.</td>
+                        </tr>
+                    }
+
+                    @foreach (var req in activeSellerRequests)
                     {
                         <tr>
                             <td>@req.Id</td>
@@ -100,6 +126,60 @@
                                     }
                                 }
                             </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="role-card mt-3">
+                <h4 class="mb-3">Fulfilled / Stock Received</h4>
+                <table class="table table-hover align-middle request-table">
+                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+                    <tbody>
+                    @if (fulfilledSellerRequests.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-muted">No fulfilled requests yet.</td>
+                        </tr>
+                    }
+
+                    @foreach (var req in fulfilledSellerRequests)
+                    {
+                        <tr>
+                            <td>@req.Id</td>
+                            <td>@req.Sku</td>
+                            <td>@req.BlanketName</td>
+                            <td>@req.Quantity</td>
+                            <td><span class="status-pill">@req.Status</span></td>
+                            <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="role-card mt-3">
+                <h4 class="mb-3">Cancellation History</h4>
+                <table class="table table-hover align-middle request-table">
+                    <thead><tr><th>ID</th><th>SKU</th><th>Name</th><th>Qty</th><th>Status</th><th>Updated</th></tr></thead>
+                    <tbody>
+                    @if (cancelledSellerRequests.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-muted">No cancelled requests in history.</td>
+                        </tr>
+                    }
+
+                    @foreach (var req in cancelledSellerRequests)
+                    {
+                        <tr>
+                            <td>@req.Id</td>
+                            <td>@req.Sku</td>
+                            <td>@req.BlanketName</td>
+                            <td>@req.Quantity</td>
+                            <td><span class="status-pill">@req.Status</span></td>
+                            <td>@req.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                         </tr>
                     }
                     </tbody>
