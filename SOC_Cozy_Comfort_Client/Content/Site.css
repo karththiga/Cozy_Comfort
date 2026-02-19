@@ -532,6 +532,7 @@ textarea {
 
 .dashboard-hero-image {
     width: 100%;
+    height: clamp(200px, 28vw, 320px);
     max-height: 320px;
     object-fit: cover;
     object-position: center;
@@ -563,6 +564,7 @@ textarea {
     }
 
     .dashboard-hero-image {
+        height: clamp(180px, 42vw, 240px);
         max-height: 240px;
     }
 
