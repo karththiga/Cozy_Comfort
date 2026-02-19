@@ -4,4 +4,11 @@
 
 /.vs/SOC_CozyComfort_API/FileContentIndex/476d85ea-5c6f-439d-b27e-68ba807e17fe.vsidx
 /SOC_CozyComfort_API.slnLaunch.user
-/.vs/SOC_CozyComfort_API
+/.vs/*
+SOC_CozyComfort_API/bin
+SOC_CozyComfort_API/obj
+SOC_CozyComfort_Client/bin
+SOC_CozyComfort_Client/obj
+.vs/*
+
+/SOC_Cozy_Comfort_Client/bin
