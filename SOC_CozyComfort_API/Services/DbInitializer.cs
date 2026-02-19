@@ -224,6 +224,31 @@ UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'Stor
 UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'North Outlet') WHERE UserName = 's_north';
 UPDATE dbo.Users SET SellerLocation = COALESCE(NULLIF(SellerLocation, ''), 'South Gallery') WHERE UserName = 's_south';
 
+;WITH SellerLatestLocation AS (
+    SELECT
+        i.OwnerUserName,
+        i.[Location],
+        ROW_NUMBER() OVER (PARTITION BY i.OwnerUserName ORDER BY i.LastUpdated DESC, i.Id DESC) AS rn
+    FROM dbo.InventoryItems i
+    WHERE i.RoleName = 'Seller'
+      AND i.OwnerUserName IS NOT NULL
+      AND i.[Location] IS NOT NULL
+      AND LTRIM(RTRIM(i.[Location])) <> ''
+)
+UPDATE u
+SET u.SellerLocation = sl.[Location]
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+JOIN SellerLatestLocation sl ON sl.OwnerUserName = u.UserName AND sl.rn = 1
+WHERE r.RoleName = 'Seller'
+  AND (u.SellerLocation IS NULL OR LTRIM(RTRIM(u.SellerLocation)) = '');
+
+UPDATE u
+SET u.SellerLocation = COALESCE(NULLIF(u.SellerLocation, ''), 'Seller Warehouse')
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE r.RoleName = 'Seller';
+
 UPDATE dbo.Users SET IsApproved = 1 WHERE UserName IN ('m_admin', 'd_admin', 's_admin', 's_north', 's_south', 'admin', 'c_customer');
 UPDATE s
 SET s.DistributorUserId = d.Id
