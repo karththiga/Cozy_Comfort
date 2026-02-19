@@ -56,14 +56,14 @@
                         <td>@req.Quantity</td>
                         <td><span class="status-pill">@req.Status</span></td>
                         <td>
-                            @if (req.Status == "PendingSellerConfirmation")
+                            @if (req.Status == "PendingSellerConfirmation" || req.Status == "RequestedFromDistributor")
                             {
                                 using (Html.BeginForm("SellerConfirmCustomerOrder", "Home", FormMethod.Post, new { @class = "d-inline" }))
                                 {
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="requestId" value="@req.Id" />
-                                    <input type="hidden" name="notes" value="Confirmed by seller." />
-                                    <button class="btn btn-sm btn-success" type="submit">Process</button>
+                                    <input type="hidden" name="notes" value="Dispatched to customer by seller." />
+                                    <button class="btn btn-sm btn-success" type="submit">Send to Customer</button>
                                 }
                             }
                         </td>
