@@ -1,13 +1,13 @@
 ﻿@model SOC_Cozy_Comfort_Client.Models.InventoryItem
 @{
-    var role = ViewBag.Role as string;
+    var role = ViewBag.Role as string ?? string.Empty;
     ViewBag.Title = "Edit Inventory";
-    var isFixedRole = role == "Manufacturer" || role == "Distributor";
+    var isFixedRole = string.Equals(role, "Manufacturer") || string.Equals(role, "Distributor");
     var fixedLocation = string.IsNullOrWhiteSpace(Model.Location)
         ? (role == "Manufacturer" ? "Main Manufacturing Facility" : (role == "Distributor" ? "Distributor Hub" : string.Empty))
         : Model.Location;
     var locationValue = isFixedRole ? fixedLocation : Model.Location;
-    var cancelUrl = Url.Action(role, "Home");
+    var cancelUrl = Url.Action(role, "Home") ?? Url.Action("Index", "Home");
 }
 
 <section class="dashboard-shell">
