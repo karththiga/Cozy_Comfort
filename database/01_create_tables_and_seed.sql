@@ -131,13 +131,18 @@ GO
 IF NOT EXISTS(SELECT 1 FROM dbo.InventoryItems)
 BEGIN
     INSERT INTO dbo.InventoryItems(RoleName, OwnerUserName, Sku, [Name], Quantity, [Location], LastUpdated) VALUES
-    ('Manufacturer', NULL, 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 5420, 'Factory A', GETDATE()),
-    ('Manufacturer', NULL, 'CC-COTTON-KING', 'Cotton King Blanket', 2210, 'Factory B', GETDATE()),
+    ('Manufacturer', NULL, 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 5420, 'Main Manufacturing Facility', GETDATE()),
+    ('Manufacturer', NULL, 'CC-COTTON-KING', 'Cotton King Blanket', 2210, 'Main Manufacturing Facility', GETDATE()),
     ('Distributor', 'd_admin', 'CC-WOOL-QUEEN', 'Wool Queen Blanket', 640, 'Central Warehouse', GETDATE()),
     ('Distributor', 'd_admin', 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 190, 'North Hub', GETDATE()),
     ('Seller', NULL, 'CC-COTTON-KING', 'Cotton King Blanket', 24, 'Store A-12', GETDATE()),
     ('Seller', NULL, 'CC-FLEECE-SINGLE', 'Fleece Single Blanket', 16, 'Store A-12', GETDATE());
 END;
+GO
+
+UPDATE dbo.InventoryItems
+SET [Location] = 'Main Manufacturing Facility'
+WHERE RoleName = 'Manufacturer';
 GO
 
 UPDATE dbo.InventoryItems

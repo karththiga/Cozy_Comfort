@@ -9,6 +9,7 @@ namespace SOC_CozyComfort_API.Services
     public static class InventoryRepository
     {
         private static string ConnectionString => ConfigurationManager.ConnectionStrings["CozyComfortDb"].ConnectionString;
+        private const string ManufacturerDefaultLocation = "Main Manufacturing Facility";
 
         public static bool IsValidRole(string role)
         {
@@ -76,6 +77,7 @@ VALUES(@RoleName, @OwnerUserName, @Sku, @Name, @Quantity, @Location, @LastUpdate
 SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             var now = DateTime.Now;
+            var normalizedLocation = NormalizeLocation(role, item.Location);
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
@@ -84,12 +86,13 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                 command.Parameters.AddWithValue("@Sku", item.Sku);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@Quantity", item.Quantity);
-                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Location", (object)normalizedLocation ?? DBNull.Value);
                 command.Parameters.AddWithValue("@LastUpdated", now);
 
                 connection.Open();
                 var id = (int)command.ExecuteScalar();
                 item.Id = id;
+                item.Location = normalizedLocation;
                 item.LastUpdated = now;
                 return item;
             }
@@ -111,10 +114,11 @@ WHERE RoleName = @RoleName
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
             {
+                var normalizedLocation = NormalizeLocation(role, item.Location);
                 command.Parameters.AddWithValue("@Sku", item.Sku);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@Quantity", item.Quantity);
-                command.Parameters.AddWithValue("@Location", (object)item.Location ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Location", (object)normalizedLocation ?? DBNull.Value);
                 command.Parameters.AddWithValue("@LastUpdated", DateTime.Now);
                 command.Parameters.AddWithValue("@RoleName", role);
                 command.Parameters.AddWithValue("@OwnerUserName", GetOwnerUserNameParam(role, userName));
@@ -123,6 +127,13 @@ WHERE RoleName = @RoleName
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
             }
+        }
+
+        private static string NormalizeLocation(string role, string location)
+        {
+            return string.Equals(role, "Manufacturer", StringComparison.OrdinalIgnoreCase)
+                ? ManufacturerDefaultLocation
+                : location;
         }
 
         public static bool Delete(string role, int id, string userName = null)
