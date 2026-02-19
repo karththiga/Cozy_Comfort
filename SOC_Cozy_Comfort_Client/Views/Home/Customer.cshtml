@@ -10,7 +10,7 @@
             <h1>Request blankets from sellers</h1>
             <p class="text-muted mb-0">Browse blanket catalog with images and details, place orders, and track status updates.</p>
         </div>
-        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/rabbit-blanket.svg")" alt="Customer rabbit blanket ordering" />
+        <img class="dashboard-hero-image" src="@Url.Content("~/Content/images/patchwork.svg")" alt="Customer patchwork blanket ordering" />
     </div>
 
     @if (TempData["RequestMessage"] != null)
@@ -22,11 +22,11 @@
         <h4 class="mb-3">Available Blankets</h4>
         <div class="table-responsive">
             <table class="table table-hover align-middle request-table">
-                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Details</th><th>Order</th></tr></thead>
+                <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Seller</th><th>Location</th><th>Details</th><th>Order</th></tr></thead>
                 <tbody>
                     @if (Model.SellerCatalogItems == null || Model.SellerCatalogItems.Count == 0)
                     {
-                        <tr><td colspan="5" class="text-muted">No seller inventory available right now.</td></tr>
+                        <tr><td colspan="7" class="text-muted">No seller inventory available right now.</td></tr>
                     }
                     else
                     {
@@ -51,7 +51,7 @@
                                 <td>@item.Sku</td>
                                 <td>@item.Name</td>
                                 <td>@sellerName</td>
-                                <td>@location</td>
+                                <td>@sellerLocation</td>
                                 <td><small class="text-muted">@details</small></td>
                                 <td>
                                     @using (Html.BeginForm("CreateCustomerOrder", "Home", FormMethod.Post, new { @class = "d-flex gap-2 align-items-center" }))
