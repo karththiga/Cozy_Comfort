@@ -33,13 +33,18 @@ ORDER BY CreatedAt DESC", role, userName);
 
         public static OrderRequestDto CreateCustomerToSeller(CreateCustomerOrderDto request)
         {
+            if (!SellerOwnsSku(request.RequestedToUser, request.Sku))
+            {
+                throw new InvalidOperationException("Selected seller does not stock the requested SKU.");
+            }
+
             var dto = new OrderRequestDto
             {
                 RequestType = "CustomerToSeller",
                 RequestedByRole = "Customer",
                 RequestedToRole = "Seller",
                 RequestedByUser = request.RequestedByUser,
-                RequestedToUser = null,
+                RequestedToUser = request.RequestedToUser,
                 Sku = request.Sku,
                 BlanketName = request.BlanketName,
                 Quantity = request.Quantity,
@@ -48,7 +53,7 @@ ORDER BY CreatedAt DESC", role, userName);
             };
 
             var created = Insert(dto);
-            NotificationRepository.Add("Seller", "New customer order", $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}).", "CustomerOrder", created.Id);
+            NotificationRepository.Add("Seller", "New customer order", $"Customer {request.RequestedByUser} ordered {request.Quantity} x {request.BlanketName} ({request.Sku}) from seller {request.RequestedToUser}.", "CustomerOrder", created.Id);
             return created;
         }
 
@@ -335,6 +340,25 @@ ORDER BY CreatedAt DESC", role, userName);
                 {
                     return reader.Read() ? Map(reader) : null;
                 }
+            }
+        }
+
+
+        private static bool SellerOwnsSku(string sellerUserName, string sku)
+        {
+            const string sql = @"SELECT COUNT(1)
+FROM dbo.InventoryItems
+WHERE RoleName = 'Seller'
+  AND OwnerUserName = @SellerUserName
+  AND Sku = @Sku";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@SellerUserName", sellerUserName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                connection.Open();
+                return Convert.ToInt32(command.ExecuteScalar()) > 0;
             }
         }
 

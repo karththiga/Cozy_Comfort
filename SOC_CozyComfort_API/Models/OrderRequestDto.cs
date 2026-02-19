@@ -73,6 +73,9 @@ namespace SOC_CozyComfort_API.Models
         [Range(1, int.MaxValue)]
         public int Quantity { get; set; }
 
+        [Required]
+        public string RequestedToUser { get; set; }
+
         public string Notes { get; set; }
     }
 

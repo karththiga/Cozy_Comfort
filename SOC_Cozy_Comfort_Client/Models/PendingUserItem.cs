@@ -7,5 +7,6 @@ namespace SOC_Cozy_Comfort_Client.Models
         public string Email { get; set; }
         public string UserName { get; set; }
         public string RequestedRole { get; set; }
+        public string AssignedDistributor { get; set; }
     }
 }
