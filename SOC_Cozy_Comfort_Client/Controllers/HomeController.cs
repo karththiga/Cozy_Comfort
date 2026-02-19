@@ -50,11 +50,11 @@ namespace SOC_Cozy_Comfort_Client.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Signup(string fullName, string email, string userName, string password, string confirmPassword, int? distributorUserId)
+        public ActionResult Signup(string fullName, string email, string userName, string password, string confirmPassword, int? distributorUserId, string sellerLocation)
         {
-            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName))
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(sellerLocation))
             {
-                ViewBag.ErrorMessage = "All fields are required.";
+                ViewBag.ErrorMessage = "All fields including seller location are required.";
                 ViewBag.Distributors = _authApiClient.GetDistributors();
                 return View();
             }
@@ -66,7 +66,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return View();
             }
 
-            var signupResult = _authApiClient.Signup(fullName, email, userName, "Seller", password, distributorUserId);
+            var signupResult = _authApiClient.Signup(fullName, email, userName, "Seller", password, distributorUserId, sellerLocation);
             if (!signupResult.Success)
             {
                 ViewBag.ErrorMessage = signupResult.Message;
@@ -152,7 +152,7 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 return RedirectToAction("Login");
             }
 
-            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller", Session["LoggedInUser"] as string);
+            var sellerCatalogItems = _inventoryApiClient.GetByRole("Seller");
 
             var model = new RequestBoardViewModel
             {
@@ -637,8 +637,10 @@ namespace SOC_Cozy_Comfort_Client.Controllers
                 var key = item.Sku ?? string.Empty;
                 if (!result.ContainsKey(key))
                 {
-                    var sellerText = string.IsNullOrWhiteSpace(item.OwnerUserName) ? "Unknown seller" : item.OwnerUserName;
-                    var locationText = string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location;
+                    var sellerText = string.IsNullOrWhiteSpace(item.OwnerFullName) ? (string.IsNullOrWhiteSpace(item.OwnerUserName) ? "Unknown seller" : item.OwnerUserName) : item.OwnerFullName;
+                    var locationText = string.IsNullOrWhiteSpace(item.SellerLocation)
+                        ? (string.IsNullOrWhiteSpace(item.Location) ? "Seller Warehouse" : item.Location)
+                        : item.SellerLocation;
                     result.Add(key, "Seller: " + sellerText + " • Location: " + locationText + " • Last Updated: " + item.LastUpdated.ToString("yyyy-MM-dd HH:mm"));
                 }
             }

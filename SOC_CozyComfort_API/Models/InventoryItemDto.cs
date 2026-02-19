@@ -20,6 +20,10 @@ namespace SOC_CozyComfort_API.Models
 
         public string OwnerUserName { get; set; }
 
+        public string OwnerFullName { get; set; }
+
+        public string SellerLocation { get; set; }
+
         public DateTime LastUpdated { get; set; }
     }
 }

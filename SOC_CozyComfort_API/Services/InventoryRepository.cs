@@ -21,11 +21,12 @@ namespace SOC_CozyComfort_API.Services
         {
             var result = new List<InventoryItemDto>();
             const string sql = @"
-SELECT Id, Sku, [Name], Quantity, [Location], OwnerUserName, LastUpdated
-FROM dbo.InventoryItems
-WHERE RoleName = @RoleName
-  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)
-ORDER BY Sku";
+SELECT i.Id, i.Sku, i.[Name], i.Quantity, i.[Location], i.OwnerUserName, u.FullName AS OwnerFullName, u.SellerLocation, i.LastUpdated
+FROM dbo.InventoryItems i
+LEFT JOIN dbo.Users u ON u.UserName = i.OwnerUserName
+WHERE i.RoleName = @RoleName
+  AND (@OwnerUserName IS NULL OR i.OwnerUserName = @OwnerUserName)
+ORDER BY i.Sku";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -49,11 +50,12 @@ ORDER BY Sku";
         public static InventoryItemDto GetById(string role, int id, string userName = null)
         {
             const string sql = @"
-SELECT Id, Sku, [Name], Quantity, [Location], OwnerUserName, LastUpdated
-FROM dbo.InventoryItems
-WHERE RoleName = @RoleName
-  AND Id = @Id
-  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
+SELECT i.Id, i.Sku, i.[Name], i.Quantity, i.[Location], i.OwnerUserName, u.FullName AS OwnerFullName, u.SellerLocation, i.LastUpdated
+FROM dbo.InventoryItems i
+LEFT JOIN dbo.Users u ON u.UserName = i.OwnerUserName
+WHERE i.RoleName = @RoleName
+  AND i.Id = @Id
+  AND (@OwnerUserName IS NULL OR i.OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -178,9 +180,9 @@ ORDER BY LastUpdated DESC";
         public static bool Delete(string role, int id, string userName = null)
         {
             const string sql = @"DELETE FROM dbo.InventoryItems
-WHERE RoleName = @RoleName
-  AND Id = @Id
-  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
+WHERE i.RoleName = @RoleName
+  AND i.Id = @Id
+  AND (@OwnerUserName IS NULL OR i.OwnerUserName = @OwnerUserName)";
 
             using (var connection = new SqlConnection(ConnectionString))
             using (var command = new SqlCommand(sql, connection))
@@ -195,7 +197,8 @@ WHERE RoleName = @RoleName
 
         private static object GetOwnerUserNameParam(string role, string userName)
         {
-            return string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+            return (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
                 ? (object)(userName ?? string.Empty)
                 : DBNull.Value;
         }
@@ -210,6 +213,8 @@ WHERE RoleName = @RoleName
                 Quantity = Convert.ToInt32(reader["Quantity"]),
                 Location = reader["Location"] == DBNull.Value ? null : Convert.ToString(reader["Location"]),
                 OwnerUserName = reader["OwnerUserName"] == DBNull.Value ? null : Convert.ToString(reader["OwnerUserName"]),
+                OwnerFullName = reader["OwnerFullName"] == DBNull.Value ? null : Convert.ToString(reader["OwnerFullName"]),
+                SellerLocation = reader["SellerLocation"] == DBNull.Value ? null : Convert.ToString(reader["SellerLocation"]),
                 LastUpdated = Convert.ToDateTime(reader["LastUpdated"])
             };
         }
