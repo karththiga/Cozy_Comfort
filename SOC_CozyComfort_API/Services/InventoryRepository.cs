@@ -197,10 +197,13 @@ WHERE RoleName = @RoleName
 
         private static object GetOwnerUserNameParam(string role, string userName)
         {
-            return (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
+            if (string.Equals(role, "Distributor", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
-                ? (object)(userName ?? string.Empty)
-                : DBNull.Value;
+            {
+                return string.IsNullOrWhiteSpace(userName) ? (object)DBNull.Value : userName;
+            }
+
+            return DBNull.Value;
         }
 
         private static InventoryItemDto Map(SqlDataReader reader)
