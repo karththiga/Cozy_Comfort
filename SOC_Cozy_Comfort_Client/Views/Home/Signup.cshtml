@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "Sign Up";
+    var distributors = ViewBag.Distributors as System.Collections.Generic.List<SOC_Cozy_Comfort_Client.Models.DistributorOptionItem>;
 }
 
 <section class="auth-shell">
@@ -7,7 +8,7 @@
         <div class="auth-form-panel auth-form-panel-wide">
             <p class="eyebrow mb-2">Create Staff Access</p>
             <h3 class="mb-2">Staff sign up request</h3>
-            <p class="text-muted mb-4">Submit your details and an administrator will activate your Cozy Comfort account.</p>
+            <p class="text-muted mb-4">Seller self-signup is available. Choose the distributor you report to and submit for admin approval.</p>
 
             @if (ViewBag.ErrorMessage != null)
             {
@@ -32,12 +33,16 @@
                         <input type="text" name="userName" class="form-control" placeholder="jane_admin" required />
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Role</label>
-                        <select name="role" class="form-select" required>
-                            <option value="">Choose role</option>
-                            <option value="Manufacturer">Manufacturer</option>
-                            <option value="Distributor">Distributor</option>
-                            <option value="Seller">Seller</option>
+                        <label class="form-label">Distributor</label>
+                        <select name="distributorUserId" class="form-select" required>
+                            <option value="">Choose distributor</option>
+                            @if (distributors != null)
+                            {
+                                foreach (var distributor in distributors)
+                                {
+                                    <option value="@distributor.Id">@distributor.DisplayName</option>
+                                }
+                            }
                         </select>
                     </div>
                     <div class="col-md-6">
