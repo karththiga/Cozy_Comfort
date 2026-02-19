@@ -84,6 +84,7 @@
                             <th>Email</th>
                             <th>Username</th>
                             <th>Requested Role</th>
+                            <th>Assigned Distributor</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -96,6 +97,7 @@
                                 <td>@user.Email</td>
                                 <td>@user.UserName</td>
                                 <td>@user.RequestedRole</td>
+                                <td>@(string.IsNullOrWhiteSpace(user.AssignedDistributor) ? "-" : user.AssignedDistributor)</td>
                                 <td>
                                     @using (Html.BeginForm("ApproveUser", "Home", FormMethod.Post))
                                     {
