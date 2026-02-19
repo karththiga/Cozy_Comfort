@@ -45,11 +45,11 @@ namespace SOC_Cozy_Comfort_Client.Services
 
 
 
-        public ApiOperationResult Signup(string fullName, string email, string userName, string role, string password, int? distributorUserId = null)
+        public ApiOperationResult Signup(string fullName, string email, string userName, string role, string password, int? distributorUserId = null, string sellerLocation = null)
         {
             using (var client = BuildClient())
             {
-                var request = new { FullName = fullName, Email = email, UserName = userName, Role = role, Password = password, DistributorUserId = distributorUserId };
+                var request = new { FullName = fullName, Email = email, UserName = userName, Role = role, Password = password, DistributorUserId = distributorUserId, SellerLocation = sellerLocation };
                 var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
                 var response = client.PostAsync("api/auth/signup", body).Result;
 
