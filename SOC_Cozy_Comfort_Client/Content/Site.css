@@ -6,7 +6,7 @@
 }
 
 .cc-body-bg {
-    background: radial-gradient(circle at top right, #eef4ff 0%, #f8fbff 45%, #ffffff 100%);
+    background: linear-gradient(135deg, #eef5ff 0%, #dbeafe 50%, #eaf2ff 100%);
     color: var(--cc-text);
 }
 
@@ -299,9 +299,9 @@ textarea {
 
 
 .welcome-page-panel {
-    border-radius: 18px;
-    padding: 18px;
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 35%, #93c5fd 100%);
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
     border: none;
 }
 
