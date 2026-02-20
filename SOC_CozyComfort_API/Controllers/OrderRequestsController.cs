@@ -138,7 +138,13 @@ namespace SOC_CozyComfort_API.Controllers
                 return BadRequest(GetModelStateErrors());
             }
 
-            return OrderRequestRepository.MarkManufacturerDispatched(requestId, action) ? (IHttpActionResult)Ok() : NotFound();
+            string message;
+            if (!OrderRequestRepository.MarkManufacturerDispatched(requestId, action, out message))
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(new { Message = message });
         }
 
 
