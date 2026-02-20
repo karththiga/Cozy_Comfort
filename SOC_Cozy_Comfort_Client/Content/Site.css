@@ -301,12 +301,8 @@ textarea {
 .welcome-page-panel {
     border-radius: 18px;
     padding: 18px;
-    background-image:
-        linear-gradient(rgba(13, 43, 108, 0.54), rgba(30, 64, 175, 0.48)),
-        url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0yMjJiYXRjaDQtbWluZC0wM18xXzIuanBn.jpg');
-    background-size: cover;
-    background-position: center;
-    border: 1px solid #8cb6ff;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 35%, #93c5fd 100%);
+    border: none;
 }
 
 .admin-panel-photo {
