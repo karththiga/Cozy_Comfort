@@ -303,6 +303,99 @@ WHERE u.UserName = @UserName
             }
         }
 
+
+        public static List<UserAdminDto> GetUsersForAdmin()
+        {
+            const string sql = @"SELECT u.Id, u.FullName, u.Email, u.UserName, r.RoleName, u.IsApproved
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+ORDER BY u.Id DESC";
+
+            var users = new List<UserAdminDto>();
+            using (var connection = new SqlConnection(ConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        users.Add(new UserAdminDto
+                        {
+                            Id = (int)reader["Id"],
+                            FullName = reader["FullName"] as string,
+                            Email = reader["Email"] as string,
+                            UserName = reader["UserName"] as string,
+                            RoleName = reader["RoleName"] as string,
+                            IsApproved = reader["IsApproved"] != System.DBNull.Value && (bool)reader["IsApproved"]
+                        });
+                    }
+                }
+            }
+
+            return users;
+        }
+
+        public static bool DeleteUserByAdmin(int userId, string adminUserName, out string message)
+        {
+            message = "Unable to delete user.";
+
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                string targetUserName;
+                string targetRole;
+                using (var lookup = new SqlCommand(@"SELECT TOP 1 u.UserName, r.RoleName
+FROM dbo.Users u
+JOIN dbo.Roles r ON r.Id = u.RoleId
+WHERE u.Id = @Id", connection))
+                {
+                    lookup.Parameters.AddWithValue("@Id", userId);
+                    using (var reader = lookup.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        {
+                            message = "User not found.";
+                            return false;
+                        }
+
+                        targetUserName = reader["UserName"] as string;
+                        targetRole = reader["RoleName"] as string;
+                    }
+                }
+
+                if (string.Equals(targetUserName, adminUserName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    message = "You cannot delete your own admin account.";
+                    return false;
+                }
+
+                if (string.Equals(targetRole, "Admin", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    message = "Admin accounts cannot be deleted from this screen.";
+                    return false;
+                }
+
+                using (var clearDistributorLinks = new SqlCommand("UPDATE dbo.Users SET DistributorUserId = NULL WHERE DistributorUserId = @UserId", connection))
+                {
+                    clearDistributorLinks.Parameters.AddWithValue("@UserId", userId);
+                    clearDistributorLinks.ExecuteNonQuery();
+                }
+
+                using (var deleteUser = new SqlCommand("DELETE FROM dbo.Users WHERE Id = @Id", connection))
+                {
+                    deleteUser.Parameters.AddWithValue("@Id", userId);
+                    if (deleteUser.ExecuteNonQuery() > 0)
+                    {
+                        message = "User deleted successfully.";
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
         public static List<PendingUserDto> GetPendingUsers()
         {
             const string sql = @"SELECT u.Id, u.FullName, u.Email, u.UserName, r.RoleName, d.UserName AS DistributorUserName, d.FullName AS DistributorFullName
