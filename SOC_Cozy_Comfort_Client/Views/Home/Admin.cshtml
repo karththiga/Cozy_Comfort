@@ -66,6 +66,63 @@
 
     </div>
 
+
+    <div class="role-card mt-3">
+        <h4>All users</h4>
+
+        @if (Model.Users == null || Model.Users.Count == 0)
+        {
+            <p class="text-muted mb-0">No users found.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.Id</td>
+                                <td>@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>@user.UserName</td>
+                                <td>@user.RoleName</td>
+                                <td>@(user.IsApproved ? "Approved" : "Pending")</td>
+                                <td>
+                                    @if (string.Equals(user.RoleName, "Admin", System.StringComparison.OrdinalIgnoreCase) || string.Equals(user.UserName, Model.LoggedInUser, System.StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="text-muted">Protected</span>
+                                    }
+                                    else
+                                    {
+                                        using (Html.BeginForm("DeleteUser", "Home", FormMethod.Post, new { @class = "d-inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@user.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this user? This action cannot be undone.');">Delete</button>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+
     <div class="role-card mt-3">
         <h4>Pending signup requests</h4>
 
