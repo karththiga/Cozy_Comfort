@@ -10,6 +10,38 @@
     color: var(--cc-text);
 }
 
+
+.cc-body-bg.signup-photo-page {
+    background: radial-gradient(circle at top right, #eef4ff 0%, #f8fbff 45%, #ffffff 100%);
+}
+.signup-photo-page .auth-shell {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto 0;
+    min-height: 74vh;
+}
+
+.signup-photo-page .auth-card.auth-signup-card {
+    background-image:
+        linear-gradient(rgba(12, 37, 95, 0.58), rgba(37, 99, 235, 0.56)),
+        url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0yMjJiYXRjaDQtbWluZC0wM18xXzIuanBn.jpg');
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #8eb4ff;
+    box-shadow: 0 22px 46px rgba(10, 40, 112, 0.35);
+}
+
+.signup-photo-page .auth-shell-blue {
+    background: transparent;
+    border: 1px solid rgba(174, 208, 255, 0.55);
+    box-shadow: 0 16px 34px rgba(8, 29, 76, 0.24);
+}
+
+.signup-photo-page .auth-form-panel {
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(2px);
+}
+
 .body-content {
     margin-top: 24px;
     padding-left: 15px;
@@ -148,6 +180,38 @@ textarea {
     justify-content: center;
     align-items: center;
     margin-top: 10px;
+}
+
+.auth-shell-blue {
+    border-radius: 22px;
+    padding: 18px;
+    border: 1px solid #85adff;
+    background-image:
+        linear-gradient(rgba(13, 43, 108, 0.68), rgba(30, 64, 175, 0.62)),
+        url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0yMjJiYXRjaDQtbWluZC0wM18xXzIuanBn.jpg');
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 16px 34px rgba(8, 29, 76, 0.36);
+}
+
+.auth-shell-blue .auth-signup-card {
+    background: linear-gradient(165deg, #f3f8ff 0%, #e5f0ff 100%);
+    border: 1px solid #8eb4ff;
+    box-shadow: 0 20px 46px rgba(10, 40, 112, 0.34);
+}
+
+.auth-shell-blue .auth-form-panel {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.auth-shell-blue h3,
+.auth-shell-blue .eyebrow {
+    color: #123a91;
+}
+
+
+.auth-shell-photo {
+    background: transparent;
 }
 
 .auth-card {
