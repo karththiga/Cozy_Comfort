@@ -118,6 +118,38 @@ namespace SOC_Cozy_Comfort_Client.Services
             }
         }
 
+
+        public List<UserAdminItem> GetUsers(string adminUserName)
+        {
+            using (var client = BuildClient())
+            {
+                var response = client.GetAsync($"api/auth/users?adminUserName={WebUtility.UrlEncode(adminUserName)}").Result;
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new List<UserAdminItem>();
+                }
+
+                var json = response.Content.ReadAsStringAsync().Result;
+                return JsonConvert.DeserializeObject<List<UserAdminItem>>(json) ?? new List<UserAdminItem>();
+            }
+        }
+
+        public ApiOperationResult DeleteUser(string adminUserName, int userId)
+        {
+            using (var client = BuildClient())
+            {
+                var request = new { AdminUserName = adminUserName, UserId = userId };
+                var body = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var response = client.PostAsync("api/auth/delete-user", body).Result;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return new ApiOperationResult { Success = true, Message = ReadMessageObject(response, "User deleted successfully.") };
+                }
+
+                return new ApiOperationResult { Success = false, Message = ReadErrorMessage(response, "Could not delete user.") };
+            }
+        }
         public ApiOperationResult ApproveUser(string adminUserName, int userId)
         {
             using (var client = BuildClient())

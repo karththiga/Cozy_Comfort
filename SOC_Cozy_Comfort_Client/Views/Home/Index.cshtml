@@ -4,7 +4,7 @@
     var loggedInUser = Session["LoggedInUser"] as string;
 }
 
-<main>
+<main class="welcome-page-panel">
     @if (string.IsNullOrWhiteSpace(loggedInRole))
     {
         <section class="dashboard-head dashboard-head-pro">
