@@ -33,9 +33,24 @@
 }
 
 .signup-photo-page .auth-card.auth-signup-card {
-    background: linear-gradient(165deg, #f4f9ff 0%, #e3efff 100%);
+    background-image:
+        linear-gradient(rgba(12, 37, 95, 0.58), rgba(37, 99, 235, 0.56)),
+        url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0yMjJiYXRjaDQtbWluZC0wM18xXzIuanBn.jpg');
+    background-size: cover;
+    background-position: center;
     border: 1px solid #8eb4ff;
     box-shadow: 0 22px 46px rgba(10, 40, 112, 0.35);
+}
+
+.signup-photo-page .auth-shell-blue {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(174, 208, 255, 0.55);
+    box-shadow: 0 16px 34px rgba(8, 29, 76, 0.24);
+}
+
+.signup-photo-page .auth-form-panel {
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(2px);
 }
 
 .body-content {
