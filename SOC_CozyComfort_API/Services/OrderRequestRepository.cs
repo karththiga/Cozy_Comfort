@@ -286,10 +286,25 @@ ORDER BY CreatedAt DESC", role, userName);
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
-                    var hasStock = TryDecreaseInventory(connection, transaction, "Seller", request.Sku, request.Quantity, null);
+                    var sellerUserName = string.IsNullOrWhiteSpace(action?.PerformedByUser) ? request.RequestedToUser : action.PerformedByUser;
+                    if (string.IsNullOrWhiteSpace(sellerUserName))
+                    {
+                        transaction.Rollback();
+                        return false;
+                    }
+
+                    var availableQty = GetInventoryQuantity(connection, transaction, "Seller", request.Sku, sellerUserName);
+                    var hasStock = availableQty >= request.Quantity;
 
                     if (hasStock)
                     {
+                        var reserved = TryDecreaseInventory(connection, transaction, "Seller", request.Sku, request.Quantity, sellerUserName);
+                        if (!reserved)
+                        {
+                            transaction.Rollback();
+                            return false;
+                        }
+
                         var note = string.IsNullOrWhiteSpace(action.Notes)
                             ? "Order confirmed by seller and stock reserved for customer."
                             : action.Notes;
@@ -306,16 +321,32 @@ ORDER BY CreatedAt DESC", role, userName);
                         return true;
                     }
 
+                    if (availableQty > 0)
+                    {
+                        var partialReserved = TryDecreaseInventory(connection, transaction, "Seller", request.Sku, availableQty, sellerUserName);
+                        if (!partialReserved)
+                        {
+                            transaction.Rollback();
+                            return false;
+                        }
+                    }
+
+                    var shortageQty = request.Quantity - availableQty;
+                    if (shortageQty <= 0)
+                    {
+                        shortageQty = request.Quantity;
+                    }
+
                     var sellerRequest = new OrderRequestDto
                     {
                         RequestType = "SellerToDistributor",
                         RequestedByRole = "Seller",
                         RequestedToRole = "Distributor",
-                        RequestedByUser = action.PerformedByUser,
-                        RequestedToUser = AuthService.GetAssignedDistributorUserName(action.PerformedByUser),
+                        RequestedByUser = sellerUserName,
+                        RequestedToUser = AuthService.GetAssignedDistributorUserName(sellerUserName),
                         Sku = request.Sku,
                         BlanketName = request.BlanketName,
-                        Quantity = request.Quantity,
+                        Quantity = shortageQty,
                         Status = "PendingDistributorReview",
                         Notes = $"Auto-created from customer order #{requestId} due to seller stock shortage.",
                         SourceRequestId = requestId
@@ -336,7 +367,7 @@ ORDER BY CreatedAt DESC", role, userName);
                     }
 
                     transaction.Commit();
-                    NotificationRepository.Add("Distributor", sellerRequest.RequestedToUser, "Seller requested stock for customer order", $"Seller created request #{sellerRequestId} for customer order #{requestId} ({request.Sku}).", "OrderRequest", sellerRequestId);
+                    NotificationRepository.Add("Distributor", sellerRequest.RequestedToUser, "Seller requested stock for customer order", $"Seller created request #{sellerRequestId} for customer order #{requestId} ({request.Sku}) with shortage qty {sellerRequest.Quantity}.", "OrderRequest", sellerRequestId);
                     NotificationRepository.Add("Customer", request.RequestedByUser, "Order forwarded", $"Your order #{requestId} was forwarded to distributor via seller due to stock shortage.", "CustomerOrder", requestId);
                     return true;
                 }
