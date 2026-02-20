@@ -179,10 +179,27 @@ namespace SOC_Cozy_Comfort_Client.Controllers
             var model = new AdminDashboardViewModel
             {
                 LoggedInUser = Session["LoggedInUser"] as string,
-                PendingUsers = _authApiClient.GetPendingUsers(Session["LoggedInUser"] as string)
+                PendingUsers = _authApiClient.GetPendingUsers(Session["LoggedInUser"] as string),
+                Users = _authApiClient.GetUsers(Session["LoggedInUser"] as string)
             };
 
             return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteUser(int userId)
+        {
+            if (!IsAuthorizedFor("Admin"))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var adminUserName = Session["LoggedInUser"] as string;
+            var result = _authApiClient.DeleteUser(adminUserName, userId);
+            TempData[result.Success ? "AuthMessage" : "InventoryError"] = result.Message;
+            return RedirectToAction("Admin");
         }
 
         [HttpPost]
