@@ -177,6 +177,24 @@ textarea {
     color: #123a91;
 }
 
+
+.auth-shell-photo {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 76vh;
+    background-image:
+        linear-gradient(rgba(15, 35, 92, 0.55), rgba(30, 64, 175, 0.52)),
+        url('https://images.rawpixel.com/image_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvcm0yMjJiYXRjaDQtbWluZC0wM18xXzIuanBn.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.auth-shell-photo .auth-signup-card {
+    background: linear-gradient(165deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #7da8ff;
+}
+
 .auth-card {
     width: 100%;
     max-width: 960px;
