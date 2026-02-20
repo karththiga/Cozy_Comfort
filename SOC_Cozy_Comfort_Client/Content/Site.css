@@ -150,6 +150,18 @@ textarea {
     margin-top: 10px;
 }
 
+.auth-shell-blue {
+    border-radius: 22px;
+    padding: 18px;
+    background: linear-gradient(145deg, #eaf3ff 0%, #dbeafe 35%, #bfdbfe 100%);
+    border: 1px solid #b7d0ff;
+}
+
+.auth-shell-blue .auth-card {
+    border-color: #b9d4ff;
+    box-shadow: 0 22px 48px rgba(29, 78, 216, 0.22);
+}
+
 .auth-card {
     width: 100%;
     max-width: 960px;
