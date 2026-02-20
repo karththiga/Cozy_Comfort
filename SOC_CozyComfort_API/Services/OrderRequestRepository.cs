@@ -164,43 +164,74 @@ ORDER BY CreatedAt DESC", role, userName);
             return ok;
         }
 
-        public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action)
+        public static bool MarkManufacturerDispatched(int requestId, RequestActionDto action, out string message)
         {
+            message = "Unable to dispatch request.";
             var request = GetById(requestId);
             if (request == null || !string.Equals(request.RequestedToRole, "Manufacturer", StringComparison.OrdinalIgnoreCase))
             {
+                message = "Manufacturer request not found.";
                 return false;
             }
 
             var distributorUserName = ResolveDistributorUserNameForManufacturerRequest(request);
             if (string.IsNullOrWhiteSpace(distributorUserName))
             {
+                message = "Distributor mapping is missing for this request.";
                 return false;
             }
 
+            var productionStarted = false;
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction())
                 {
-                    AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub", distributorUserName);
-
-                    var note = string.IsNullOrWhiteSpace(action.Notes)
-                        ? "Dispatched by manufacturer and received in distributor inventory."
-                        : action.Notes;
-
-                    var ok = UpdateStatus(connection, transaction, requestId, "DispatchedByManufacturer", note, expectedToRole: "Manufacturer");
-                    if (!ok)
+                    var hasStock = TryDecreaseInventory(connection, transaction, "Manufacturer", request.Sku, request.Quantity, null);
+                    if (!hasStock)
                     {
-                        transaction.Rollback();
-                        return false;
-                    }
+                        var productionNote = "Insufficient manufacturer stock. Production started automatically.";
+                        var started = UpdateStatus(connection, transaction, requestId, "ProductionInProgress", productionNote, expectedToRole: "Manufacturer");
+                        if (!started)
+                        {
+                            transaction.Rollback();
+                            message = "Not enough stock to dispatch and production could not be started.";
+                            return false;
+                        }
 
-                    transaction.Commit();
+                        transaction.Commit();
+                        productionStarted = true;
+                    }
+                    else
+                    {
+                        AddOrIncreaseInventory(connection, transaction, "Distributor", request.Sku, request.BlanketName, request.Quantity, "Distributor Hub", distributorUserName);
+
+                        var note = string.IsNullOrWhiteSpace(action.Notes)
+                            ? "Dispatched by manufacturer and received in distributor inventory."
+                            : action.Notes;
+
+                        var ok = UpdateStatus(connection, transaction, requestId, "DispatchedByManufacturer", note, expectedToRole: "Manufacturer");
+                        if (!ok)
+                        {
+                            transaction.Rollback();
+                            message = "Unable to mark request as dispatched.";
+                            return false;
+                        }
+
+                        transaction.Commit();
+                    }
                 }
             }
 
+            if (productionStarted)
+            {
+                NotificationRepository.Add("Distributor", distributorUserName, "Production started", $"Stock was insufficient for request #{requestId}. Manufacturer started production.", "Production", requestId);
+                message = "Not enough manufacturer stock. Production started. Please dispatch after production.";
+                return false;
+            }
+
             NotificationRepository.Add("Distributor", distributorUserName, "Manufacturer dispatched blankets", $"Request #{requestId} dispatched and added to distributor inventory.", "Dispatch", requestId);
+            message = "Manufacturer dispatched blankets to distributor.";
             return true;
         }
 
