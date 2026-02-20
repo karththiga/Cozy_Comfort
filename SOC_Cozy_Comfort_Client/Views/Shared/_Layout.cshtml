@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:FILL@0;1&display=swap" rel="stylesheet">
 </head>
-<body class="cc-body-bg">
+<body class="cc-body-bg @(ViewBag.PageClass ?? string.Empty)">
     @{
         var loggedInRole = Session["LoggedInRole"] as string;
         var loggedInUser = Session["LoggedInUser"] as string;
@@ -50,7 +50,7 @@
                     }
                     else if (loggedInRole == "Customer")
                     {
-                        <li>@Html.ActionLink("My Orders", "Customer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("View Products", "Customer", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     }
 
                 </ul>

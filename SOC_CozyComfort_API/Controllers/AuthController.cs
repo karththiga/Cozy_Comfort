@@ -87,6 +87,42 @@ namespace SOC_CozyComfort_API.Controllers
             return Ok(new { Message = message });
         }
 
+
+        [HttpGet]
+        [Route("users")]
+        public IHttpActionResult Users(string adminUserName)
+        {
+            if (string.IsNullOrWhiteSpace(adminUserName) || !AuthService.IsAdminUser(adminUserName))
+            {
+                return Unauthorized();
+            }
+
+            return Ok(AuthService.GetUsersForAdmin());
+        }
+
+        [HttpPost]
+        [Route("delete-user")]
+        public IHttpActionResult DeleteUser([FromBody] DeleteUserRequestDto request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.AdminUserName) || request.UserId <= 0)
+            {
+                return BadRequest("Admin username and user id are required.");
+            }
+
+            if (!AuthService.IsAdminUser(request.AdminUserName))
+            {
+                return Unauthorized();
+            }
+
+            string message;
+            if (!AuthService.DeleteUserByAdmin(request.UserId, request.AdminUserName, out message))
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(new { Message = message });
+        }
+
         [HttpGet]
         [Route("pending-users")]
         public IHttpActionResult PendingUsers(string adminUserName)
