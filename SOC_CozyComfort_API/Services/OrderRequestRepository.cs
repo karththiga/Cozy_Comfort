@@ -190,6 +190,18 @@ ORDER BY CreatedAt DESC", role, userName);
                     var hasStock = TryDecreaseInventory(connection, transaction, "Manufacturer", request.Sku, request.Quantity, null);
                     if (!hasStock)
                     {
+                        var availableQty = GetInventoryQuantity(connection, transaction, "Manufacturer", request.Sku, null);
+                        var shortageQty = request.Quantity - availableQty;
+                        if (shortageQty < 0)
+                        {
+                            shortageQty = 0;
+                        }
+
+                        if (shortageQty > 0)
+                        {
+                            AddOrIncreaseInventory(connection, transaction, "Manufacturer", request.Sku, request.BlanketName, shortageQty, "Main Manufacturing Facility", null);
+                        }
+
                         var productionNote = "Insufficient manufacturer stock. Production started automatically.";
                         var started = UpdateStatus(connection, transaction, requestId, "ProductionInProgress", productionNote, expectedToRole: "Manufacturer");
                         if (!started)
@@ -226,7 +238,7 @@ ORDER BY CreatedAt DESC", role, userName);
             if (productionStarted)
             {
                 NotificationRepository.Add("Distributor", distributorUserName, "Production started", $"Stock was insufficient for request #{requestId}. Manufacturer started production.", "Production", requestId);
-                message = "Not enough manufacturer stock. Production started. Please dispatch after production.";
+                message = "Not enough manufacturer stock. Production started and inventory updated. Please dispatch after production.";
                 return false;
             }
 
@@ -479,6 +491,24 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                 request.CreatedAt = now;
                 request.UpdatedAt = now;
                 return request;
+            }
+        }
+
+
+        private static int GetInventoryQuantity(SqlConnection connection, SqlTransaction transaction, string roleName, string sku, string ownerUserName = null)
+        {
+            const string sql = @"SELECT COALESCE(SUM(Quantity), 0)
+FROM dbo.InventoryItems
+WHERE RoleName = @RoleName
+  AND Sku = @Sku
+  AND (@OwnerUserName IS NULL OR OwnerUserName = @OwnerUserName)";
+
+            using (var command = new SqlCommand(sql, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@RoleName", roleName);
+                command.Parameters.AddWithValue("@Sku", sku);
+                command.Parameters.AddWithValue("@OwnerUserName", (object)ownerUserName ?? DBNull.Value);
+                return Convert.ToInt32(command.ExecuteScalar());
             }
         }
 
