@@ -33,8 +33,10 @@
 
 .signup-photo-page .auth-shell-blue {
     background: transparent;
-    border: 1px solid rgba(174, 208, 255, 0.55);
-    box-shadow: 0 16px 34px rgba(8, 29, 76, 0.24);
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
 }
 
 .signup-photo-page .auth-form-panel {
